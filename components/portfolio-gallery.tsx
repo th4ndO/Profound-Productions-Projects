@@ -12,7 +12,7 @@ export default function PortfolioGallery({
   initialCategory?: string;
 }) {
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
-  const [lightboxProject, setLightboxProject] = useState<Project | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [lightboxOrigin, setLightboxOrigin] = useState<DOMRect | null>(null);
 
   const filtered = useMemo(() => {
@@ -67,18 +67,28 @@ export default function PortfolioGallery({
               index={i}
               onOpen={(rect) => {
                 setLightboxOrigin(rect);
-                setLightboxProject(project);
+                setLightboxIndex(i);
               }}
             />
           ))}
         </div>
       )}
 
-      {lightboxProject && (
+      {lightboxIndex !== null && (
         <Lightbox
-          project={lightboxProject}
+          project={filtered[lightboxIndex]}
           origin={lightboxOrigin}
-          onClose={() => setLightboxProject(null)}
+          onClose={() => setLightboxIndex(null)}
+          onPrev={
+            filtered.length > 1
+              ? () => setLightboxIndex((i) => (i! - 1 + filtered.length) % filtered.length)
+              : undefined
+          }
+          onNext={
+            filtered.length > 1
+              ? () => setLightboxIndex((i) => (i! + 1) % filtered.length)
+              : undefined
+          }
         />
       )}
     </div>
@@ -165,10 +175,14 @@ function Lightbox({
   project,
   origin,
   onClose,
+  onPrev,
+  onNext,
 }: {
   project: Project;
   origin: DOMRect | null;
   onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }) {
   const imageBoxRef = useRef<HTMLDivElement>(null);
   const [closing, setClosing] = useState(false);
@@ -181,6 +195,8 @@ function Lightbox({
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleClose();
+      if (e.key === "ArrowLeft") onPrev?.();
+      if (e.key === "ArrowRight") onNext?.();
     };
     document.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = "hidden";
@@ -188,7 +204,7 @@ function Lightbox({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [handleClose]);
+  }, [handleClose, onPrev, onNext]);
 
   // Zoom the image in from the exact spot it was clicked (FLIP technique):
   // snap the box to the thumbnail's old position/size, then transition it
@@ -250,6 +266,10 @@ function Lightbox({
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes lightbox-image-fade {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
       `}</style>
       <button
         type="button"
@@ -260,24 +280,57 @@ function Lightbox({
         <CloseIcon />
       </button>
 
+      {onPrev && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPrev();
+          }}
+          aria-label="Previous image"
+          className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:left-4"
+        >
+          <ChevronIcon direction="left" />
+        </button>
+      )}
+      {onNext && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext();
+          }}
+          aria-label="Next image"
+          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:right-4"
+        >
+          <ChevronIcon direction="right" />
+        </button>
+      )}
+
       <div
         ref={imageBoxRef}
         className="relative h-[65vh] w-full max-w-4xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <Image
-          src={project.image_url}
-          alt={project.title}
-          fill
-          sizes="90vw"
-          className="object-contain"
-          priority
-        />
+        <div
+          key={project.id}
+          className="absolute inset-0 animate-[lightbox-image-fade_0.3s_ease-out]"
+        >
+          <Image
+            src={project.image_url}
+            alt={project.title}
+            fill
+            sizes="90vw"
+            className="object-contain"
+            priority
+          />
+        </div>
       </div>
 
       <div
+        key={`caption-${project.id}`}
         className={`max-w-xl text-center ${
-          closing ? "opacity-0 transition-opacity duration-150" : "animate-[lightbox-caption_0.35s_ease-out_0.15s_both]"
+          closing ? "opacity-0 transition-opacity duration-150" : "animate-[lightbox-caption_0.35s_ease-out_0.1s_both]"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -288,6 +341,18 @@ function Lightbox({
         </p>
         {project.description && (
           <p className="mt-2 text-sm text-paper/80">{project.description}</p>
+        )}
+        {project.website_url && (
+          <a
+            href={project.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="mt-4 inline-flex items-center gap-2 rounded-sm border border-accent/60 px-4 py-2 font-mono text-xs uppercase tracking-wider text-accent transition-colors hover:border-accent hover:bg-accent/10"
+          >
+            Visit Website
+            <ExternalLinkIcon />
+          </a>
         )}
       </div>
     </div>
@@ -302,6 +367,36 @@ function CloseIcon() {
         stroke="currentColor"
         strokeWidth="1.75"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path
+        d={direction === "left" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" aria-hidden="true">
+      <path
+        d="M7 17L17 7M9 7h8v8"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
       />
     </svg>
   );

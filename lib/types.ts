@@ -7,6 +7,7 @@ export type Project = {
   category: ProjectCategory;
   client_name: string | null;
   image_url: string;
+  website_url: string | null;
   display_order: number;
   is_published: boolean;
   created_at: string;

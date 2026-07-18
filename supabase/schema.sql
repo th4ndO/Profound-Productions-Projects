@@ -17,6 +17,7 @@ create table if not exists public.projects (
   ),
   client_name text,
   image_url text not null,
+  website_url text,
   display_order int not null default 0,
   is_published boolean not null default true,
   created_at timestamptz not null default now(),

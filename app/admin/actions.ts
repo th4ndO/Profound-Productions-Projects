@@ -60,6 +60,7 @@ export async function createProject(formData: {
   category: ProjectCategory;
   client_name: string;
   image_url: string;
+  website_url: string;
   display_order: number;
   is_published: boolean;
 }) {
@@ -71,6 +72,7 @@ export async function createProject(formData: {
     category: formData.category,
     client_name: formData.client_name || null,
     image_url: formData.image_url,
+    website_url: formData.website_url || null,
     display_order: formData.display_order,
     is_published: formData.is_published,
   });
@@ -92,6 +94,7 @@ export async function updateProject(
     category: ProjectCategory;
     client_name: string;
     image_url: string;
+    website_url: string;
     display_order: number;
     is_published: boolean;
   }
@@ -106,6 +109,7 @@ export async function updateProject(
       category: formData.category,
       client_name: formData.client_name || null,
       image_url: formData.image_url,
+      website_url: formData.website_url || null,
       display_order: formData.display_order,
       is_published: formData.is_published,
     })

@@ -22,6 +22,7 @@ type FormState = {
   category: ProjectCategory;
   client_name: string;
   image_url: string;
+  website_url: string;
   display_order: number;
   is_published: boolean;
 };
@@ -33,6 +34,7 @@ const EMPTY_FORM: FormState = {
   category: "graphic_design",
   client_name: "",
   image_url: "",
+  website_url: "",
   display_order: 0,
   is_published: true,
 };
@@ -58,6 +60,7 @@ export default function ProjectManager({
       category: project.category,
       client_name: project.client_name ?? "",
       image_url: project.image_url,
+      website_url: project.website_url ?? "",
       display_order: project.display_order,
       is_published: project.is_published,
     });
@@ -121,6 +124,7 @@ export default function ProjectManager({
         category: form.category,
         client_name: form.client_name,
         image_url: uploadResult.url,
+        website_url: form.website_url,
         display_order: form.display_order,
         is_published: form.is_published,
       };
@@ -165,6 +169,7 @@ export default function ProjectManager({
       category: form.category,
       client_name: form.client_name,
       image_url: form.image_url,
+      website_url: form.website_url,
       display_order: form.display_order,
       is_published: form.is_published,
     };
@@ -265,6 +270,24 @@ export default function ProjectManager({
             className="admin-input"
           />
         </div>
+
+        {form.category === "website_work" && (
+          <div>
+            <label className="mb-1.5 block font-mono text-xs text-neutral">
+              Website link (optional)
+            </label>
+            <input
+              type="url"
+              value={form.website_url}
+              onChange={(e) => setForm((f) => ({ ...f, website_url: e.target.value }))}
+              placeholder="https://example.com"
+              className="admin-input"
+            />
+            <p className="mt-1 font-mono text-[10px] text-neutral">
+              Adds a &quot;Visit Website&quot; button to this project&apos;s lightbox.
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="mb-1.5 block font-mono text-xs text-neutral">Image</label>

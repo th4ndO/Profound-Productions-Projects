@@ -43,14 +43,6 @@ npm install
 npm run dev
 ```
 
-## Access control
-
-This app is protected by HTTP Basic Auth (`middleware.js`) since it processes
-real people's PII once files are uploaded. Set `AUTH_USER` and `AUTH_PASSWORD`
-as environment variables (locally in `.env.local`, and in the Vercel project
-settings for the deployed site). If either variable is unset, the auth gate is
-skipped.
-
 ## Tech
 
 - Next.js (App Router)

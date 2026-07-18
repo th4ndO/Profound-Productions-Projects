@@ -150,6 +150,34 @@ function typeColor(eventType) {
   return EVENT_TYPE_COLORS[eventType] || DEFAULT_TYPE_COLOR;
 }
 
+// One distinct color per individual event/group (not per Event Type) — a network with
+// 20+ groups needs more than four colors to tell rows apart at a glance. Generated as
+// 20 evenly-spaced hues anchored on the brand teal (#1F5C4A), at fixed saturation/
+// lightness so every entry reads as part of the same muted, sophisticated palette.
+const EVENT_PALETTE = [
+  { dot: "#328f77", bg: "#e1f4ef", fg: "#195746" },
+  { dot: "#328c8f", bg: "#e1f4f4", fg: "#195557" },
+  { dot: "#32708f", bg: "#e1eef4", fg: "#194257" },
+  { dot: "#32548f", bg: "#e1e8f4", fg: "#193057" },
+  { dot: "#32398f", bg: "#e1e2f4", fg: "#191d57" },
+  { dot: "#48328f", bg: "#e5e1f4", fg: "#281957" },
+  { dot: "#64328f", bg: "#ebe1f4", fg: "#3a1957" },
+  { dot: "#80328f", bg: "#f1e1f4", fg: "#4d1957" },
+  { dot: "#8f3283", bg: "#f4e1f2", fg: "#57194f" },
+  { dot: "#8f3267", bg: "#f4e1ec", fg: "#57193c" },
+  { dot: "#8f324b", bg: "#f4e1e6", fg: "#57192a" },
+  { dot: "#8f3532", bg: "#f4e1e1", fg: "#571b19" },
+  { dot: "#8f5132", bg: "#f4e7e1", fg: "#572e19" },
+  { dot: "#8f6d32", bg: "#f4ede1", fg: "#574019" },
+  { dot: "#8f8932", bg: "#f4f3e1", fg: "#575319" },
+  { dot: "#7a8f32", bg: "#f0f4e1", fg: "#495719" },
+  { dot: "#5e8f32", bg: "#eaf4e1", fg: "#365719" },
+  { dot: "#428f32", bg: "#e4f4e1", fg: "#245719" },
+  { dot: "#328f3f", bg: "#e1f4e3", fg: "#195721" },
+  { dot: "#328f5b", bg: "#e1f4e9", fg: "#195734" },
+];
+
+
 function NetworkMark({ size = 34 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
@@ -285,6 +313,17 @@ export default function HouseSookooDataTracker() {
       eventName: mk("Event Name"),
     };
   }, [allRows]);
+
+  // Assign each event a color by its alphabetical rank across the whole dataset (not by
+  // hash, and not by current sort/filter order) — guarantees no two events share a color
+  // as long as there are 20 or fewer distinct events, and stays stable as filters change.
+  const eventColorMap = useMemo(() => {
+    const map = new Map();
+    options.eventName.forEach((name, i) => {
+      map.set(name, EVENT_PALETTE[i % EVENT_PALETTE.length]);
+    });
+    return map;
+  }, [options.eventName]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -1099,29 +1138,38 @@ export default function HouseSookooDataTracker() {
                 </div>
               )}
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {(showAllEvents ? eventSummary : eventSummary.slice(0, 12)).map((e) => {
                   const max = eventSummary[0] ? eventSummary[0].people : 1;
                   const pct = max ? Math.round((e.people / max) * 100) : 0;
-                  const c = typeColor(e.type);
+                  const c = eventColorMap.get(e.event) || DEFAULT_TYPE_COLOR;
                   return (
-                    <div key={e.event} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: c.dot, flexShrink: 0 }} />
-                      <div
-                        style={{
-                          width: 180,
-                          flexShrink: 0,
-                          fontSize: 12.5,
-                          color: "#3F4B45",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                        title={e.event}
-                      >
-                        {e.event}
+                    <div key={e.event}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: c.dot, flexShrink: 0 }} />
+                        <div
+                          style={{
+                            fontSize: 12.5,
+                            color: "#3F4B45",
+                            wordBreak: "break-word",
+                            flex: 1,
+                          }}
+                        >
+                          {e.event}
+                        </div>
+                        <div
+                          style={{
+                            flexShrink: 0,
+                            fontFamily: "JetBrains Mono, monospace",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            color: "#14261F",
+                          }}
+                        >
+                          {e.people}
+                        </div>
                       </div>
-                      <div style={{ flex: 1, background: "#EEF2ED", borderRadius: 6, height: 20, position: "relative" }}>
+                      <div style={{ background: "#EEF2ED", borderRadius: 6, height: 8, marginLeft: 15 }}>
                         <div
                           style={{
                             width: `${Math.max(pct, 3)}%`,
@@ -1130,18 +1178,6 @@ export default function HouseSookooDataTracker() {
                             borderRadius: 6,
                           }}
                         />
-                      </div>
-                      <div
-                        style={{
-                          width: 40,
-                          textAlign: "right",
-                          flexShrink: 0,
-                          fontFamily: "JetBrains Mono, monospace",
-                          fontSize: 13,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {e.people}
                       </div>
                     </div>
                   );

@@ -32,8 +32,23 @@ export default function SpinningLogo() {
       frameId = requestAnimationFrame(tick);
     };
 
+    // Stop spinning while the tab is backgrounded so the loop doesn't
+    // burn CPU/battery when nobody can see it.
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(frameId);
+      } else {
+        lastTime = performance.now();
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const handlePointerMove = (clientX: number, clientY: number) => {

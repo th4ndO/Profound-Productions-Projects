@@ -60,11 +60,24 @@ export default function CursorTrail() {
 
       frameId = requestAnimationFrame(tick);
     };
+
+    // Stop drawing while the tab is backgrounded so the loop doesn't
+    // burn CPU/battery when nobody can see it.
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(frameId);
+      } else {
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     frameId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("visibilitychange", handleVisibility);
       cancelAnimationFrame(frameId);
     };
   }, []);

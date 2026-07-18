@@ -127,6 +127,16 @@ function ProjectCard({
   index: number;
   onOpen: (rect: DOMRect) => void;
 }) {
+  const [loaded, setLoaded] = useState(false);
+
+  // Belt-and-suspenders: onLoad can be missed for images that finish
+  // loading before React attaches the listener (fast cache hits), so
+  // never leave the image permanently invisible if that happens.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoaded(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <article
       className="group relative animate-[fade-in_0.4s_ease-out_forwards] overflow-hidden rounded-sm border border-surface-line bg-surface opacity-0 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_16px_36px_-12px_rgba(222,192,146,0.3)]"
@@ -142,14 +152,22 @@ function ProjectCard({
         type="button"
         onClick={(e) => onOpen(e.currentTarget.getBoundingClientRect())}
         aria-label={`View full image: ${project.title}`}
-        className="relative block aspect-[4/3] w-full cursor-zoom-in overflow-hidden text-left"
+        className={`relative block aspect-[4/3] w-full cursor-zoom-in overflow-hidden text-left ${
+          loaded ? "" : "animate-pulse bg-surface"
+        }`}
       >
         <Image
           src={project.image_url}
           alt={project.title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          ref={(img) => {
+            if (img?.complete) setLoaded(true);
+          }}
+          onLoad={() => setLoaded(true)}
+          className={`object-cover transition-[opacity,transform] duration-500 group-hover:scale-[1.04] ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-canvas/95 via-canvas/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-4">

@@ -215,10 +215,24 @@ export default function AmbientTrail() {
 
       frameId = requestAnimationFrame(tick);
     };
+
+    // Stop drawing while the tab is backgrounded so the loop doesn't
+    // burn CPU/battery when nobody can see it.
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(frameId);
+      } else {
+        segStart = performance.now();
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     frameId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibility);
       cancelAnimationFrame(frameId);
     };
   }, []);

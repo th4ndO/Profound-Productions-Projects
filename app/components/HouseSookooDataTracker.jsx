@@ -28,6 +28,21 @@ function formatPhone(raw) {
   return String(raw);
 }
 
+// South African mobile numbers only — the source data is a South African church network.
+function whatsAppLink(raw) {
+  let digits = String(raw || "").replace(/[^0-9]/g, "");
+  if (digits.length === 9) digits = "0" + digits;
+  if (digits.length !== 10 || !digits.startsWith("0")) return null;
+  return `https://wa.me/27${digits.slice(1)}`;
+}
+
+function telLink(raw) {
+  let digits = String(raw || "").replace(/[^0-9]/g, "");
+  if (digits.length === 9) digits = "0" + digits;
+  if (digits.length !== 10 || !digits.startsWith("0")) return null;
+  return `tel:+27${digits.slice(1)}`;
+}
+
 function formatDate(val) {
   if (!val) return "";
   let d = val;
@@ -203,10 +218,15 @@ export default function HouseSookooDataTracker() {
             const emailIssue = analyzeEmail(r["Email"]);
             const phoneIssue = analyzePhone(r["Mobile Number"]);
             const addressVague = isVagueAddress(r["Address"]);
+            const hasEmail = String(r["Email"] || "").trim().length > 0;
+            const hasPhone = String(r["Mobile Number"] || "").trim().length > 0;
+            const hasLeader12 = String(r["Leader at 12"] || "").trim().length > 0;
             const issues = [];
             if (emailIssue) issues.push({ type: "email", message: emailIssue });
             if (phoneIssue) issues.push({ type: "phone", message: phoneIssue });
             if (addressVague) issues.push({ type: "address", message: "Address is too vague to be useful (no street or number)" });
+            if (!hasEmail && !hasPhone) issues.push({ type: "contact", message: "No email or phone on file — can't be reached directly" });
+            if (!hasLeader12) issues.push({ type: "leadership", message: "No Leader @12 assigned" });
             return {
               id: `${file.name}-${i}`,
               source: file.name,
@@ -313,9 +333,11 @@ export default function HouseSookooDataTracker() {
   const stats = useMemo(() => {
     const dates = allRows.map((r) => toISODate(r["First Visit"])).filter(Boolean).sort();
     const dupCount = allRows.filter((r) => r.isDuplicateFlag).length;
+    const uniquePeople = new Set(allRows.map((r) => normalizeName(r["Full Name"]))).size;
     return {
       total: allRows.length,
       shown: filtered.length,
+      uniquePeople,
       leaders12: new Set(allRows.map((r) => r["Leader at 12"]).filter(Boolean)).size,
       events: new Set(allRows.map((r) => r["Event Name"]).filter(Boolean)).size,
       earliest: dates[0] || "—",
@@ -370,10 +392,33 @@ export default function HouseSookooDataTracker() {
     return rostersByPerson.get(normalizeName(selected["Full Name"])) || [];
   }, [selected, rostersByPerson]);
 
+  // Person+event pairs that appear more than once with different dates — genuine repeat
+  // visits (e.g. weekly campus services), not a data error. Powers the "×N" badges.
+  const pairCounts = useMemo(() => {
+    const map = new Map();
+    allRows.forEach((r) => {
+      const key = normalizeName(r["Full Name"]) + "|" + String(r["Event Name"] || "").trim().toLowerCase();
+      map.set(key, (map.get(key) || 0) + 1);
+    });
+    return map;
+  }, [allRows]);
+
+  const pairKey = (r) => normalizeName(r["Full Name"]) + "|" + String(r["Event Name"] || "").trim().toLowerCase();
+
+  const repeatVisitPairs = useMemo(() => {
+    let count = 0;
+    pairCounts.forEach((n) => {
+      if (n > 1) count += 1;
+    });
+    return count;
+  }, [pairCounts]);
+
   const health = useMemo(() => {
     const emailIssues = allRows.filter((r) => r.issues.some((i) => i.type === "email"));
     const phoneIssues = allRows.filter((r) => r.issues.some((i) => i.type === "phone"));
     const addressIssues = allRows.filter((r) => r.issues.some((i) => i.type === "address"));
+    const contactIssues = allRows.filter((r) => r.issues.some((i) => i.type === "contact"));
+    const leadershipIssues = allRows.filter((r) => r.issues.some((i) => i.type === "leadership"));
     const flaggedTotal = allRows.filter((r) => r.issues.length > 0).length;
 
     const uniqueNames = Array.from(rostersByPerson.keys());
@@ -395,7 +440,7 @@ export default function HouseSookooDataTracker() {
       }
     }
 
-    return { emailIssues, phoneIssues, addressIssues, flaggedTotal, fuzzyPairs };
+    return { emailIssues, phoneIssues, addressIssues, contactIssues, leadershipIssues, flaggedTotal, fuzzyPairs };
   }, [allRows, rostersByPerson]);
 
   const exportIssuesCSV = () => {
@@ -743,9 +788,11 @@ export default function HouseSookooDataTracker() {
             >
               {[
                 ["Total records", stats.total],
+                ["Unique people", stats.uniquePeople],
                 ["Matching filters", stats.shown],
                 ["Leaders at 12", stats.leaders12],
                 ["Groups & events", stats.events],
+                ["Repeat visits", repeatVisitPairs],
                 ["Flagged duplicates", stats.duplicates],
                 ["Earliest visit", stats.earliest],
                 ["Latest visit", stats.latest],
@@ -805,8 +852,9 @@ export default function HouseSookooDataTracker() {
                 )}
               </div>
               <div style={{ fontSize: 12, color: "#6B7A72", marginBottom: 14 }}>
-                Automatic checks on emails, phone numbers, addresses, and near-duplicate names. Nothing
-                is auto-fixed or auto-merged — this is a list to review by hand.
+                Automatic checks on emails, phone numbers, addresses, leader assignment, and
+                near-duplicate names. Nothing is auto-fixed or auto-merged — this is a list to
+                review by hand.
               </div>
 
               <div
@@ -820,7 +868,9 @@ export default function HouseSookooDataTracker() {
                 {[
                   ["Invalid emails", health.emailIssues.length, "#F7C1C1", "#791F1F"],
                   ["Phone issues", health.phoneIssues.length, "#F7C1C1", "#791F1F"],
+                  ["No contact info", health.contactIssues.length, "#F7C1C1", "#791F1F"],
                   ["Vague addresses", health.addressIssues.length, "#FAC775", "#633806"],
+                  ["No Leader @12", health.leadershipIssues.length, "#FAC775", "#633806"],
                   ["Possible name dupes", health.fuzzyPairs.length, "#FAC775", "#633806"],
                 ].map(([label, val, bg, fg]) => (
                   <div
@@ -1014,8 +1064,10 @@ export default function HouseSookooDataTracker() {
                 <div style={{ fontSize: 11.5, color: "#9AA59E" }}>reflects current filters</div>
               </div>
               <div style={{ fontSize: 12, color: "#6B7A72", marginBottom: 12 }}>
-                Each file is a roster snapshot, not a check-in log — this counts how many people are
-                listed against each event or group, not how many times they showed up.
+                This counts how many distinct people are listed against each event or group.
+                Recurring events (like a weekly campus service) can list the same person more than
+                once with a different date — those show up as one person here, with a "×N" badge
+                on the record.
               </div>
 
               {eventTypeSummary.length > 1 && (
@@ -1200,6 +1252,22 @@ export default function HouseSookooDataTracker() {
                         </td>
                         <td style={{ padding: "9px 12px", fontSize: 13, color: "#3F4B45" }}>
                           {r["Event Name"]}
+                          {pairCounts.get(pairKey(r)) > 1 && (
+                            <span
+                              title="This person appears on this event more than once, with different dates"
+                              style={{
+                                marginLeft: 6,
+                                fontSize: 10.5,
+                                fontWeight: 600,
+                                color: "#085041",
+                                background: "#E1F5EE",
+                                borderRadius: 999,
+                                padding: "1px 7px",
+                              }}
+                            >
+                              ×{pairCounts.get(pairKey(r))}
+                            </span>
+                          )}
                         </td>
                         <td style={{ padding: "9px 12px", fontSize: 13, color: "#3F4B45" }}>
                           {r["Event Type"]}
@@ -1269,6 +1337,7 @@ export default function HouseSookooDataTracker() {
                   </div>
                   <div style={{ fontSize: 12, color: "#9AA59E", marginTop: 2 }}>
                     {r["Event Name"]} · {r["Event Type"]}
+                    {pairCounts.get(pairKey(r)) > 1 && ` · ×${pairCounts.get(pairKey(r))} visits`}
                   </div>
                 </div>
               ))}
@@ -1349,29 +1418,124 @@ export default function HouseSookooDataTracker() {
               </button>
             </div>
 
-            {[
-              ["Mobile", formatPhone(selected["Mobile Number"])],
-              ["Email", selected["Email"]],
-              ["Address", selected["Address"]],
-              ["First visit ever", formatDate(selected["First Visit"])],
-            ].map(([label, val]) => (
-              <div
-                key={label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 16,
-                  padding: "9px 0",
-                  borderBottom: "1px solid #EDF0EC",
-                  fontSize: 13,
-                }}
-              >
-                <span style={{ color: "#6B7A72" }}>{label}</span>
-                <span style={{ textAlign: "right", color: "#14261F", wordBreak: "break-word" }}>
-                  {val || "—"}
-                </span>
-              </div>
-            ))}
+            {(() => {
+              const phone = selected["Mobile Number"];
+              const wa = whatsAppLink(phone);
+              const tel = telLink(phone);
+              const email = selected["Email"];
+              const address = selected["Address"];
+              const mapsLink = address
+                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+                : null;
+              const allDates = selectedRosters
+                .map((r) => toISODate(r["First Visit"]))
+                .filter(Boolean)
+                .sort();
+              const earliestVisit = allDates[0] || "";
+
+              const linkStyle = {
+                fontSize: 11,
+                fontWeight: 600,
+                borderRadius: 999,
+                padding: "3px 9px",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              };
+              const row = (label, valueNode) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 16,
+                    padding: "9px 0",
+                    borderBottom: "1px solid #EDF0EC",
+                    fontSize: 13,
+                  }}
+                >
+                  <span style={{ color: "#6B7A72" }}>{label}</span>
+                  <span
+                    style={{
+                      textAlign: "right",
+                      color: "#14261F",
+                      wordBreak: "break-word",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      justifyContent: "flex-end",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {valueNode}
+                  </span>
+                </div>
+              );
+
+              return (
+                <>
+                  {row(
+                    "Mobile",
+                    <>
+                      {formatPhone(phone) || "—"}
+                      {tel && (
+                        <a
+                          href={tel}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ ...linkStyle, color: "#085041", background: "#E1F5EE" }}
+                        >
+                          Call
+                        </a>
+                      )}
+                      {wa && (
+                        <a
+                          href={wa}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ ...linkStyle, color: "#0F6E56", background: "#DCF3EB" }}
+                        >
+                          WhatsApp
+                        </a>
+                      )}
+                    </>
+                  )}
+                  {row(
+                    "Email",
+                    <>
+                      {email || "—"}
+                      {email && (
+                        <a
+                          href={`mailto:${email}`}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ ...linkStyle, color: "#3C3489", background: "#EEEDFE" }}
+                        >
+                          Email
+                        </a>
+                      )}
+                    </>
+                  )}
+                  {row(
+                    "Address",
+                    <>
+                      {address || "—"}
+                      {mapsLink && (
+                        <a
+                          href={mapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ ...linkStyle, color: "#633806", background: "#FAECD3" }}
+                        >
+                          Map
+                        </a>
+                      )}
+                    </>
+                  )}
+                  {row("First visit ever", formatDate(earliestVisit) || "—")}
+                </>
+              );
+            })()}
 
             {selectedRosters.some((r) => r.issues.length > 0) && (
               <div style={{ marginTop: 14 }}>
@@ -1379,18 +1543,21 @@ export default function HouseSookooDataTracker() {
                   Data issues to review
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {selectedRosters.flatMap((r) => r.issues).map((iss, idx) => (
-                    <div key={idx} style={{ fontSize: 12, color: "#3F4B45" }}>
-                      • {iss.message}
-                    </div>
-                  ))}
+                  {Array.from(new Set(selectedRosters.flatMap((r) => r.issues.map((iss) => iss.message)))).map(
+                    (message, idx) => (
+                      <div key={idx} style={{ fontSize: 12, color: "#3F4B45" }}>
+                        • {message}
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
 
             <div style={{ marginTop: 18, marginBottom: 8, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
               <div style={{ fontSize: 12.5, fontWeight: 600, color: "#3F4B45" }}>
-                On {selectedRosters.length} roster{selectedRosters.length === 1 ? "" : "s"} across{" "}
+                On {new Set(selectedRosters.map((r) => r["Event Name"] || "—")).size} roster
+                {new Set(selectedRosters.map((r) => r["Event Name"] || "—")).size === 1 ? "" : "s"} across{" "}
                 {new Set(selectedRosters.map((r) => r["Event Type"] || "—")).size} categor
                 {new Set(selectedRosters.map((r) => r["Event Type"] || "—")).size === 1 ? "y" : "ies"}
               </div>
@@ -1408,39 +1575,82 @@ export default function HouseSookooDataTracker() {
                 acc[type].push(r);
                 return acc;
               }, {})
-            ).map(([type, rows]) => {
+            ).map(([type, typeRows]) => {
               const c = typeColor(type);
+              // Merge rows that share the same Event Name — that's a single roster the
+              // person is on, possibly with more than one recorded visit date.
+              const byEvent = typeRows.reduce((acc, r) => {
+                const key = r["Event Name"] || "—";
+                acc[key] = acc[key] || [];
+                acc[key].push(r);
+                return acc;
+              }, {});
               return (
                 <div key={type} style={{ marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span style={{ width: 7, height: 7, borderRadius: "50%", background: c.dot }} />
                     <span style={{ fontSize: 11.5, fontWeight: 600, color: c.fg }}>
-                      {type} ({rows.length})
+                      {type} ({typeRows.length})
                     </span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {rows.map((r) => (
-                      <div
-                        key={r.id}
-                        style={{
-                          background: "#F7F8F5",
-                          border: "1px solid #EDF0EC",
-                          borderRadius: 8,
-                          padding: "8px 10px",
-                          fontSize: 12,
-                        }}
-                      >
-                        <div style={{ fontWeight: 500, color: "#14261F" }}>{r["Event Name"] || "—"}</div>
-                        <div style={{ color: "#6B7A72", marginTop: 2 }}>
-                          First visit {formatDate(r["First Visit"]) || "—"} · Leaders @12{" "}
-                          {r["Leader at 12"] || "—"} · @144 {r["Leader at 144"] || "—"} · @1728{" "}
-                          {r["Leader at 1728"] || "—"}
+                    {Object.entries(byEvent).map(([eventName, rows]) => {
+                      const sorted = rows
+                        .slice()
+                        .sort((a, b) => (toISODate(a["First Visit"]) || "").localeCompare(toISODate(b["First Visit"]) || ""));
+                      const latest = sorted[sorted.length - 1];
+                      return (
+                        <div
+                          key={eventName}
+                          style={{
+                            background: "#F7F8F5",
+                            border: "1px solid #EDF0EC",
+                            borderRadius: 8,
+                            padding: "8px 10px",
+                            fontSize: 12,
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                            <div style={{ fontWeight: 500, color: "#14261F" }}>{eventName}</div>
+                            {sorted.length > 1 && (
+                              <span
+                                style={{
+                                  fontSize: 10.5,
+                                  fontWeight: 600,
+                                  color: "#085041",
+                                  background: "#E1F5EE",
+                                  borderRadius: 999,
+                                  padding: "1px 7px",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {sorted.length} visits
+                              </span>
+                            )}
+                          </div>
+                          {sorted.length > 1 ? (
+                            <div style={{ color: "#6B7A72", marginTop: 4 }}>
+                              {sorted.map((r, idx) => (
+                                <div key={r.id}>
+                                  {idx === 0 ? "First visit" : `Visit ${idx + 1}`}: {formatDate(r["First Visit"]) || "—"}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div style={{ color: "#6B7A72", marginTop: 2 }}>
+                              First visit {formatDate(sorted[0]["First Visit"]) || "—"}
+                            </div>
+                          )}
+                          <div style={{ color: "#6B7A72", marginTop: 2 }}>
+                            Leaders @12 {latest["Leader at 12"] || "—"} · @144 {latest["Leader at 144"] || "—"} · @1728{" "}
+                            {latest["Leader at 1728"] || "—"}
+                          </div>
+                          <div style={{ color: "#9AA59E", marginTop: 2, fontFamily: "JetBrains Mono, monospace", fontSize: 10.5 }}>
+                            {Array.from(new Set(sorted.map((r) => r.source))).join(", ")}
+                          </div>
                         </div>
-                        <div style={{ color: "#9AA59E", marginTop: 2, fontFamily: "JetBrains Mono, monospace", fontSize: 10.5 }}>
-                          {r.source}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );

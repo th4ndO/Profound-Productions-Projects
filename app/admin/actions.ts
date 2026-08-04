@@ -163,9 +163,22 @@ export async function updateProject(
 export async function deleteProject(id: string) {
   const supabase = await requireUser();
 
+  const { data: project } = await supabase
+    .from("projects")
+    .select("image_url")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase.from("projects").delete().eq("id", id);
 
   if (error) return { error: error.message };
+
+  const storagePath = project?.image_url.split("/project-images/")[1];
+  if (storagePath) {
+    // Best-effort: the row is already gone, so a storage hiccup here
+    // shouldn't be reported back as a failed delete.
+    await supabase.storage.from("project-images").remove([storagePath]);
+  }
 
   revalidateTag("projects", "minutes");
   revalidatePath("/portfolio");

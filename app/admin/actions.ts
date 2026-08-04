@@ -86,6 +86,42 @@ export async function createProject(formData: {
   return { error: null };
 }
 
+export async function createProjects(
+  items: {
+    title: string;
+    description: string;
+    category: ProjectCategory;
+    client_name: string;
+    image_url: string;
+    website_url: string;
+    display_order: number;
+    is_published: boolean;
+  }[]
+) {
+  const supabase = await requireUser();
+
+  const { error } = await supabase.from("projects").insert(
+    items.map((item) => ({
+      title: item.title,
+      description: item.description || null,
+      category: item.category,
+      client_name: item.client_name || null,
+      image_url: item.image_url,
+      website_url: item.website_url || null,
+      display_order: item.display_order,
+      is_published: item.is_published,
+    }))
+  );
+
+  if (error) return { error: error.message };
+
+  revalidateTag("projects", "minutes");
+  revalidatePath("/portfolio");
+  revalidatePath("/contact");
+  revalidatePath("/admin");
+  return { error: null };
+}
+
 export async function updateProject(
   id: string,
   formData: {

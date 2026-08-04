@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import {
   createProject,
+  createProjects,
   updateProject,
   deleteProject,
   uploadProjectImage,
@@ -26,6 +27,74 @@ type FormState = {
   display_order: number;
   is_published: boolean;
 };
+
+// Vercel caps a serverless function's (and Server Action's) request body at
+// 4.5MB regardless of Next.js config, so full-resolution camera photos must
+// be downscaled client-side before they ever hit uploadProjectImage.
+const MAX_UPLOAD_DIMENSION = 1920;
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+const JPEG_QUALITY_STEPS = [0.85, 0.7, 0.55, 0.4];
+const UPLOAD_CONCURRENCY = 4;
+
+async function compressImageForUpload(file: File): Promise<Blob> {
+  if (!file.type.startsWith("image/")) return file;
+
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const scale = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable");
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    let smallest: Blob | null = null;
+    for (const quality of JPEG_QUALITY_STEPS) {
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", quality)
+      );
+      if (!blob) continue;
+      smallest = blob;
+      if (blob.size <= MAX_UPLOAD_BYTES) return blob;
+    }
+    return smallest ?? file;
+  } catch {
+    // Formats the browser can't decode (e.g. some HEIC files) fall back to
+    // the original — the upload may still fail server-side if it's too big.
+    return file;
+  }
+}
+
+async function uploadFilesWithConcurrency(
+  files: File[],
+  concurrency: number,
+  onProgress: (done: number, total: number) => void,
+  upload: (file: File) => Promise<{ error: string | null; url: string | null }>
+) {
+  const results: { file: File; url?: string; error?: string }[] = new Array(files.length);
+  let cursor = 0;
+  let done = 0;
+
+  async function worker() {
+    while (cursor < files.length) {
+      const i = cursor++;
+      const res = await upload(files[i]);
+      results[i] = { file: files[i], url: res.url ?? undefined, error: res.error ?? undefined };
+      done++;
+      onProgress(done, files.length);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, files.length) }, worker)
+  );
+  return results;
+}
 
 const EMPTY_FORM: FormState = {
   id: null,
@@ -72,9 +141,10 @@ export default function ProjectManager({
     setFormError(null);
   }
 
-  function uploadFile(file: File) {
+  async function uploadFile(file: File) {
+    const compressed = await compressImageForUpload(file);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", compressed, file.name);
     return uploadProjectImage(formData);
   }
 
@@ -98,53 +168,65 @@ export default function ProjectManager({
       return;
     }
 
-    // Multiple files: upload + create one project per image, using the
-    // current category/client/order/published fields as a shared template.
+    // Multiple files: upload concurrently, then create every project in a
+    // single batched insert, using the current category/client/order/
+    // published fields as a shared template.
     setIsUploading(true);
     setFormError(null);
+    setUploadProgress(`Uploading 0 of ${files.length}…`);
 
-    const created: Project[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      setUploadProgress(`Uploading ${i + 1} of ${files.length}…`);
+    const results = await uploadFilesWithConcurrency(
+      files,
+      UPLOAD_CONCURRENCY,
+      (done, total) => setUploadProgress(`Uploading ${done} of ${total}…`),
+      uploadFile
+    );
 
-      const uploadResult = await uploadFile(file);
-      if (uploadResult.error || !uploadResult.url) {
-        setFormError(`${file.name}: ${uploadResult.error ?? "Upload failed."}`);
-        break;
-      }
+    const succeeded = results.filter(
+      (r): r is { file: File; url: string; error?: string } => Boolean(r.url)
+    );
+    const failed = results.filter((r) => !r.url);
 
-      const title = form.title
-        ? `${form.title} ${i + 1}`
-        : file.name.replace(/\.[^/.]+$/, "");
+    if (succeeded.length > 0) {
+      setUploadProgress("Saving…");
 
-      const payload = {
-        title,
+      const payloads = succeeded.map((r, idx) => ({
+        title: form.title
+          ? `${form.title} ${idx + 1}`
+          : r.file.name.replace(/\.[^/.]+$/, ""),
         description: form.description,
         category: form.category,
         client_name: form.client_name,
-        image_url: uploadResult.url,
+        image_url: r.url,
         website_url: form.website_url,
         display_order: form.display_order,
         is_published: form.is_published,
-      };
+      }));
 
-      const result = await createProject(payload);
+      const result = await createProjects(payloads);
       if (result.error) {
-        setFormError(`${file.name}: ${result.error}`);
-        break;
+        setFormError(result.error);
+      } else {
+        setProjects((prev) => [
+          ...payloads
+            .map((p) => ({
+              ...p,
+              id: crypto.randomUUID(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }))
+            .reverse(),
+          ...prev,
+        ]);
       }
-
-      created.push({
-        ...payload,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
     }
 
-    if (created.length > 0) {
-      setProjects((prev) => [...created.reverse(), ...prev]);
+    if (failed.length > 0) {
+      setFormError(
+        `${failed.length} of ${files.length} image(s) failed to upload: ${failed
+          .map((f) => `${f.file.name}${f.error ? ` (${f.error})` : ""}`)
+          .join(", ")}`
+      );
     }
 
     setIsUploading(false);

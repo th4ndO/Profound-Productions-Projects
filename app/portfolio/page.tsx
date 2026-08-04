@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { getPublishedProjects } from "@/lib/get-published-projects";
 import PortfolioGallery from "@/components/portfolio-gallery";
+
+export const metadata: Metadata = {
+  title: "Portfolio",
+  description:
+    "Browse graphic design, photography, and website work from Profound Productions — posters, flyers, brand identity, and more.",
+};
 
 export default async function PortfolioPage({
   searchParams,

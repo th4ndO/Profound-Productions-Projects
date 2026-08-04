@@ -23,10 +23,41 @@ const jetBrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_URL = "https://profound-productions.vercel.app";
+const SITE_DESCRIPTION =
+  "Posters, branding, and print-ready design for local businesses, food brands, events, and artists.";
+
 export const metadata: Metadata = {
-  title: "Profound Productions",
-  description:
-    "Posters, branding, and print-ready design for local businesses, food brands, events, and artists.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Profound Productions",
+    template: "%s | Profound Productions",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: "Profound Productions",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Profound Productions",
+    locale: "en_ZA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Profound Productions",
+    description: SITE_DESCRIPTION,
+  },
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "Profound Productions",
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  telephone: "+27764469804",
+  email: "profoundproductionss@gmail.com",
+  areaServed: "ZA",
 };
 
 export default function RootLayout({
@@ -37,6 +68,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plusJakartaSans.variable} ${jetBrainsMono.variable}`}>
       <body className="bg-canvas text-paper font-body antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <AmbientGlow />
         <AmbientEffects />
         <SiteHeader />

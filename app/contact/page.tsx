@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/contact-form";
 import Reveal from "@/components/reveal";
 import { getPublishedProjects } from "@/lib/get-published-projects";
 import { CATEGORY_LABELS } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Get in touch with Profound Productions on WhatsApp — tell us what you need and we'll reply the same day.",
+};
 
 export default async function ContactPage() {
   const { projects: allProjects } = await getPublishedProjects();

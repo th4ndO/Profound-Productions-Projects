@@ -7,13 +7,10 @@ create table if not exists public.projects (
   title text not null,
   description text,
   category text not null check (
-    category in (
-      'local_service',
-      'food_snack',
-      'event_flyer',
-      'personal_brand',
-      'music_entertainment'
-    )
+    category in ('graphic_design', 'photography', 'website_work')
+  ),
+  subcategory text check (
+    subcategory in ('logo', 'business_card', 'poster', 'flyer', 'other')
   ),
   client_name text,
   image_url text not null,

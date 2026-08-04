@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { CATEGORY_LABELS, CATEGORY_OPTIONS, type Project } from "@/lib/types";
+import {
+  CATEGORY_LABELS,
+  CATEGORY_OPTIONS,
+  SUBCATEGORY_OPTIONS,
+  type Project,
+} from "@/lib/types";
 
 export default function PortfolioGallery({
   projects,
@@ -12,18 +17,39 @@ export default function PortfolioGallery({
   initialCategory?: string;
 }) {
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+  const [activeSubcategory, setActiveSubcategory] = useState<string>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [lightboxOrigin, setLightboxOrigin] = useState<DOMRect | null>(null);
 
   const filtered = useMemo(() => {
-    if (activeCategory === "all") return projects;
-    return projects.filter((p) => p.category === activeCategory);
-  }, [activeCategory, projects]);
+    const byCategory =
+      activeCategory === "all"
+        ? projects
+        : projects.filter((p) => p.category === activeCategory);
+    if (activeCategory !== "graphic_design" || activeSubcategory === "all") {
+      return byCategory;
+    }
+    return byCategory.filter((p) => p.subcategory === activeSubcategory);
+  }, [activeCategory, activeSubcategory, projects]);
 
   const categoriesInUse = useMemo(() => {
     const present = new Set(projects.map((p) => p.category));
     return CATEGORY_OPTIONS.filter(([key]) => present.has(key));
   }, [projects]);
+
+  const subcategoriesInUse = useMemo(() => {
+    const present = new Set(
+      projects
+        .filter((p) => p.category === "graphic_design")
+        .map((p) => p.subcategory)
+    );
+    return SUBCATEGORY_OPTIONS.filter(([key]) => present.has(key));
+  }, [projects]);
+
+  function selectCategory(key: string) {
+    setActiveCategory(key);
+    setActiveSubcategory("all");
+  }
 
   return (
     <div>
@@ -33,21 +59,39 @@ export default function PortfolioGallery({
         </h2>
       </div>
 
-      <div className="mb-10 flex flex-wrap gap-3">
+      <div className="mb-6 flex flex-wrap gap-3">
         <FilterPill
           label="All Work"
           active={activeCategory === "all"}
-          onClick={() => setActiveCategory("all")}
+          onClick={() => selectCategory("all")}
         />
         {categoriesInUse.map(([key, label]) => (
           <FilterPill
             key={key}
             label={label}
             active={activeCategory === key}
-            onClick={() => setActiveCategory(key)}
+            onClick={() => selectCategory(key)}
           />
         ))}
       </div>
+
+      {activeCategory === "graphic_design" && subcategoriesInUse.length > 1 && (
+        <div className="mb-10 flex flex-wrap gap-2">
+          <FilterPill
+            label="All Types"
+            active={activeSubcategory === "all"}
+            onClick={() => setActiveSubcategory("all")}
+          />
+          {subcategoriesInUse.map(([key, label]) => (
+            <FilterPill
+              key={key}
+              label={label}
+              active={activeSubcategory === key}
+              onClick={() => setActiveSubcategory(key)}
+            />
+          ))}
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <div className="animate-[fade-in_0.4s_ease-out_forwards] rounded-sm border border-dashed border-surface-line py-24 text-center">
@@ -57,7 +101,7 @@ export default function PortfolioGallery({
         </div>
       ) : (
         <div
-          key={activeCategory}
+          key={`${activeCategory}-${activeSubcategory}`}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {filtered.map((project, i) => (

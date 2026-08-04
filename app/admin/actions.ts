@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
-import type { ProjectCategory } from "@/lib/types";
+import type { ProjectCategory, ProjectSubcategory } from "@/lib/types";
 
 const MAX_DIMENSION = 1920;
 const WEBP_QUALITY = 80;
@@ -58,6 +58,7 @@ export async function createProject(formData: {
   title: string;
   description: string;
   category: ProjectCategory;
+  subcategory: ProjectSubcategory | null;
   client_name: string;
   image_url: string;
   website_url: string;
@@ -70,6 +71,7 @@ export async function createProject(formData: {
     title: formData.title,
     description: formData.description || null,
     category: formData.category,
+    subcategory: formData.subcategory,
     client_name: formData.client_name || null,
     image_url: formData.image_url,
     website_url: formData.website_url || null,
@@ -91,6 +93,7 @@ export async function createProjects(
     title: string;
     description: string;
     category: ProjectCategory;
+    subcategory: ProjectSubcategory | null;
     client_name: string;
     image_url: string;
     website_url: string;
@@ -105,6 +108,7 @@ export async function createProjects(
       title: item.title,
       description: item.description || null,
       category: item.category,
+      subcategory: item.subcategory,
       client_name: item.client_name || null,
       image_url: item.image_url,
       website_url: item.website_url || null,
@@ -128,6 +132,7 @@ export async function updateProject(
     title: string;
     description: string;
     category: ProjectCategory;
+    subcategory: ProjectSubcategory | null;
     client_name: string;
     image_url: string;
     website_url: string;
@@ -143,6 +148,7 @@ export async function updateProject(
       title: formData.title,
       description: formData.description || null,
       category: formData.category,
+      subcategory: formData.subcategory,
       client_name: formData.client_name || null,
       image_url: formData.image_url,
       website_url: formData.website_url || null,

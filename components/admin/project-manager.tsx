@@ -12,8 +12,11 @@ import {
 import {
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
+  SUBCATEGORY_LABELS,
+  SUBCATEGORY_OPTIONS,
   type Project,
   type ProjectCategory,
+  type ProjectSubcategory,
 } from "@/lib/types";
 
 type FormState = {
@@ -21,6 +24,7 @@ type FormState = {
   title: string;
   description: string;
   category: ProjectCategory;
+  subcategory: ProjectSubcategory | null;
   client_name: string;
   image_url: string;
   website_url: string;
@@ -101,6 +105,7 @@ const EMPTY_FORM: FormState = {
   title: "",
   description: "",
   category: "graphic_design",
+  subcategory: "poster",
   client_name: "",
   image_url: "",
   website_url: "",
@@ -127,6 +132,7 @@ export default function ProjectManager({
       title: project.title,
       description: project.description ?? "",
       category: project.category,
+      subcategory: project.subcategory,
       client_name: project.client_name ?? "",
       image_url: project.image_url,
       website_url: project.website_url ?? "",
@@ -196,6 +202,7 @@ export default function ProjectManager({
           : r.file.name.replace(/\.[^/.]+$/, ""),
         description: form.description,
         category: form.category,
+        subcategory: form.category === "graphic_design" ? form.subcategory : null,
         client_name: form.client_name,
         image_url: r.url,
         website_url: form.website_url,
@@ -249,6 +256,7 @@ export default function ProjectManager({
       title: form.title,
       description: form.description,
       category: form.category,
+      subcategory: form.category === "graphic_design" ? form.subcategory : null,
       client_name: form.client_name,
       image_url: form.image_url,
       website_url: form.website_url,
@@ -341,6 +349,30 @@ export default function ProjectManager({
             ))}
           </select>
         </div>
+
+        {form.category === "graphic_design" && (
+          <div>
+            <label className="mb-1.5 block font-mono text-xs text-neutral">
+              Type
+            </label>
+            <select
+              value={form.subcategory ?? "other"}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  subcategory: e.target.value as ProjectSubcategory,
+                }))
+              }
+              className="admin-input"
+            >
+              {SUBCATEGORY_OPTIONS.map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="mb-1.5 block font-mono text-xs text-neutral">
@@ -501,6 +533,7 @@ export default function ProjectManager({
               <p className="truncate font-display text-sm text-paper">{project.title}</p>
               <p className="font-mono text-[10px] uppercase tracking-wide text-accent">
                 {CATEGORY_LABELS[project.category]}
+                {project.subcategory ? ` — ${SUBCATEGORY_LABELS[project.subcategory]}` : ""}
               </p>
               {!project.is_published && (
                 <p className="font-mono text-[10px] uppercase tracking-wide text-neutral">

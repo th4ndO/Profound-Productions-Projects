@@ -111,6 +111,8 @@ export default function ContactForm() {
           padding: 0.75rem 1rem;
           color: var(--paper);
           font-family: var(--font-body);
+          /* iOS Safari auto-zooms on focus for any field under 16px. */
+          font-size: 1rem;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
         .field-input::placeholder {

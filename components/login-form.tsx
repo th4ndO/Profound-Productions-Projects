@@ -40,7 +40,7 @@ export default function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-sm border border-surface-line bg-surface px-4 py-3 text-paper focus:outline-2 focus:outline-accent"
+          className="w-full rounded-sm border border-surface-line bg-surface px-4 py-3 text-base text-paper focus:outline-2 focus:outline-accent"
         />
       </div>
       <div>
@@ -52,7 +52,7 @@ export default function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-sm border border-surface-line bg-surface px-4 py-3 text-paper focus:outline-2 focus:outline-accent"
+          className="w-full rounded-sm border border-surface-line bg-surface px-4 py-3 text-base text-paper focus:outline-2 focus:outline-accent"
         />
       </div>
       {error && <p className="font-mono text-sm text-accent">{error}</p>}

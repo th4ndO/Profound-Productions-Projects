@@ -467,7 +467,8 @@ export default function ProjectManager({
             border-radius: 2px;
             padding: 0.6rem 0.8rem;
             color: var(--paper);
-            font-size: 0.875rem;
+            /* iOS Safari auto-zooms on focus for any field under 16px. */
+            font-size: 1rem;
           }
           .admin-input:focus {
             outline: 2px solid var(--accent);

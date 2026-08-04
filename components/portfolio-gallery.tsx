@@ -293,7 +293,7 @@ function Lightbox({
         type="button"
         onClick={handleClose}
         aria-label="Close"
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent"
+        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent"
       >
         <CloseIcon />
       </button>
@@ -306,7 +306,7 @@ function Lightbox({
             onPrev();
           }}
           aria-label="Previous image"
-          className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:left-4"
+          className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:left-4"
         >
           <ChevronIcon direction="left" />
         </button>
@@ -319,7 +319,7 @@ function Lightbox({
             onNext();
           }}
           aria-label="Next image"
-          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:right-4"
+          className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-sm border border-surface-line text-neutral transition-colors hover:border-accent hover:text-accent sm:right-4"
         >
           <ChevronIcon direction="right" />
         </button>

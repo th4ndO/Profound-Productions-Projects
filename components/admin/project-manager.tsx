@@ -519,7 +519,7 @@ export default function ProjectManager({
         {projects.map((project) => (
           <div
             key={project.id}
-            className="flex items-center gap-4 rounded-sm border border-surface-line bg-surface p-3"
+            className="flex flex-wrap items-center gap-3 rounded-sm border border-surface-line bg-surface p-3"
           >
             <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm bg-canvas">
               <Image
@@ -529,8 +529,8 @@ export default function ProjectManager({
                 className="object-cover"
               />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-sm text-paper">{project.title}</p>
+            <div className="min-w-[160px] flex-1">
+              <p className="font-display text-sm text-paper">{project.title}</p>
               <p className="font-mono text-[10px] uppercase tracking-wide text-accent">
                 {CATEGORY_LABELS[project.category]}
                 {project.subcategory ? ` — ${SUBCATEGORY_LABELS[project.subcategory]}` : ""}
@@ -541,18 +541,20 @@ export default function ProjectManager({
                 </p>
               )}
             </div>
-            <button
-              onClick={() => startEdit(project)}
-              className="rounded-sm border border-surface-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-neutral hover:border-paper/40 hover:text-paper"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(project.id)}
-              className="rounded-sm border border-surface-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-accent hover:border-accent"
-            >
-              Delete
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => startEdit(project)}
+                className="rounded-sm border border-surface-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-neutral hover:border-paper/40 hover:text-paper"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(project.id)}
+                className="rounded-sm border border-surface-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-accent hover:border-accent"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>

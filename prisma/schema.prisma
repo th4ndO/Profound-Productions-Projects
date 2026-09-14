@@ -1,0 +1,180 @@
+// Recipe Costing & Batch Production Planner — data model.
+//
+// Money: all monetary fields are integer cents (never a Float). Percentages
+// are stored as plain numbers in the range 0-100 (not 0-1). See
+// src/costing/types.ts for the shared TypeScript contracts that mirror these
+// models.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Unit {
+  id          String @id @default(cuid())
+  name        String // "kilogram"
+  symbol      String @unique // "kg"
+  measureType String // MASS | VOLUME | COUNT
+
+  purchaseIngredients Ingredient[]     @relation("PurchaseUnit")
+  recipeIngredients   Ingredient[]     @relation("RecipeUnit")
+  recipeLines         RecipeLine[]
+  recipeYields        Recipe[]
+  conversionsFrom     UnitConversion[] @relation("FromUnit")
+  conversionsTo       UnitConversion[] @relation("ToUnit")
+
+  @@map("units")
+}
+
+model UnitConversion {
+  id         String @id @default(cuid())
+  fromUnitId String
+  toUnitId   String
+  factor     Float // quantity_in_to = quantity_in_from * factor
+
+  fromUnit Unit @relation("FromUnit", fields: [fromUnitId], references: [id])
+  toUnit   Unit @relation("ToUnit", fields: [toUnitId], references: [id])
+
+  @@unique([fromUnitId, toUnitId])
+  @@map("unit_conversions")
+}
+
+model Ingredient {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  purchaseUnitId   String
+  purchaseQuantity Float // e.g. 2.5 (kg per bag)
+  recipeUnitId     String
+  yieldPercent     Float    @default(100) // 0 < yieldPercent <= 100
+  supplier         String?
+  createdAt        DateTime @default(now())
+
+  purchaseUnit Unit              @relation("PurchaseUnit", fields: [purchaseUnitId], references: [id])
+  recipeUnit   Unit              @relation("RecipeUnit", fields: [recipeUnitId], references: [id])
+  prices       IngredientPrice[]
+  recipeLines  RecipeLine[]
+  batchLines   BatchLine[]
+
+  @@map("ingredients")
+}
+
+// APPEND ONLY. Never update or delete a row. Current price = latest effectiveFrom.
+model IngredientPrice {
+  id            String   @id @default(cuid())
+  ingredientId  String
+  priceCents    Int // price for ONE purchaseQuantity
+  effectiveFrom DateTime @default(now())
+  source        String?
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@map("ingredient_prices")
+}
+
+model Recipe {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  standardYieldQty Float // units produced by one standard batch
+  yieldUnitId      String
+  incidentalsRate  Float    @default(0) // 0-100, packaging/consumables allowance
+  isSubRecipe      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  yieldUnit     Unit         @relation(fields: [yieldUnitId], references: [id])
+  lines         RecipeLine[] @relation("OwningRecipe")
+  usedAsChildIn RecipeLine[] @relation("ChildRecipe")
+  product       Product?
+  batches       Batch[]
+
+  @@map("recipes")
+}
+
+// Enforce the XOR of ingredientId / childRecipeId in application code AND as
+// a SQLite CHECK constraint via a raw migration (see
+// prisma/migrations/*_recipe_line_xor_check). Prisma cannot express a
+// cross-column CHECK constraint natively, so it is added by hand.
+model RecipeLine {
+  id            String  @id @default(cuid())
+  recipeId      String
+  ingredientId  String? // exactly one of ingredientId / childRecipeId
+  childRecipeId String?
+  quantity      Float
+  unitId        String
+
+  recipe      Recipe      @relation("OwningRecipe", fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient  Ingredient? @relation(fields: [ingredientId], references: [id])
+  childRecipe Recipe?     @relation("ChildRecipe", fields: [childRecipeId], references: [id])
+  unit        Unit        @relation(fields: [unitId], references: [id])
+
+  @@map("recipe_lines")
+}
+
+model Product {
+  id                String  @id @default(cuid())
+  recipeId          String  @unique
+  sellingPriceCents Int
+  minMarginPercent  Float   @default(0)
+  active            Boolean @default(true)
+
+  recipe       Recipe        @relation(fields: [recipeId], references: [id])
+  marginAlerts MarginAlert[]
+
+  @@map("products")
+}
+
+model Batch {
+  id               String    @id @default(cuid())
+  recipeId         String
+  targetYield      Float
+  plannedFor       DateTime
+  status           String    @default("PLANNED") // PLANNED|IN_PRODUCTION|COMPLETED|COSTED|CANCELLED
+  costedTotalCents Int?
+  costedUnitCents  Int?
+  costedAt         DateTime?
+
+  recipe Recipe      @relation(fields: [recipeId], references: [id])
+  lines  BatchLine[]
+
+  @@map("batches")
+}
+
+model BatchLine {
+  id             String @id @default(cuid())
+  batchId        String
+  ingredientId   String
+  scaledQuantity Float
+  unitCostCents  Int // FROZEN at costing time — see INV-3
+  lineCostCents  Int
+
+  batch      Batch      @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@map("batch_lines")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String // ADMIN | PRODUCTION | BUYER
+  createdAt    DateTime @default(now())
+
+  @@map("users")
+}
+
+model MarginAlert {
+  id           String   @id @default(cuid())
+  productId    String
+  oldMargin    Float
+  newMargin    Float
+  triggeredAt  DateTime @default(now())
+  acknowledged Boolean  @default(false)
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("margin_alerts")
+}

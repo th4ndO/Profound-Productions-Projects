@@ -96,7 +96,7 @@ this yourself).
 ## 6. Running the tests
 
 ```bash
-npm test              # full suite: 62 tests across 9 files
+npm test              # full suite: 65 tests across 10 files
 npm run test:unit     # costing module only: 40 tests, src/costing/__tests__
 npm run test:coverage # full suite with a coverage report (text + HTML)
 ```

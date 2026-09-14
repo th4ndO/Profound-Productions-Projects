@@ -14,21 +14,11 @@ import {
   CostingError,
 } from "@/costing";
 
+import { ALLOWED_TRANSITIONS, BATCH_STATUSES, type BatchStatus } from "./batch-status";
+
 export interface FormState {
   error: string | null;
 }
-
-const STATUSES = ["PLANNED", "IN_PRODUCTION", "COMPLETED", "COSTED", "CANCELLED"] as const;
-type BatchStatus = (typeof STATUSES)[number];
-
-/** Legal forward transitions. COSTED and CANCELLED are terminal. */
-const ALLOWED_TRANSITIONS: Record<BatchStatus, BatchStatus[]> = {
-  PLANNED: ["IN_PRODUCTION", "CANCELLED"],
-  IN_PRODUCTION: ["COMPLETED", "CANCELLED"],
-  COMPLETED: ["COSTED"],
-  COSTED: [],
-  CANCELLED: [],
-};
 
 export async function createBatchAction(
   _prevState: FormState,
@@ -150,7 +140,7 @@ export async function advanceBatchStatusAction(
 ): Promise<FormState> {
   await requireUser(["ADMIN", "PRODUCTION"]);
 
-  if (!STATUSES.includes(targetStatus as BatchStatus)) {
+  if (!BATCH_STATUSES.includes(targetStatus as BatchStatus)) {
     return { error: `Unknown status "${targetStatus}".` };
   }
 

@@ -6,12 +6,17 @@
  * (checked by presence, since neither has a natural unique key to upsert
  * on) so re-running never duplicates rows.
  *
+ * Also seeds two standing demo fixtures used by the README's "verifying
+ * the core invariants" walkthrough: an ingredient with no price row at all
+ * (INV-1) and a batch already taken through to COSTED (INV-3), frozen with
+ * the same freezeBatchCosting() the app itself uses on that transition —
+ * not a hand-rolled copy of its logic.
+ *
  * Run with `npm run seed`.
  */
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/lib/db";
+import { freezeBatchCosting } from "../src/lib/costing-db";
 
 const SEED_PASSWORD = "Password123!";
 
@@ -257,6 +262,17 @@ async function main() {
       supplier: "Pantry Supplies Ltd",
       prices: [{ priceCents: 1200, effectiveFrom: now, source: "Pantry Supplies Ltd invoice" }],
     },
+    {
+      // Deliberately priceless — a standing fixture for the README's INV-1
+      // walkthrough. Never gets a price row from this seed (prices: []), so
+      // any recipe that uses it always demonstrates MissingPriceError.
+      name: "Specialty Cocoa Nibs",
+      purchaseUnitId: kg.id,
+      purchaseQuantity: 1,
+      recipeUnitId: g.id,
+      supplier: "Flavour House",
+      prices: [],
+    },
   ];
 
   const ingredientIdByName = new Map<string, string>();
@@ -331,6 +347,20 @@ async function main() {
     recipeIdByName,
   );
 
+  // Standing INV-1 demo fixture: this recipe can never be costed, because
+  // Specialty Cocoa Nibs above never gets a price row. Opening it always
+  // shows the MissingPriceError banner rather than a zero total.
+  await upsertRecipe(
+    "Demo: Missing Price",
+    1,
+    unit.id,
+    0,
+    false,
+    [{ ingredientName: "Specialty Cocoa Nibs", quantity: 50, unitId: g.id }],
+    ingredientIdByName,
+    recipeIdByName,
+  );
+
   // --- Products ------------------------------------------------------
   await upsertProduct("Classic Vanilla Cake", 1500, 40, recipeIdByName);
   await upsertProduct("Vanilla Cupcakes", 1800, 45, recipeIdByName);
@@ -340,6 +370,28 @@ async function main() {
   await upsertUser("admin@bakery.local", "ADMIN");
   await upsertUser("production@bakery.local", "PRODUCTION");
   await upsertUser("buyer@bakery.local", "BUYER");
+
+  // Standing INV-3 demo fixture: a batch already taken through to COSTED,
+  // frozen with the app's own freezeBatchCosting() — not a hand-rolled
+  // copy of it — so its stored cost is ready to compare against a live
+  // recipe cost after a price change, with no lifecycle clicking required.
+  const vanillaCakeRecipeId = recipeIdByName.get("Classic Vanilla Cake");
+  if (vanillaCakeRecipeId) {
+    const existingCostedBatch = await prisma.batch.findFirst({
+      where: { recipeId: vanillaCakeRecipeId, status: "COSTED" },
+    });
+    if (!existingCostedBatch) {
+      const demoBatch = await prisma.batch.create({
+        data: {
+          recipeId: vanillaCakeRecipeId,
+          targetYield: 12,
+          plannedFor: now,
+          status: "PLANNED",
+        },
+      });
+      await freezeBatchCosting(demoBatch.id);
+    }
+  }
 
   console.log("Seed complete.");
 }

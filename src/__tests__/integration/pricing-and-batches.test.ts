@@ -18,6 +18,7 @@ let costRecipeById: typeof import("@/lib/costing-db").costRecipeById;
 let recordIngredientPrice: typeof import("@/lib/costing-db").recordIngredientPrice;
 let freezeBatchCosting: typeof import("@/lib/costing-db").freezeBatchCosting;
 let purchaseListForBatch: typeof import("@/lib/costing-db").purchaseListForBatch;
+let computeAllActiveProductMargins: typeof import("@/lib/costing-db").computeAllActiveProductMargins;
 
 let kgId: string;
 let gId: string;
@@ -30,8 +31,13 @@ beforeAll(async () => {
   const dbModule = await import("@/lib/db");
   const costingDbModule = await import("@/lib/costing-db");
   prisma = dbModule.prisma;
-  ({ costRecipeById, recordIngredientPrice, freezeBatchCosting, purchaseListForBatch } =
-    costingDbModule);
+  ({
+    costRecipeById,
+    recordIngredientPrice,
+    freezeBatchCosting,
+    purchaseListForBatch,
+    computeAllActiveProductMargins,
+  } = costingDbModule);
 
   const kg = await prisma.unit.create({ data: { name: "kilogram", symbol: "kg", measureType: "MASS" } });
   const g = await prisma.unit.create({ data: { name: "gram", symbol: "g", measureType: "MASS" } });
@@ -254,5 +260,47 @@ describe("IT-05: a batch purchase list matches a hand-calculated expected result
     const bigFlourLine = bigList.find((l) => l.ingredientId === flour.id)!;
     expect(bigFlourLine.requiredApQuantity).toBeCloseTo(5.4, 9);
     expect(bigFlourLine.packsToBuy).toBe(2);
+  });
+});
+
+describe("computeAllActiveProductMargins", () => {
+  it("INV-1: omits a product whose recipe cannot currently be costed, rather than reporting 0%", async () => {
+    // No price is ever recorded for this ingredient.
+    const unpriced = await prisma.ingredient.create({
+      data: { name: "CAAPM Unpriced", purchaseUnitId: kgId, purchaseQuantity: 1, recipeUnitId: gId },
+    });
+    const recipe = await prisma.recipe.create({
+      data: { name: "CAAPM Recipe", standardYieldQty: 1, yieldUnitId: unitId },
+    });
+    await prisma.recipeLine.create({
+      data: { recipeId: recipe.id, ingredientId: unpriced.id, quantity: 100, unitId: gId },
+    });
+    const product = await prisma.product.create({
+      data: { recipeId: recipe.id, sellingPriceCents: 1000, minMarginPercent: 40, active: true },
+    });
+
+    const margins = await computeAllActiveProductMargins();
+
+    expect(margins.has(product.id)).toBe(false);
+  });
+
+  it("does not include inactive products", async () => {
+    const priced = await prisma.ingredient.create({
+      data: { name: "CAAPM Priced", purchaseUnitId: kgId, purchaseQuantity: 1, recipeUnitId: gId },
+    });
+    await recordIngredientPrice(priced.id, 1000);
+    const recipe = await prisma.recipe.create({
+      data: { name: "CAAPM Inactive Recipe", standardYieldQty: 1, yieldUnitId: unitId },
+    });
+    await prisma.recipeLine.create({
+      data: { recipeId: recipe.id, ingredientId: priced.id, quantity: 100, unitId: gId },
+    });
+    const product = await prisma.product.create({
+      data: { recipeId: recipe.id, sellingPriceCents: 1000, minMarginPercent: 40, active: false },
+    });
+
+    const margins = await computeAllActiveProductMargins();
+
+    expect(margins.has(product.id)).toBe(false);
   });
 });

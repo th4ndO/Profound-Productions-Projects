@@ -40,10 +40,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               ))}
             </nav>
           </div>
-          <div className="flex items-center gap-3 text-sm text-stone-500">
-            <span>
-              {user.email} <span className="badge bg-stone-100 text-stone-600">{user.role}</span>
-            </span>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-stone-500">
+            <span className="max-w-[14rem] truncate sm:max-w-none">{user.email}</span>
+            <span className="badge bg-stone-100 text-stone-600">{user.role}</span>
             <form action={logoutAction}>
               <button type="submit" className="btn-secondary">
                 Sign out

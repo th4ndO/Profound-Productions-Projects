@@ -10,8 +10,14 @@ import {
   detectCycle as detectCyclePure,
   scaleRecipe as scaleRecipePure,
   purchaseList as purchaseListPure,
+  purchaseUnitCostCents,
+  recipeUnitCostCents,
+  edibleUnitCostCents,
+  convert,
+  roundHalfUpCents,
   marginPercent,
   CircularRecipeError,
+  CostingError,
   InvalidPriceError,
 } from "@/costing";
 import type {
@@ -282,4 +288,90 @@ export async function recordIngredientPrice(
       });
     }
   }
+}
+
+/**
+ * INV-3: freeze a batch's cost. Meant to run exactly once, on the
+ * ...COMPLETED -> COSTED transition (see the batches server action, which
+ * is the only caller in the app — this lives here rather than in that
+ * "use server" file so integration tests can call it directly without
+ * going through cookie-based auth). Every ingredient's edible-portion unit
+ * cost *at this moment* is written into BatchLine.unitCostCents — a
+ * deliberate denormalisation (see the BatchLine schema comment) so that a
+ * later IngredientPrice row can never change what a completed batch is
+ * recorded as having cost. Nothing else in the app ever recomputes these
+ * columns; the batch detail page reads them back verbatim once status is
+ * COSTED instead of re-running the live costing path.
+ */
+export async function freezeBatchCosting(batchId: string): Promise<void> {
+  const batch = await prisma.batch.findUniqueOrThrow({ where: { id: batchId } });
+  const [ctx, scaledLines] = await Promise.all([
+    buildRecipeContext(),
+    scaleRecipeById(batch.recipeId, batch.targetYield),
+  ]);
+  const recipe = ctx.recipes.get(batch.recipeId);
+  if (!recipe) {
+    throw new CostingError(`recipe not found: "${batch.recipeId}"`);
+  }
+
+  const aggregatedQtyByIngredient = new Map<string, number>();
+  for (const line of scaledLines) {
+    aggregatedQtyByIngredient.set(
+      line.ingredientId,
+      (aggregatedQtyByIngredient.get(line.ingredientId) ?? 0) + line.quantity,
+    );
+  }
+
+  let ingredientTotalFull = 0;
+  const batchLineData: Array<{
+    ingredientId: string;
+    scaledQuantity: number;
+    unitCostCents: number;
+    lineCostCents: number;
+  }> = [];
+
+  for (const [ingredientId, quantity] of aggregatedQtyByIngredient) {
+    const ingredient = ctx.ingredients.get(ingredientId);
+    if (!ingredient) {
+      throw new CostingError(`ingredient not found: "${ingredientId}"`);
+    }
+    if (ingredient.priceCents === null) {
+      throw new CostingError(`no price recorded for ingredient "${ingredient.name}"`);
+    }
+    const apUnitCostCents = purchaseUnitCostCents(ingredient.priceCents, ingredient.purchaseQuantity);
+    const factor = convert(1, ingredient.purchaseUnitId, ingredient.recipeUnitId, ctx.conversions);
+    const apRecipeUnitCostCents = recipeUnitCostCents(apUnitCostCents, factor);
+    const epUnitCostCents = edibleUnitCostCents(apRecipeUnitCostCents, ingredient.yieldPercent);
+
+    const lineCostFull = epUnitCostCents * quantity;
+    ingredientTotalFull += lineCostFull;
+
+    batchLineData.push({
+      ingredientId,
+      scaledQuantity: quantity,
+      unitCostCents: roundHalfUpCents(epUnitCostCents),
+      lineCostCents: roundHalfUpCents(lineCostFull),
+    });
+  }
+
+  const costedTotalCents = roundHalfUpCents(
+    ingredientTotalFull * (1 + recipe.incidentalsRate / 100),
+  );
+  const costedUnitCents = roundHalfUpCents(costedTotalCents / batch.targetYield);
+
+  await prisma.$transaction([
+    prisma.batchLine.deleteMany({ where: { batchId } }),
+    prisma.batchLine.createMany({
+      data: batchLineData.map((line) => ({ batchId, ...line })),
+    }),
+    prisma.batch.update({
+      where: { id: batchId },
+      data: {
+        status: "COSTED",
+        costedTotalCents,
+        costedUnitCents,
+        costedAt: new Date(),
+      },
+    }),
+  ]);
 }

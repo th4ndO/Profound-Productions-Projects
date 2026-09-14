@@ -17,7 +17,7 @@ export default async function RecipesPage() {
           <h1 className="text-lg font-semibold text-stone-900">Recipes</h1>
           <p className="text-sm text-stone-500">
             Cost is computed live from current ingredient prices — a recipe
-            that can't be costed shows why, never a zero.
+            that can&apos;t be costed shows why, never a zero.
           </p>
         </div>
         <Link href="/recipes/new" className="btn-primary">

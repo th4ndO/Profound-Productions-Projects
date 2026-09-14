@@ -19,7 +19,7 @@ export default async function AlertsPage() {
         <h1 className="text-lg font-semibold text-stone-900">Margin alerts</h1>
         <p className="text-sm text-stone-500">
           Written automatically whenever a new ingredient price causes an
-          active product's margin to cross below its minimum threshold (see
+          active product&apos;s margin to cross below its minimum threshold (see
           Phase 7 / recordIngredientPrice).
         </p>
       </div>

@@ -149,3 +149,53 @@ export async function addPriceAction(
   revalidatePath("/alerts");
   return { error: null };
 }
+
+/**
+ * Deletes an ingredient, but only when nothing references it: not a
+ * recipe line, not a batch line, and — deliberately — not even its own
+ * price history. IngredientPrice rows are append-only by design (never
+ * updated or deleted, see the schema comment); deleting the ingredient
+ * itself would either orphan that history or force deleting it too, so
+ * this refuses outright rather than picking either. In practice that
+ * means an ingredient can only be deleted while it's still unused and
+ * unpriced — right after creating it by mistake, which is the situation
+ * this exists for.
+ */
+export async function deleteIngredientAction(
+  ingredientId: string,
+  _prevState: FormState,
+  _formData: FormData,
+): Promise<FormState> {
+  await requireUser(["ADMIN", "BUYER"]);
+
+  const ingredient = await prisma.ingredient.findUnique({ where: { id: ingredientId } });
+  if (!ingredient) {
+    return { error: "Ingredient not found." };
+  }
+
+  const [recipeLineCount, batchLineCount, priceCount] = await Promise.all([
+    prisma.recipeLine.count({ where: { ingredientId } }),
+    prisma.batchLine.count({ where: { ingredientId } }),
+    prisma.ingredientPrice.count({ where: { ingredientId } }),
+  ]);
+
+  if (recipeLineCount > 0) {
+    return {
+      error: `Cannot delete "${ingredient.name}": it is used in ${recipeLineCount} recipe line(s). Remove those lines first.`,
+    };
+  }
+  if (batchLineCount > 0) {
+    return {
+      error: `Cannot delete "${ingredient.name}": it appears in ${batchLineCount} batch line(s) from past production.`,
+    };
+  }
+  if (priceCount > 0) {
+    return {
+      error: `Cannot delete "${ingredient.name}": it has recorded price history, which is never deleted.`,
+    };
+  }
+
+  await prisma.ingredient.delete({ where: { id: ingredientId } });
+  revalidatePath("/ingredients");
+  redirect("/ingredients");
+}

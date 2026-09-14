@@ -12,6 +12,7 @@ import { formatRand } from "@/lib/money";
 import { updateIngredientAction, addPriceAction } from "../actions";
 import { EditIngredientForm } from "./edit-form";
 import { AddPriceForm } from "./add-price-form";
+import { DeleteIngredientButton } from "./delete-button";
 
 export default async function IngredientDetailPage({
   params,
@@ -141,6 +142,15 @@ export default async function IngredientDetailPage({
             ) : null}
           </tbody>
         </table>
+      </div>
+
+      <div className="card">
+        <h2 className="mb-2 text-sm font-semibold text-stone-900">Danger zone</h2>
+        <p className="mb-3 text-xs text-stone-500">
+          Only possible while this ingredient is unused: no recipe lines, no
+          batch history, and no recorded prices (which are never deleted).
+        </p>
+        <DeleteIngredientButton ingredientId={ingredient.id} />
       </div>
     </div>
   );

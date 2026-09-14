@@ -9,9 +9,10 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
 import { signSession, verifySession } from "./session";
+import { SESSION_COOKIE_NAME } from "./auth-constants";
 import type { User } from "@prisma/client";
 
-export const SESSION_COOKIE_NAME = "session";
+export { SESSION_COOKIE_NAME };
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 export const ROLES = ["ADMIN", "PRODUCTION", "BUYER"] as const;

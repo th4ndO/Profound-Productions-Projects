@@ -145,6 +145,21 @@ export async function closePeriodById(periodId: string) {
   });
 }
 
+/** The open period covering today, or failing that the most recently started open period. */
+export async function getCurrentOpenPeriod(userId: string) {
+  const now = new Date();
+  const covering = await prisma.budgetPeriod.findFirst({
+    where: { userId, closed: false, startDate: { lte: now }, endDate: { gte: now } },
+    orderBy: { startDate: "desc" },
+  });
+  if (covering) return covering;
+
+  return prisma.budgetPeriod.findFirst({
+    where: { userId, closed: false },
+    orderBy: { startDate: "desc" },
+  });
+}
+
 export async function getUserPeriods(userId: string) {
   return prisma.budgetPeriod.findMany({
     where: { userId },

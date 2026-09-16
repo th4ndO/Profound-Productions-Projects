@@ -1,0 +1,100 @@
+/*
+ * Theme tokens ported faithfully from reference/groundwork.html's <style>
+ * block. Values are copied exactly; only --display/--body are rewired to
+ * point at the next/font/google variables set on <html> in layout.tsx.
+ */
+:root {
+  --bg: #edf1f4;
+  --surface: #ffffff;
+  --ink: #1c2733;
+  --muted: #5b6878;
+  --line: #d3dae1;
+  --accent: #3b4cca;
+  --accent-ink: #ffffff;
+  --soft: #e3e7fa;
+  --ground: #d5dccf;
+  --leaf: #4e9a5b;
+  --leaf2: #7bbf6a;
+  --bark: #7a5a3e;
+  --fruit: #d8a43a;
+  --rock: #8a94a6;
+  --snow: #f7f9fb;
+  --window: #f2c65b;
+  --wall: #46566a;
+  --coin: #d9a92f;
+  --coin-bg: #f4e4ae;
+  --glass: #1c2733;
+  --b1: #3e6fb0;
+  --b2: #b8475a;
+  --b3: #3f8c7a;
+  --b4: #d8a43a;
+  --display: var(--font-display), "Segoe UI", system-ui, sans-serif;
+  --body: var(--font-body), "Segoe UI", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161d;
+    --surface: #18212b;
+    --ink: #e6ecf1;
+    --muted: #9aa7b5;
+    --line: #2b3744;
+    --accent: #8c98f2;
+    --accent-ink: #10161d;
+    --soft: #232c44;
+    --ground: #2a3440;
+    --leaf: #5fb06d;
+    --leaf2: #8ed17c;
+    --bark: #a07a58;
+    --rock: #5e6878;
+    --snow: #dde3ea;
+    --wall: #5a6b80;
+    --coin-bg: #4a3e1c;
+    --glass: #c9d3dc;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #10161d;
+  --surface: #18212b;
+  --ink: #e6ecf1;
+  --muted: #9aa7b5;
+  --line: #2b3744;
+  --accent: #8c98f2;
+  --accent-ink: #10161d;
+  --soft: #232c44;
+  --ground: #2a3440;
+  --leaf: #5fb06d;
+  --leaf2: #8ed17c;
+  --bark: #a07a58;
+  --rock: #5e6878;
+  --snow: #dde3ea;
+  --wall: #5a6b80;
+  --coin-bg: #4a3e1c;
+  --glass: #c9d3dc;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}

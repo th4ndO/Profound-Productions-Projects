@@ -8,6 +8,7 @@ export default defineConfig({
     environment: "node",
     globals: false,
     include: ["src/**/*.test.{ts,tsx}"],
+    exclude: ["node_modules/**", "src/__tests__/integration/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

@@ -1,0 +1,105 @@
+// Student Budget Planner — Prisma schema
+// SQLite, offline, single-file database. See BUILD SPEC §5 for the model
+// definitions this file implements verbatim.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id       String         @id @default(cuid())
+  userId   String
+  name     String
+  isSystem Boolean        @default(false)
+  rules    CategoryRule[]
+
+  @@unique([userId, name])
+}
+
+model CategoryRule {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  keyword    String
+  createdAt  DateTime @default(now())
+
+  @@index([categoryId])
+}
+
+model IncomeEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  amountCents Int
+  source      String
+  receivedAt  DateTime
+  periodId    String?
+
+  @@index([userId])
+  @@index([periodId])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amountCents Int
+  description String
+  occurredAt  DateTime
+  categoryId  String?
+  source      String
+  periodId    String?
+
+  @@index([userId])
+  @@index([periodId])
+  @@index([categoryId])
+}
+
+model BudgetPeriod {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  closed    Boolean   @default(false)
+  closedAt  DateTime?
+
+  // FROZEN once closed — see INV-3. Never recomputed after closedAt is set.
+  frozenIncomeCents     Int?
+  frozenSpendCents      Int?
+  frozenEndBalanceCents Int?
+
+  @@index([userId])
+}
+
+model SavingsGoal {
+  id            String                @id @default(cuid())
+  userId        String
+  name          String
+  targetCents   Int
+  targetDate    DateTime
+  createdAt     DateTime              @default(now())
+  contributions SavingsContribution[]
+
+  @@index([userId])
+}
+
+model SavingsContribution {
+  id            String      @id @default(cuid())
+  goalId        String
+  goal          SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  amountCents   Int
+  contributedAt DateTime    @default(now())
+
+  @@index([goalId])
+}

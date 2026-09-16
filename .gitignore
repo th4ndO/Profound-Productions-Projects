@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+# NEXT_PUBLIC_* only — see the comment at the top of .env.production. Never
+# add a similar exception for a file containing a real secret.
+!.env.production
 
 # vercel
 .vercel

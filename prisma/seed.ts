@@ -2,6 +2,15 @@
 // demo user's data so the seeded state is always the same, never a growing
 // pile of duplicates.
 //
+// Dates are anchored to "now" (the moment the seed runs) rather than fixed
+// calendar dates. That matters specifically for the OPEN period: its
+// trailing-14-day burn-rate forecast (INV-2) needs a couple of transactions
+// inside "the last 14 days" no matter when a reviewer runs `npm run seed` —
+// a hardcoded 2026 date would eventually fall outside that window and the
+// forecast would go quietly to zero. The CLOSED period's frozen totals are
+// fixed amounts regardless of date, so they read the same in the README
+// example forever.
+//
 // See README.md for how this data maps onto the INV-1/INV-2/INV-3
 // walkthrough, and prisma/schema.prisma / BUILD SPEC §5 for the model.
 
@@ -14,6 +23,15 @@ const prisma = new PrismaClient();
 
 const DEMO_EMAIL = "demo@student.co.za";
 const DEMO_PASSWORD = "password123";
+
+const now = new Date();
+const DAY_MS = 24 * 60 * 60 * 1000;
+function daysAgo(n: number): Date {
+  return new Date(now.getTime() - n * DAY_MS);
+}
+function daysFromNow(n: number): Date {
+  return new Date(now.getTime() + n * DAY_MS);
+}
 
 async function wipeExistingDemoData() {
   const existing = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
@@ -73,25 +91,25 @@ async function main() {
   });
 
   // --- Budget periods --------------------------------------------------
-  // Closed period: last (already-ended) semester. Its totals below are
+  // Closed period: a semester that already ended. Its totals below are
   // computed with the real closePeriod() function and then frozen, exactly
   // as the app itself would do when a period is closed.
   const closedPeriodRow = await prisma.budgetPeriod.create({
     data: {
       userId: user.id,
-      name: "2026 Semester 1",
-      startDate: new Date("2026-01-01T00:00:00Z"),
-      endDate: new Date("2026-06-30T23:59:59Z"),
+      name: "Last Semester (closed)",
+      startDate: daysAgo(210),
+      endDate: daysAgo(30),
     },
   });
 
-  // Open (live) period: the current, in-progress semester.
+  // Open (live) period: in progress right now.
   const openPeriod = await prisma.budgetPeriod.create({
     data: {
       userId: user.id,
-      name: "2026 Semester 2",
-      startDate: new Date("2026-07-01T00:00:00Z"),
-      endDate: new Date("2026-11-30T23:59:59Z"),
+      name: "This Semester (open)",
+      startDate: daysAgo(29),
+      endDate: daysFromNow(60),
     },
   });
 
@@ -101,7 +119,7 @@ async function main() {
       userId: user.id,
       amountCents: 800_000, // R8 000 NSFAS disbursement
       source: "NSFAS disbursement",
-      receivedAt: new Date("2026-01-05T09:00:00Z"),
+      receivedAt: daysAgo(205),
       periodId: closedPeriodRow.id,
     },
   });
@@ -111,7 +129,7 @@ async function main() {
       userId: user.id,
       amountCents: 750_000, // R7 500 NSFAS disbursement
       source: "NSFAS disbursement",
-      receivedAt: new Date("2026-07-05T09:00:00Z"),
+      receivedAt: daysAgo(25),
       periodId: openPeriod.id,
     },
   });
@@ -120,37 +138,37 @@ async function main() {
       userId: user.id,
       amountCents: 120_000, // R1 200 part-time job
       source: "Part-time job",
-      receivedAt: new Date("2026-08-20T09:00:00Z"),
+      receivedAt: daysAgo(10),
       periodId: openPeriod.id,
     },
   });
 
   // --- Transactions --------------------------------------------------
-  // Closed period (categorized by matching a rule at creation time, just
-  // like the app does — categoryId is set explicitly here to mirror that).
+  // Closed period (categoryId set explicitly here to mirror what
+  // categorizeTransaction() would have assigned at creation time).
   const closedPeriodTransactions = [
     {
       amountCents: 45_000,
       description: "CHECKERS HYPER PAARL",
-      occurredAt: new Date("2026-01-10T12:00:00Z"),
+      occurredAt: daysAgo(200),
       categoryId: groceries.id,
     },
     {
       amountCents: 12_000,
       description: "UBER TRIP 5521",
-      occurredAt: new Date("2026-02-14T08:30:00Z"),
+      occurredAt: daysAgo(170),
       categoryId: transport.id,
     },
     {
       amountCents: 31_000,
       description: "WOOLWORTHS FOOD",
-      occurredAt: new Date("2026-03-02T17:15:00Z"),
+      occurredAt: daysAgo(140),
       categoryId: groceries.id,
     },
     {
       amountCents: 19_900,
       description: "NETFLIX.COM",
-      occurredAt: new Date("2026-04-01T00:05:00Z"),
+      occurredAt: daysAgo(100),
       categoryId: entertainment.id,
     },
     {
@@ -159,7 +177,7 @@ async function main() {
       // counts in frozenSpendCents below.
       amountCents: 8_500,
       description: "CAMPUS PRINTING KIOSK",
-      occurredAt: new Date("2026-05-05T10:00:00Z"),
+      occurredAt: daysAgo(60),
       categoryId: null,
     },
   ];
@@ -170,26 +188,26 @@ async function main() {
     });
   }
 
-  // Open period. Two of these are dated in the trailing 14-day window as
-  // of any "today" on/after 2026-09-13, so the live burn-rate forecast has
-  // real, non-zero data to show.
+  // Open period. Two of these (6 and 2 days ago) fall inside the trailing
+  // 14-day burn-rate window no matter what day this is run, so the live
+  // forecast always has real, non-zero data to show.
   const openPeriodTransactions = [
     {
       amountCents: 15_000,
       description: "SPAR EXPRESS CAMPUS",
-      occurredAt: new Date("2026-09-05T11:00:00Z"),
+      occurredAt: daysAgo(20),
       categoryId: groceries.id,
     },
     {
       amountCents: 6_500,
       description: "BOLT RIDE",
-      occurredAt: new Date("2026-09-10T07:45:00Z"),
+      occurredAt: daysAgo(6),
       categoryId: transport.id,
     },
     {
       amountCents: 9_900,
       description: "SHOWMAX SUBSCRIPTION",
-      occurredAt: new Date("2026-08-25T00:05:00Z"),
+      occurredAt: daysAgo(15),
       categoryId: entertainment.id,
     },
     {
@@ -197,13 +215,13 @@ async function main() {
       // OPEN period — visible on the live dashboard, never dropped.
       amountCents: 4_000,
       description: "CAMPUS PRINTING KIOSK",
-      occurredAt: new Date("2026-09-12T10:00:00Z"),
+      occurredAt: daysAgo(2),
       categoryId: null,
     },
     {
       amountCents: 22_000,
       description: "PNP GROCER",
-      occurredAt: new Date("2026-09-14T18:20:00Z"),
+      occurredAt: daysAgo(1),
       categoryId: groceries.id,
     },
   ];
@@ -243,7 +261,7 @@ async function main() {
       userId: user.id,
       amountCents: 800_000,
       source: "NSFAS disbursement",
-      receivedAt: new Date("2026-01-05T09:00:00Z"),
+      receivedAt: daysAgo(205),
       periodId: closedPeriodRow.id,
     },
   ];
@@ -272,16 +290,16 @@ async function main() {
       userId: user.id,
       name: "Laptop fund",
       targetCents: 1_200_000, // R12 000
-      targetDate: new Date("2026-12-31T00:00:00Z"),
-      createdAt: new Date("2026-07-01T00:00:00Z"),
+      targetDate: daysFromNow(90),
+      createdAt: daysAgo(30),
     },
   });
 
   await prisma.savingsContribution.create({
-    data: { goalId: goal.id, amountCents: 200_000, contributedAt: new Date("2026-07-10T00:00:00Z") },
+    data: { goalId: goal.id, amountCents: 200_000, contributedAt: daysAgo(25) },
   });
   await prisma.savingsContribution.create({
-    data: { goalId: goal.id, amountCents: 150_000, contributedAt: new Date("2026-08-15T00:00:00Z") },
+    data: { goalId: goal.id, amountCents: 150_000, contributedAt: daysAgo(10) },
   });
 
   console.log(`Seed complete. Log in as ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);

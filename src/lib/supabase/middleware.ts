@@ -5,7 +5,11 @@ import { MIDDLEWARE_SUPABASE_URL, MIDDLEWARE_SUPABASE_ANON_KEY } from "./config"
 // Routes that don't require a session. Everything else redirects to
 // /sign-in for an unauthenticated visitor. Phase 1 has no real app pages
 // yet, so this protects the placeholder home page too.
-const PUBLIC_PATH_PREFIXES = ["/sign-in", "/auth/callback"];
+//
+// "/dev" is a dev-only verification area (e.g. /dev/visuals, Phase 2
+// BUILD SPEC §8) — not real app content, so it stays public rather than
+// requiring a signed-in session to view.
+const PUBLIC_PATH_PREFIXES = ["/sign-in", "/auth/callback", "/dev"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATH_PREFIXES.some(

@@ -1,0 +1,68 @@
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 64px;
+}
+
+.heading {
+  font: 700 clamp(1.6rem, 6vw, 2.1rem) / 1.1 var(--display);
+  letter-spacing: -0.02em;
+  margin: 4px 0 6px;
+}
+
+.intro {
+  color: var(--muted);
+  margin: 0 0 24px;
+  max-width: 60ch;
+}
+
+.themeSection {
+  margin: 0 0 32px;
+}
+
+.themeHeading {
+  font: 700 1.2rem / 1.25 var(--display);
+  margin: 0 0 2px;
+}
+
+.themeHint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cell {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cell svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  display: block;
+}
+
+.pLabel {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

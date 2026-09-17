@@ -1,13 +1,27 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GoalVisual, type Theme } from "@/components/visuals/GoalVisual";
+import { gProg, pct, type Milestone } from "@/lib/progress";
+import { statusLine } from "@/lib/status";
+import { dueStatus, dueStatusText } from "@/lib/due";
 import styles from "./page.module.css";
 
+interface GoalCardRow {
+  id: string;
+  title: string;
+  theme: Theme;
+  due_at: string | null;
+  milestones: Milestone[];
+}
+
 /**
- * Placeholder home page for Phase 1. Real content (My goals / Goal ideas /
- * etc.) is a later phase — this exists to prove route protection and the
- * ported theme tokens/fonts work, in both light and dark.
+ * "My goals" — the real authenticated home page (BUILD SPEC §5). Replaces
+ * the Phase 1 placeholder. A grid of goal cards (visual, title, progress
+ * bar, status line, days-left/overdue text), or an empty state pointing
+ * at "New goal" when there aren't any yet.
  */
 export default async function Home() {
   const supabase = await createClient();
@@ -21,6 +35,13 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
+  const { data } = await supabase
+    .from("goals")
+    .select("id, title, theme, due_at, milestones(done, tasks(done))")
+    .order("created_at", { ascending: true });
+
+  const goals = (data ?? []) as GoalCardRow[];
+
   return (
     <div className={styles.wrap}>
       <header className={styles.top}>
@@ -31,29 +52,53 @@ export default async function Home() {
         </div>
       </header>
 
-      <div className={styles.card}>
-        <h2>Signed in</h2>
-        <p>{user.email}</p>
+      <div className={styles.headerRow}>
+        <h2 className={styles.pageHeading}>My goals</h2>
+        <Link href="/goals/new" className={styles.btn}>
+          New goal
+        </Link>
       </div>
 
-      <div className={styles.card}>
-        <h2>Theme tokens</h2>
-        <p>
-          Display font (Bricolage Grotesque) and body font (Atkinson
-          Hyperlegible) are wired via next/font/google into the ported
-          --display / --body variables. Colors below come straight from the
-          prototype&apos;s tokens and respond to system dark mode or the
-          toggle above.
-        </p>
-        <div className={styles.swatches}>
-          <span className={styles.swatch} style={{ background: "var(--bg)" }} />
-          <span className={styles.swatch} style={{ background: "var(--surface)" }} />
-          <span className={styles.swatch} style={{ background: "var(--accent)" }} />
-          <span className={styles.swatch} style={{ background: "var(--soft)" }} />
-          <span className={styles.swatch} style={{ background: "var(--leaf)" }} />
-          <span className={styles.swatch} style={{ background: "var(--fruit)" }} />
+      {goals.length === 0 ? (
+        <div className={styles.empty}>
+          <p>
+            Pick one big goal, break it into milestones, and watch it grow as
+            you finish them.
+          </p>
+          <Link href="/goals/new" className={styles.btn}>
+            New goal
+          </Link>
         </div>
-      </div>
+      ) : (
+        <div className={styles.grid}>
+          {goals.map((g) => {
+            const p = gProg(g);
+            const due = dueStatus(g.due_at, p);
+            return (
+              <Link key={g.id} href={`/goals/${g.id}`} className={styles.card}>
+                <GoalVisual theme={g.theme} p={p} label={`${g.title}, ${pct(p)} percent`} />
+                <h2>{g.title}</h2>
+                <div className={styles.bar}>
+                  <i style={{ width: `${pct(p)}%` }} />
+                </div>
+                <p className={styles.meta}>
+                  {statusLine(g)}
+                  {due.kind !== "none" && (
+                    <>
+                      <br />
+                      {due.kind === "late" ? (
+                        <span className={styles.late}>{dueStatusText(due)}</span>
+                      ) : (
+                        dueStatusText(due)
+                      )}
+                    </>
+                  )}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -26,7 +26,7 @@ export default async function Home() {
       <header className={styles.top}>
         <h1 className={styles.brand}>Groundwork</h1>
         <div className={styles.actions}>
-          <ThemeToggle className={styles.actions} />
+          <ThemeToggle className={styles.actions} buttonClassName={styles.ghost} />
           <SignOutButton className={styles.ghost} />
         </div>
       </header>

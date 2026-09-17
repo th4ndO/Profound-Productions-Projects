@@ -11,7 +11,13 @@ type Theme = "system" | "light" | "dark";
  * "system" on reload), so there's no localStorage read to cause a
  * server/client hydration mismatch on first render.
  */
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  buttonClassName,
+}: {
+  className?: string;
+  buttonClassName?: string;
+}) {
   const [theme, setTheme] = useState<Theme>("system");
 
   // Synchronize the DOM attribute (an external system) with React state.
@@ -30,6 +36,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         <button
           key={option}
           type="button"
+          className={buttonClassName}
           aria-pressed={theme === option}
           onClick={() => setTheme(option)}
         >

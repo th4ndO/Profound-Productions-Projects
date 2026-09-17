@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
+import { MIDDLEWARE_SUPABASE_URL, MIDDLEWARE_SUPABASE_ANON_KEY } from "./config";
 
 // Routes that don't require a session. Everything else redirects to
 // /sign-in for an unauthenticated visitor. Phase 1 has no real app pages
@@ -22,8 +22,8 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
+    MIDDLEWARE_SUPABASE_URL,
+    MIDDLEWARE_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {

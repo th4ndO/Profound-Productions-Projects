@@ -4,23 +4,39 @@ import { useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./sign-in.module.css";
 
-export function SignInForm({ initialError }: { initialError?: string }) {
+export function SignInForm({
+  initialError,
+  next,
+}: {
+  initialError?: string;
+  next?: string;
+}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(
     initialError ? "That link didn't work. Try sending a new one." : null,
   );
 
+  // Only ever forward a relative path — never let an arbitrary `next` value
+  // (attacker-controlled query param) turn into an open redirect through
+  // the magic-link email.
+  const safeNext = next && next.startsWith("/") ? next : null;
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setStatus("sending");
 
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    if (safeNext) {
+      callbackUrl.searchParams.set("next", safeNext);
+    }
+
     const supabase = createClient();
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: callbackUrl.toString(),
       },
     });
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual, type Theme } from "@/components/visuals/GoalVisual";
 import { gProg, pct, type Milestone } from "@/lib/progress";
 import { statusLine } from "@/lib/status";
@@ -52,6 +53,8 @@ export default async function Home() {
         </div>
       </header>
 
+      <GoalTabs active="mine" />
+
       <div className={styles.headerRow}>
         <h2 className={styles.pageHeading}>My goals</h2>
         <Link href="/goals/new" className={styles.btn}>
@@ -65,8 +68,8 @@ export default async function Home() {
             Pick one big goal, break it into milestones, and watch it grow as
             you finish them.
           </p>
-          <Link href="/goals/new" className={styles.btn}>
-            New goal
+          <Link href="/ideas" className={styles.btn}>
+            Browse goal ideas
           </Link>
         </div>
       ) : (

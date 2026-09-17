@@ -15,6 +15,15 @@ export const TIMEFRAME_LABELS: Record<Timeframe, string> = {
   year: "A year",
 };
 
+/** Ported 1:1 from the prototype's `TF[*].sub`. */
+export const TIMEFRAME_SUB: Record<Timeframe, string> = {
+  day: "One sitting. Small reward, quick win.",
+  week: "A little each evening for seven days.",
+  month: "Steady practice. The reward gets bigger.",
+  quarter: "Real change you can show people.",
+  year: "The stories you will tell for a long time.",
+};
+
 /**
  * Ported 1:1 from the prototype's `TF[*].days`:
  * `day:1, week:7, month:30, quarter:90, year:365`.

@@ -7,6 +7,7 @@ import { mProg } from "@/lib/progress";
 import { pushedDueDate } from "@/lib/due";
 import { TIMEFRAME_DAYS, TIMEFRAMES, type Timeframe } from "@/lib/timeframe";
 import { THEMES, type Theme } from "@/components/visuals/GoalVisual";
+import { IDEAS } from "@/lib/ideas";
 
 /**
  * Server Actions backing the goal detail / new-goal screens. Every
@@ -113,6 +114,60 @@ export async function createGoal(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/");
+  redirect(`/goals/${goalId}`);
+}
+
+/**
+ * "Add to my goals" on /ideas — ported 1:1 from the prototype's `adopt`
+ * case. The idea's fields come from the server's own IDEAS data, never
+ * from client input, and `idea_id` is unique per user (see
+ * supabase/migrations/*_initial_schema.sql), so this is a safe no-op
+ * (redirects to the existing goal) rather than an error if it's called
+ * twice — matching `state.goals.some(x=>x.ideaId===i.id)` in the prototype.
+ */
+export async function adoptIdea(ideaId: string): Promise<void> {
+  const { supabase, user } = await requireUser();
+
+  const idea = IDEAS.find((i) => i.id === ideaId);
+  if (!idea) throw new Error("That idea could not be found.");
+
+  const { data: existing } = await supabase
+    .from("goals")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("idea_id", idea.id)
+    .maybeSingle();
+  if (existing) {
+    redirect(`/goals/${(existing as { id: string }).id}`);
+  }
+
+  const dueAt = new Date(Date.now() + TIMEFRAME_DAYS[idea.tf] * DAY_MS);
+
+  const { data: goal, error: goalError } = await supabase
+    .from("goals")
+    .insert({
+      user_id: user.id,
+      idea_id: idea.id,
+      title: idea.title,
+      theme: idea.theme,
+      timeframe: idea.tf,
+      reward: idea.reward,
+      due_at: dueAt.toISOString(),
+    })
+    .select("id")
+    .single();
+  if (goalError || !goal) {
+    throw new Error(goalError?.message ?? "Could not add that goal.");
+  }
+  const goalId = (goal as { id: string }).id;
+
+  const { error: msError } = await supabase.from("milestones").insert(
+    idea.ms.map((title, i) => ({ goal_id: goalId, title, position: i })),
+  );
+  if (msError) throw new Error(msError.message);
+
+  revalidatePath("/");
+  revalidatePath("/ideas");
   redirect(`/goals/${goalId}`);
 }
 

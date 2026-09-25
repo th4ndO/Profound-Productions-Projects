@@ -16,5 +16,7 @@ Each folder was imported from its original repository with full commit history
 | `MAFIA` | [th4ndO/M.A.F.I.A](https://github.com/th4ndO/M.A.F.I.A) |
 | `demorepo` | [th4ndO/demorepo](https://github.com/th4ndO/demorepo) |
 | `demo-repo` | [th4ndO/demo-repo](https://github.com/th4ndO/demo-repo) |
+| `Profound-Productions` | th4ndO/Profound-Productions (private) |
+| `house-sookoo-data-tracker` | th4ndO/house-sookoo-data-tracker (private) |
 
 Coco Bliss projects (`coco-bliss-production-source`, `CocoBliss---Website`) are intentionally excluded.

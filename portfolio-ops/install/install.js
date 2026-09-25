@@ -5,6 +5,9 @@
 //   node install.js backup              Phase 0: copy ~/.claude to ~/.claude-backup-YYYY-MM-DD and verify
 //   node install.js registry            Phase 1: install PORTFOLIO.md and the Portfolio Lead section of CLAUDE.md
 //   node install.js hooks               Phase 2: install gatekeeper.js + config, merge the hook into settings.json
+//   node install.js agents [--mcp-rename Supabase=claude_ai_Supabase,Vercel=claude_ai_Vercel]
+//                                       Phase 3: install the 8 new agents + agent-guard.js (never overwrites)
+//   node install.js agents-report       List every agent in ~/.claude/agents (name, tools, description)
 //   --home <dir>                        Treat <dir> as the home folder (for testing)
 //
 // Every step after "backup" refuses to run unless today's backup exists.
@@ -17,9 +20,15 @@ const os = require('os');
 const path = require('path');
 
 function parseArgs(argv) {
-  const args = { step: argv[0], home: os.homedir() };
+  const args = { step: argv[0], home: os.homedir(), rename: {} };
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === '--home') args.home = path.resolve(argv[++i]);
+    else if (argv[i] === '--mcp-rename') {
+      for (const pair of String(argv[++i] || '').split(',').filter(Boolean)) {
+        const [from, to] = pair.split('=');
+        args.rename[from] = to;
+      }
+    }
   }
   return args;
 }
@@ -85,11 +94,11 @@ function requireBackup(home) {
 
 // Copies a kit file into ~/.claude. If a different version already exists, it is left
 // alone and the kit version is written next to it as <name>.kit-new for manual review.
-function installFile(home, rel) {
+function installFile(home, rel, transform) {
   const src = path.join(KIT, rel);
   const dest = path.join(home, '.claude', rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
-  const incoming = fs.readFileSync(src);
+  const incoming = transform ? Buffer.from(transform(fs.readFileSync(src, 'utf8'))) : fs.readFileSync(src);
   if (!fs.existsSync(dest)) {
     fs.writeFileSync(dest, incoming);
     console.log(`created   ${dest}`);
@@ -158,6 +167,60 @@ function installHookSettings(home) {
   console.log(`updated   ${file} (+${added} PreToolUse matcher${added > 1 ? 's' : ''}; previous copy: settings.json.pre-gatekeeper)`);
 }
 
+const PP_AGENT_KIT = ['architect', 'site-scaffold', 'client-copywriter', 'code-reviewer', 'security-auditor',
+  'launch-auditor', 'qa-tester', 'handover-pack', 'care-plan-runbook', 'site-medic'];
+
+// Agent files reference hooks as "$HOME/.claude/hooks/..." and MCP tools by their cloud
+// server names (mcp__Supabase__...). Locally the hook path becomes absolute and, if your
+// servers are named differently (see /mcp), --mcp-rename maps them.
+function agentTransform(home, rename) {
+  const hooks = path.join(home, '.claude', 'hooks').split(path.sep).join('/');
+  return (text) => {
+    let out = text.split('$HOME/.claude/hooks').join(hooks);
+    for (const [from, to] of Object.entries(rename)) out = out.split(`mcp__${from}__`).join(`mcp__${to}__`);
+    return out;
+  };
+}
+
+function installAgents(home, rename) {
+  if (!fs.existsSync(path.join(home, '.claude', 'hooks', 'gatekeeper.js'))) {
+    console.error('Run "node install.js hooks" first: agent-guard.js depends on gatekeeper.js.');
+    process.exit(6);
+  }
+  const names = fs.readdirSync(path.join(KIT, 'agents')).filter((f) => f.endsWith('.md'));
+  for (const f of names) {
+    if (PP_AGENT_KIT.includes(path.basename(f, '.md'))) {
+      console.error(`refusing: ${f} has the same name as a pp-agent-kit agent`);
+      process.exit(5);
+    }
+  }
+  installFile(home, 'hooks/agent-guard.js');
+  for (const f of names) installFile(home, path.join('agents', f), agentTransform(home, rename));
+}
+
+function frontmatter(text) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  const fm = {};
+  if (!m) return fm;
+  for (const line of m[1].split(/\r?\n/)) {
+    const kv = /^(name|description|tools|model):\s*(.*)$/.exec(line);
+    if (kv) fm[kv[1]] = kv[2].replace(/^["']|["']$/g, '');
+  }
+  return fm;
+}
+
+function agentsReport(home) {
+  const dir = path.join(home, '.claude', 'agents');
+  if (!fs.existsSync(dir)) return console.log(`No ${dir}`);
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md')).sort()) {
+    const fm = frontmatter(fs.readFileSync(path.join(dir, f), 'utf8'));
+    const origin = PP_AGENT_KIT.includes(path.basename(f, '.md')) ? 'pp-agent-kit' : 'portfolio-ops';
+    console.log(`## ${fm.name || f}  [${origin}]`);
+    console.log(`tools: ${fm.tools || '(all inherited)'}`);
+    console.log(`${fm.description || '(no description)'}\n`);
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   switch (args.step) {
@@ -175,8 +238,15 @@ function main() {
       installFile(args.home, 'hooks/gatekeeper.config.json');
       installHookSettings(args.home);
       break;
+    case 'agents':
+      requireBackup(args.home);
+      installAgents(args.home, args.rename);
+      break;
+    case 'agents-report':
+      agentsReport(args.home);
+      break;
     default:
-      console.log('Usage: node install.js <backup|registry|hooks> [--home <dir>]');
+      console.log('Usage: node install.js <backup|registry|hooks|agents|agents-report> [--home <dir>]');
       process.exit(args.step ? 1 : 0);
   }
 }

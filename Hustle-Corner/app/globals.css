@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-white text-gray-900 antialiased;
+}
+
+@layer base {
+  /* Visible keyboard focus on every interactive element, site-wide, without
+     having to remember to add it per component. :focus-visible (not :focus)
+     so mouse/touch clicks don't show a ring, only keyboard navigation. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  /* Tap/click feedback: buttons press down slightly. Excludes disabled
+     buttons implicitly -- they don't receive :active. */
+  button {
+    @apply transition-transform active:scale-95;
+  }
+}

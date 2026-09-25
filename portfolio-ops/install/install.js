@@ -7,6 +7,8 @@
 //   node install.js hooks               Phase 2: install gatekeeper.js + config, merge the hook into settings.json
 //   node install.js agents [--mcp-rename Supabase=claude_ai_Supabase,Vercel=claude_ai_Vercel]
 //                                       Phase 3: install the 8 new agents + agent-guard.js (never overwrites)
+//   node install.js ops [--docs <Documents folder>]
+//                                       Phase 4: copy ops files to <Documents>/ProfoundProductions/portfolio-ops/
 //   node install.js agents-report       List every agent in ~/.claude/agents (name, tools, description)
 //   --home <dir>                        Treat <dir> as the home folder (for testing)
 //
@@ -23,6 +25,7 @@ function parseArgs(argv) {
   const args = { step: argv[0], home: os.homedir(), rename: {} };
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === '--home') args.home = path.resolve(argv[++i]);
+    else if (argv[i] === '--docs') args.docs = path.resolve(argv[++i]);
     else if (argv[i] === '--mcp-rename') {
       for (const pair of String(argv[++i] || '').split(',').filter(Boolean)) {
         const [from, to] = pair.split('=');
@@ -221,6 +224,25 @@ function agentsReport(home) {
   }
 }
 
+// Copies portfolio-ops/ops/* into Documents without overwriting edited copies.
+function installOps(home, docsArg) {
+  const docs = docsArg || path.join(home, 'Documents');
+  const oneDrive = path.join(home, 'OneDrive', 'Documents');
+  if (!docsArg && fs.existsSync(oneDrive)) {
+    console.log(`note: ${oneDrive} exists. If Windows redirects Documents to OneDrive, re-run with --docs "${oneDrive}".`);
+  }
+  const destDir = path.join(docs, 'ProfoundProductions', 'portfolio-ops');
+  fs.mkdirSync(destDir, { recursive: true });
+  const srcDir = path.join(__dirname, '..', 'ops');
+  for (const f of fs.readdirSync(srcDir)) {
+    const dest = path.join(destDir, f);
+    const incoming = fs.readFileSync(path.join(srcDir, f));
+    if (!fs.existsSync(dest)) { fs.writeFileSync(dest, incoming); console.log(`created   ${dest}`); }
+    else if (fs.readFileSync(dest).equals(incoming)) console.log(`unchanged ${dest}`);
+    else { fs.writeFileSync(dest + '.kit-new', incoming); console.log(`KEPT      ${dest} (kit version saved as ${f}.kit-new)`); }
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   switch (args.step) {
@@ -242,11 +264,14 @@ function main() {
       requireBackup(args.home);
       installAgents(args.home, args.rename);
       break;
+    case 'ops':
+      installOps(args.home, args.docs);
+      break;
     case 'agents-report':
       agentsReport(args.home);
       break;
     default:
-      console.log('Usage: node install.js <backup|registry|hooks|agents|agents-report> [--home <dir>]');
+      console.log('Usage: node install.js <backup|registry|hooks|agents|ops|agents-report> [--home <dir>]');
       process.exit(args.step ? 1 : 0);
   }
 }

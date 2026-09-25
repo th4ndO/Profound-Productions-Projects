@@ -33,9 +33,13 @@ const FALLBACK_SUPABASE_URL = "https://bvapxwiryuzzbxesbtqo.supabase.co";
 const FALLBACK_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXB4d2lyeXV6emJ4ZXNidHFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODIwNDAsImV4cCI6MjEwNDk1ODA0MH0.JY33jU_EE_mUX2QO8zAGdTK2021ERkminaMvpQcj2-o";
 
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? FALLBACK_SUPABASE_URL;
+// `||`, not `??`: a variable that exists but is EMPTY (e.g. added in the
+// Vercel dashboard with no value) must fall back too. With `??` an empty
+// string slipped through, the browser client was built with no URL, and
+// sign-in hung on "Sending…" without ever reaching Supabase.
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 export const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? FALLBACK_SUPABASE_ANON_KEY;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
 // VAPID *public* key for Web Push (Phase 5) — like the anon key above, this
 // one is meant to be public: the browser needs it to create a push
@@ -44,7 +48,7 @@ export const SUPABASE_ANON_KEY =
 const FALLBACK_VAPID_PUBLIC_KEY =
   "BDomUgswm-6No8mVSfZRApmuX2cEALOYVr49Wotb0T5JFYQ_aDs-JDPSm6FvRfHbFCmeYcacrw6e1mTYkB0f8I8";
 export const VAPID_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? FALLBACK_VAPID_PUBLIC_KEY;
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || FALLBACK_VAPID_PUBLIC_KEY;
 
 // Edge Middleware only — see the module comment. Do not import these from
 // client.ts or server.ts.

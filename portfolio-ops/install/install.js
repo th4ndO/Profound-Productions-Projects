@@ -4,6 +4,7 @@
 // Usage (run from anywhere):
 //   node install.js backup              Phase 0: copy ~/.claude to ~/.claude-backup-YYYY-MM-DD and verify
 //   node install.js registry            Phase 1: install PORTFOLIO.md and the Portfolio Lead section of CLAUDE.md
+//   node install.js hooks               Phase 2: install gatekeeper.js + config, merge the hook into settings.json
 //   --home <dir>                        Treat <dir> as the home folder (for testing)
 //
 // Every step after "backup" refuses to run unless today's backup exists.
@@ -122,6 +123,41 @@ function installLead(home) {
   console.log(`${existing ? 'updated  ' : 'created  '} ${dest} (Portfolio Lead section)`);
 }
 
+// Merges the gatekeeper PreToolUse entries into ~/.claude/settings.json without touching
+// anything else. A copy of the previous file is kept as settings.json.pre-gatekeeper.
+function installHookSettings(home) {
+  const file = path.join(home, '.claude', 'settings.json');
+  const script = path.join(home, '.claude', 'hooks', 'gatekeeper.js').split(path.sep).join('/');
+  // Plain command string (not exec-form "args"): older Claude Code versions ignore "args",
+  // and "node" alone would then read the event as a script and fail open.
+  const command = `node "${script}"`;
+  let settings = {};
+  if (fs.existsSync(file)) {
+    const raw = fs.readFileSync(file, 'utf8');
+    try {
+      settings = JSON.parse(raw);
+    } catch (e) {
+      console.error(`${file} is not valid JSON (${e.message}). Fix it first; nothing was changed.`);
+      process.exit(4);
+    }
+  }
+  settings.hooks = settings.hooks || {};
+  const pre = (settings.hooks.PreToolUse = settings.hooks.PreToolUse || []);
+  const matchers = ['Bash', 'Write|Edit|MultiEdit|NotebookEdit', 'mcp__.*'];
+  let added = 0;
+  for (const matcher of matchers) {
+    const present = pre.some((e) => e.matcher === matcher &&
+      (e.hooks || []).some((h) => String(h.command || '').includes('gatekeeper.js')));
+    if (present) continue;
+    pre.push({ matcher, hooks: [{ type: 'command', command, timeout: 15 }] });
+    added++;
+  }
+  if (!added) return console.log(`unchanged ${file} (gatekeeper hooks already registered)`);
+  if (fs.existsSync(file)) fs.copyFileSync(file, file + '.pre-gatekeeper');
+  fs.writeFileSync(file, JSON.stringify(settings, null, 2) + '\n');
+  console.log(`updated   ${file} (+${added} PreToolUse matcher${added > 1 ? 's' : ''}; previous copy: settings.json.pre-gatekeeper)`);
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   switch (args.step) {
@@ -133,8 +169,14 @@ function main() {
       installFile(args.home, 'PORTFOLIO.md');
       installLead(args.home);
       break;
+    case 'hooks':
+      requireBackup(args.home);
+      installFile(args.home, 'hooks/gatekeeper.js');
+      installFile(args.home, 'hooks/gatekeeper.config.json');
+      installHookSettings(args.home);
+      break;
     default:
-      console.log('Usage: node install.js <backup|registry> [--home <dir>]');
+      console.log('Usage: node install.js <backup|registry|hooks> [--home <dir>]');
       process.exit(args.step ? 1 : 0);
   }
 }

@@ -6,7 +6,7 @@ Each folder was imported from its original repository with full commit history
 
 | Folder | Original repository |
 | --- | --- |
-| `Project` | [th4ndO/Project-](https://github.com/th4ndO/Project-) |
+| `groundwork` | [th4ndO/Project-](https://github.com/th4ndO/Project-) (Groundwork milestone tracker; folder was `Project`) |
 | `Hustle-Corner` | [th4ndO/Hustle-Corner-](https://github.com/th4ndO/Hustle-Corner-) |
 | `Creat8ve-Inc` | [th4ndO/Creat8ve-Inc](https://github.com/th4ndO/Creat8ve-Inc) |
 | `MamaG-Official` | [th4ndO/MamaG---Offical](https://github.com/th4ndO/MamaG---Offical) |
@@ -20,3 +20,15 @@ Each folder was imported from its original repository with full commit history
 | `house-sookoo-data-tracker` | th4ndO/house-sookoo-data-tracker (private) |
 
 Coco Bliss projects (`coco-bliss-production-source`, `CocoBliss---Website`) are intentionally excluded.
+
+## Deploying (Vercel)
+
+This repository root is not an app, so the root `vercel.json` skips every
+build (`ignoreCommand: exit 0`). A Vercel project pointed at the repo root
+builds nothing.
+
+Each app gets its **own** Vercel project, connected to this repository with
+**Root Directory** set to the app's folder (for example `groundwork`). An app
+can add its own `vercel.json` with
+`"ignoreCommand": "git diff --quiet HEAD^ HEAD -- ."` so a push that doesn't
+touch its folder doesn't redeploy it (see `groundwork/vercel.json`).

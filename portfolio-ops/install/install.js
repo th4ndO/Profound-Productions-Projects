@@ -3,7 +3,10 @@
 //
 // Usage (run from anywhere):
 //   node install.js backup              Phase 0: copy ~/.claude to ~/.claude-backup-YYYY-MM-DD and verify
-//   node install.js backup --home <dir> Same, but treat <dir> as the home folder (for testing)
+//   node install.js registry            Phase 1: install PORTFOLIO.md and the Portfolio Lead section of CLAUDE.md
+//   --home <dir>                        Treat <dir> as the home folder (for testing)
+//
+// Every step after "backup" refuses to run unless today's backup exists.
 //
 // Later phases add more steps. Every step is safe to re-run and never deletes anything.
 
@@ -70,14 +73,68 @@ function backup(home) {
   return dest;
 }
 
+const KIT = path.join(__dirname, '..', 'kit', 'claude');
+
+function requireBackup(home) {
+  if (!fs.existsSync(path.join(home, `.claude-backup-${today()}`))) {
+    console.error(`No ~/.claude-backup-${today()} found. Run "node install.js backup" first.`);
+    process.exit(3);
+  }
+}
+
+// Copies a kit file into ~/.claude. If a different version already exists, it is left
+// alone and the kit version is written next to it as <name>.kit-new for manual review.
+function installFile(home, rel) {
+  const src = path.join(KIT, rel);
+  const dest = path.join(home, '.claude', rel);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  const incoming = fs.readFileSync(src);
+  if (!fs.existsSync(dest)) {
+    fs.writeFileSync(dest, incoming);
+    console.log(`created   ${dest}`);
+  } else if (fs.readFileSync(dest).equals(incoming)) {
+    console.log(`unchanged ${dest}`);
+  } else {
+    fs.writeFileSync(dest + '.kit-new', incoming);
+    console.log(`KEPT      ${dest} (differs from kit; kit version saved as ${path.basename(dest)}.kit-new for you to diff)`);
+  }
+}
+
+const LEAD_BEGIN = '<!-- BEGIN portfolio-lead';
+const LEAD_END = '<!-- END portfolio-lead -->';
+
+// Appends the Portfolio Lead block to ~/.claude/CLAUDE.md, or replaces only the
+// previously installed block. Text outside the markers is never touched.
+function installLead(home) {
+  const dest = path.join(home, '.claude', 'CLAUDE.md');
+  const block = fs.readFileSync(path.join(KIT, 'portfolio-lead.md'), 'utf8').trim();
+  const existing = fs.existsSync(dest) ? fs.readFileSync(dest, 'utf8') : '';
+  const start = existing.indexOf(LEAD_BEGIN);
+  const end = existing.indexOf(LEAD_END);
+  let next;
+  if (start !== -1 && end > start) {
+    next = existing.slice(0, start) + block + existing.slice(end + LEAD_END.length);
+  } else {
+    next = existing + (existing && !existing.endsWith('\n\n') ? (existing.endsWith('\n') ? '\n' : '\n\n') : '') + block + '\n';
+  }
+  if (next === existing) return console.log(`unchanged ${dest}`);
+  fs.writeFileSync(dest, next);
+  console.log(`${existing ? 'updated  ' : 'created  '} ${dest} (Portfolio Lead section)`);
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   switch (args.step) {
     case 'backup':
       backup(args.home);
       break;
+    case 'registry':
+      requireBackup(args.home);
+      installFile(args.home, 'PORTFOLIO.md');
+      installLead(args.home);
+      break;
     default:
-      console.log('Usage: node install.js backup [--home <dir>]');
+      console.log('Usage: node install.js <backup|registry> [--home <dir>]');
       process.exit(args.step ? 1 : 0);
   }
 }

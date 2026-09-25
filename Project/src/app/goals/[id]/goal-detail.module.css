@@ -1,0 +1,311 @@
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 64px;
+}
+
+.link {
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.hero {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  margin: 8px 0 18px;
+}
+
+.hero svg {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  display: block;
+  aspect-ratio: 1;
+}
+
+.hero.grew svg {
+  animation: grow 0.6s ease;
+}
+
+@keyframes grow {
+  40% {
+    transform: scale(1.04);
+  }
+}
+
+.title {
+  font: 700 clamp(1.6rem, 6vw, 2.3rem) / 1.1 var(--display);
+  letter-spacing: -0.02em;
+  margin: 4px 0 6px;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.due {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 6px;
+}
+
+.late {
+  color: #c2413b;
+}
+
+.prize {
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  border: 1.5px dashed var(--line);
+  background: var(--surface);
+}
+
+.prizeWon {
+  border: 1.5px solid var(--fruit);
+  background: var(--coin-bg);
+}
+
+.prize strong {
+  display: block;
+  font: 700 1rem var(--display);
+}
+
+.themes {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 10px;
+}
+
+.chip {
+  flex: 0 0 auto;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.sectionLabel {
+  font: 700 1.05rem var(--display);
+  margin: 22px 0 6px;
+}
+
+.msList {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msItem {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.mhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.num {
+  font: 700 0.85rem var(--display);
+  color: var(--muted);
+  min-width: 1.4em;
+}
+
+.mtitle {
+  flex: 1;
+  font-weight: 700;
+}
+
+.check {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  color: inherit;
+}
+
+.check.checkOn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.taskCheck {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+}
+
+.remove {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 1.1rem;
+}
+
+.tasks {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0 0 0 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tasks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.taskDone span {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.taskRemove {
+  margin-left: auto;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1.1rem;
+}
+
+.adder {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tasks + .adder {
+  padding-left: 36px;
+}
+
+.adder input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--line);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.adder button {
+  border: 0;
+  background: var(--soft);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.error {
+  color: #c2413b;
+  margin: 14px 0 0;
+}
+
+.reminders {
+  margin: 22px 0;
+}
+
+.reminderRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.reminderPicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reminderPicker input[type="time"] {
+  border: 1.5px solid var(--line);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 7px 10px;
+  color: inherit;
+}
+
+.reminderPicker button[type="button"]:not(.chip) {
+  border: 0;
+  background: var(--soft);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.reminderPicker button[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.days {
+  display: flex;
+  gap: 4px;
+}
+
+.days .chip {
+  padding: 6px 10px;
+  min-width: 2em;
+  text-align: center;
+}
+
+.dangerZone {
+  margin-top: 28px;
+}
+
+.danger {
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: transparent;
+  color: #c2413b;
+  font-weight: 700;
+  cursor: pointer;
+}

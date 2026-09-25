@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groundwork</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F4; --surface:#FFFFFF; --ink:#1C2733; --muted:#5B6878; --line:#D3DAE1;
+  --accent:#3B4CCA; --accent-ink:#FFFFFF; --soft:#E3E7FA;
+  --ground:#D5DCCF; --leaf:#4E9A5B; --leaf2:#7BBF6A; --bark:#7A5A3E; --fruit:#D8A43A;
+  --rock:#8A94A6; --snow:#F7F9FB; --window:#F2C65B; --wall:#46566A;
+  --coin:#D9A92F; --coin-bg:#F4E4AE; --glass:#1C2733;
+  --b1:#3E6FB0; --b2:#B8475A; --b3:#3F8C7A; --b4:#D8A43A;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161D; --surface:#18212B; --ink:#E6ECF1; --muted:#9AA7B5; --line:#2B3744;
+    --accent:#8C98F2; --accent-ink:#10161D; --soft:#232C44;
+    --ground:#2A3440; --leaf:#5FB06D; --leaf2:#8ED17C; --bark:#A07A58; --rock:#5E6878; --snow:#DDE3EA;
+    --wall:#5A6B80; --coin-bg:#4A3E1C; --glass:#C9D3DC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161D; --surface:#18212B; --ink:#E6ECF1; --muted:#9AA7B5; --line:#2B3744;
+  --accent:#8C98F2; --accent-ink:#10161D; --soft:#232C44;
+  --ground:#2A3440; --leaf:#5FB06D; --leaf2:#8ED17C; --bark:#A07A58; --rock:#5E6878; --snow:#DDE3EA;
+  --wall:#5A6B80; --coin-bg:#4A3E1C; --glass:#C9D3DC;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{font:700 1.75rem/1 var(--display);letter-spacing:-.02em;margin:0}
+.btn{border:0;border-radius:999px;padding:10px 18px;background:var(--accent);color:var(--accent-ink);font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.danger{background:transparent;color:#C2413B;border:1.5px solid currentColor}
+.link{background:none;border:0;padding:6px 0;color:var(--muted);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.card svg{width:100%;height:auto;aspect-ratio:1;display:block}
+.card h2{font:700 1.1rem/1.25 var(--display);margin:0}
+.bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .5s ease}
+.meta{color:var(--muted);font-size:.9rem;margin:0}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:32px 20px;text-align:center}
+.empty p{max-width:34ch;margin:0 auto 16px;color:var(--muted)}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;margin:8px 0 18px}
+.hero svg{width:100%;max-width:340px;margin:0 auto;display:block;aspect-ratio:1}
+.hero.grew svg{animation:grow .6s ease}
+@keyframes grow{40%{transform:scale(1.04)}}
+h1.title{font:700 clamp(1.6rem,6vw,2.3rem)/1.1 var(--display);letter-spacing:-.02em;margin:4px 0 6px}
+.themes{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px}
+.chip{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.9rem}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+ol.ms{list-style:none;padding:0;margin:18px 0;display:flex;flex-direction:column;gap:12px;counter-reset:ms}
+ol.ms>li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;counter-increment:ms}
+.mhead{display:flex;align-items:center;gap:10px}
+.mhead .num{font:700 .85rem var(--display);color:var(--muted);min-width:1.4em}
+.mhead .num::before{content:counter(ms)}
+.mtitle{flex:1;font-weight:700}
+.check{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;flex:0 0 auto;padding:0}
+.check.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.check svg{width:14px;height:14px}
+.tasks{list-style:none;margin:10px 0 0;padding:0 0 0 36px;display:flex;flex-direction:column;gap:6px}
+.tasks li{display:flex;align-items:center;gap:10px}
+.tasks .check{width:22px;height:22px;border-radius:7px}
+.tasks .done span{text-decoration:line-through;color:var(--muted)}
+.tasks .x{margin-left:auto;background:none;border:0;color:var(--muted);cursor:pointer;padding:2px 6px;font-size:1.1rem}
+.adder{display:flex;gap:8px;margin-top:8px}
+.adder input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+.adder button{border:0;background:var(--soft);color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:700}
+.tasks + .adder{padding-left:36px}
+.section-label{font:700 1.05rem var(--display);margin:22px 0 6px}
+dialog{border:0;border-radius:22px;padding:0;width:min(520px,94vw);background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(10,14,20,.5)}
+.dlg{padding:20px}
+.dlg h2{font:700 1.4rem var(--display);margin:0 0 14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label,.field legend{font-weight:700}
+.field input,.field textarea{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;width:100%}
+.field textarea{min-height:110px;resize:vertical}
+fieldset{border:0;padding:0;margin:0 0 14px}
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.pick{border:1.5px solid var(--line);border-radius:14px;background:var(--bg);padding:6px;cursor:pointer;text-align:center;font-size:.82rem}
+.pick svg{width:100%;aspect-ratio:1;display:block}
+.pick[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+.pick small{display:block;color:var(--muted);line-height:1.2}
+.row{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+.danger-zone{margin-top:28px}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:18px;width:max-content;max-width:100%}
+.tab{border:0;background:transparent;border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:700;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tf-head{font:700 1.3rem/1.2 var(--display);margin:26px 0 4px}
+.tf-sub{color:var(--muted);margin:0 0 12px;font-size:.92rem}
+.ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.idea{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.idea-top{display:flex;gap:12px;align-items:flex-start}
+.idea-top svg{width:56px;height:56px;flex:0 0 auto;background:var(--bg);border-radius:12px}
+.idea h3{font:700 1.05rem/1.25 var(--display);margin:0}
+.idea .cat{color:var(--muted);font-size:.85rem}
+.idea p{margin:0;font-size:.95rem}
+.reward{display:flex;gap:8px;align-items:flex-start;background:var(--soft);border-radius:12px;padding:8px 10px;font-size:.92rem}
+.reward b{white-space:nowrap}
+.idea details{font-size:.9rem;color:var(--muted)}
+.idea details ol{margin:6px 0 0;padding-left:20px}
+.idea .btn{align-self:flex-start;margin-top:auto;padding:8px 14px}
+.idea .btn[disabled]{background:var(--line);color:var(--muted);cursor:default}
+.prize{border-radius:16px;padding:12px 14px;margin:14px 0;border:1.5px dashed var(--line);background:var(--surface)}
+.prize.won{border:1.5px solid var(--fruit);background:var(--coin-bg)}
+.prize strong{display:block;font:700 1rem var(--display)}
+.due{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:6px}
+.late{color:#C2413B}
+.field select{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;width:100%}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<dialog id="newGoal">
+  <form class="dlg" method="dialog" id="goalForm">
+    <h2>New goal</h2>
+    <div class="field">
+      <label for="gTitle">What are you working toward?</label>
+      <input id="gTitle" required maxlength="80" placeholder="e.g. Run a half marathon">
+    </div>
+    <fieldset class="field">
+      <legend>How should it grow?</legend>
+      <div class="picker" id="picker"></div>
+    </fieldset>
+    <div class="field">
+      <label for="gTf">Time frame</label>
+      <select id="gTf"><option value="day">A day</option><option value="week">A week</option><option value="month" selected>A month</option><option value="quarter">3 months</option><option value="year">A year</option></select>
+    </div>
+    <div class="field">
+      <label for="gReward">Reward when you finish</label>
+      <input id="gReward" maxlength="120" placeholder="e.g. New running shoes">
+    </div>
+    <div class="field">
+      <label for="gMs">Milestones, one per line</label>
+      <textarea id="gMs" placeholder="Run 5 km without stopping&#10;Run 10 km&#10;Run 15 km&#10;Race day"></textarea>
+      <p class="hint">You can add tasks inside each milestone later.</p>
+    </div>
+    <div class="row">
+      <button type="button" class="btn ghost" id="cancelGoal">Cancel</button>
+      <button type="submit" class="btn">Create goal</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+const LS_KEY = "groundwork.goals.v1";
+const TF = {
+  day:{label:"A day", days:1, sub:"One sitting. Small reward, quick win."},
+  week:{label:"A week", days:7, sub:"A little each evening for seven days."},
+  month:{label:"A month", days:30, sub:"Steady practice. The reward gets bigger."},
+  quarter:{label:"3 months", days:90, sub:"Real change you can show people."},
+  year:{label:"A year", days:365, sub:"The stories you will tell for a long time."},
+};
+const IDEAS = [
+ {id:"cpr", tf:"day", theme:"tree", cat:"Meaningful", title:"Learn CPR and the choking response", why:"Most people freeze in an emergency. A few hours of practice means you won't.", reward:"A proper coffee and pastry somewhere you've never been", ms:["Watch a certified CPR video course (or book a one-day first aid course)","Practise compressions to a 100–120 bpm song","Learn the choking response for adults and babies","Teach it to one friend"]},
+ {id:"tyre", tf:"day", theme:"strength", cat:"Life skill", title:"Change a car tyre start to finish", why:"A roadside skill that saves you from waiting hours for help.", reward:"Your own tyre pressure gauge for the car", ms:["Find the jack, spanner and spare","Loosen the wheel nuts before jacking","Swap the wheel and tighten in a star pattern","Check the spare's pressure"]},
+ {id:"knots", tf:"day", theme:"shelf", cat:"Life skill", title:"Tie 5 useful knots from memory", why:"Bowline, clove hitch, taut-line, figure-8 and trucker's hitch cover almost every tie-down.", reward:"A paracord keychain you tie yourself, plus a cold drink", ms:["Bowline","Clove hitch","Taut-line hitch","Figure-8","Trucker's hitch, then all five blindfolded"]},
+ {id:"cube", tf:"day", theme:"building", cat:"Fun", title:"Solve a Rubik's cube", why:"Everyone assumes it's genius-level. It's a method you can learn in an afternoon.", reward:"A proper speed cube", ms:["White cross","First layer","Second layer","Yellow cross","Solve it without the guide"]},
+ {id:"dish", tf:"week", theme:"tree", cat:"Life skill", title:"Master one signature meal", why:"Having one dish you can cook for anyone, anytime, is quietly impressive.", reward:"A good chef's knife", ms:["Pick the dish and a trusted recipe","Cook it once and note what went wrong","Cook it again without the recipe","Host three people and cook it for them"]},
+ {id:"juggle", tf:"week", theme:"strength", cat:"Fun", title:"Juggle three balls for 30 catches", why:"Great for focus and coordination, and ten minutes a day is enough.", reward:"A fourth ball, and film yourself for proof", ms:["One-ball arcs, eye height","Two-ball exchange","Three-ball flash","10 catches in a row","30 catches in a row"]},
+ {id:"sasl", tf:"week", theme:"shelf", cat:"Meaningful", title:"Learn the SASL alphabet and 50 signs", why:"South African Sign Language is an official language that very few hearing people know.", reward:"Dinner out with someone you tell about it", ms:["Fingerspell the alphabet","Fingerspell your name and three friends' names","25 everyday signs","50 everyday signs","Sign a short self-introduction"]},
+ {id:"ship", tf:"week", theme:"building", cat:"Career", title:"Build and ship a tiny tool in one week", why:"Finished and public beats perfect and private. It's also portfolio proof.", reward:"A domain name for your next idea", ms:["Pick one small problem","Working version by day 4","Write a short README","Publish it with a live link","Share it with 5 people"]},
+ {id:"stars", tf:"week", theme:"mountain", cat:"Fun", title:"Find 5 constellations and a planet by eye", why:"The southern sky is one of the best in the world, and most people can't name a thing in it.", reward:"A night drive out of the city to see the Milky Way", ms:["Find the Southern Cross and the Pointers","Use them to find due south","Orion","Scorpius","Spot a planet with a sky app to confirm"]},
+ {id:"sunset", tf:"week", theme:"tree", cat:"Meaningful", title:"A 7-day phone sunset", why:"No phone after 21:00 for a week. You'll notice the difference in your sleep and thinking.", reward:"A new book for the evenings", ms:["Set up a charging spot outside the bedroom","Days 1–3","Days 4–5","Days 6–7","Write down what changed"]},
+ {id:"typing", tf:"month", theme:"shelf", cat:"Career", title:"Touch type at 60+ words per minute", why:"You type all day. This pays off every single working hour for the rest of your life.", reward:"A mechanical keyboard", ms:["Home row without looking","30 wpm","45 wpm","60 wpm at 95% accuracy"]},
+ {id:"lang", tf:"month", theme:"shelf", cat:"Meaningful", title:"Hold a 2-minute conversation in a South African language you don't speak yet", why:"People light up when you make the effort in their language.", reward:"A meal out where you order in that language", ms:["Pick the language and a speaker to practise with","Greetings and introductions","100 everyday phrases","First 30-second conversation","A 2-minute conversation"]},
+ {id:"pullups", tf:"month", theme:"strength", cat:"Body", title:"Get to 5 strict pull-ups", why:"One of the best measures of real, usable strength.", reward:"New workout gear", ms:["30-second dead hang","Slow negatives, 3 sets","First strict pull-up","3 in a row","5 in a row"]},
+ {id:"song", tf:"month", theme:"tree", cat:"Fun", title:"Play one full song on guitar or piano", why:"One song you can actually play is worth more than a year of 'I want to learn'.", reward:"A lesson with a real teacher", ms:["Pick a song with 3–4 chords","Learn each chord cleanly","Smooth chord changes","Play it through slowly","Record yourself playing it at full speed"]},
+ {id:"talk", tf:"month", theme:"mountain", cat:"Career", title:"Give a 5-minute talk without notes", why:"Speaking clearly in front of people opens more doors than almost any technical skill.", reward:"A sharp shirt for your next talk", ms:["Pick a topic you know well","Outline three points","Rehearse out loud five times","Record one practice run and watch it","Give the talk to a real audience"]},
+ {id:"parkrun", tf:"quarter", theme:"strength", cat:"Body", title:"Run a parkrun 5 km without walking", why:"Free, every Saturday morning, and surprisingly social.", reward:"Proper running shoes fitted at a running store", ms:["Register and print your barcode","Walk your first parkrun","Run 1 km without stopping","Run 3 km without stopping","Run the full 5 km"]},
+ {id:"chess", tf:"quarter", theme:"building", cat:"Fun", title:"Reach a 1200 rating on Lichess", why:"Strategy, patience and pattern recognition in one game.", reward:"A weighted wooden chess set", ms:["Learn the opening principles","Do 100 tactics puzzles","Reach 1000","Reach 1100","Reach 1200"]},
+ {id:"photo", tf:"quarter", theme:"tree", cat:"Fun", title:"Shoot a 12-photo series in manual mode", why:"Learning light and exposure changes how you see everything, including your design work.", reward:"Print and frame your best shot", ms:["Learn aperture, shutter speed and ISO","Shoot 100 photos in manual","Pick a theme for the series","Shoot the series","Choose the final 12"]},
+ {id:"cert", tf:"quarter", theme:"building", cat:"Career", title:"Pass one recognised tech certification", why:"A cert that matches the tools you already use turns experience into proof.", reward:"A weekend away", ms:["Pick the cert and book the exam date","Finish the official learning path","Score 80%+ on two practice exams","Pass the exam"]},
+ {id:"fund", tf:"quarter", theme:"jar", cat:"Meaningful", title:"Build a one-month emergency fund", why:"Having a buffer changes how you handle every surprise.", reward:"A small treat paid for with money outside the fund", ms:["Work out one month of essential costs","Open a separate savings pocket","25% saved","50% saved","75% saved","100% saved"]},
+ {id:"tugela", tf:"quarter", theme:"mountain", cat:"Adventure", title:"Hike to the top of Tugela Falls", why:"Chain ladders up the Drakensberg to the top of one of the tallest waterfalls on Earth.", reward:"A night in a mountain lodge after the hike", ms:["A 10 km local hike","A 15 km hike with real elevation","Plan the Sentinel car park route with a friend","Summit and climb the chain ladders"]},
+ {id:"scuba", tf:"year", theme:"mountain", cat:"Adventure", title:"Get Open Water scuba certified", why:"A whole world most people never see. Sodwana Bay is one of the best places to learn.", reward:"A dive trip once you're certified", ms:["Swim 200 m comfortably","Complete the theory","Pool training sessions","Four open-water dives","Certified"]},
+ {id:"half", tf:"year", theme:"strength", cat:"Body", title:"Finish a 21 km half marathon", why:"The step after parkrun. Crossing that line stays with you.", reward:"A sports massage and a framed race photo", ms:["Run 5 km","Run 10 km","Enter a race","Run 16 km in training","Finish the half marathon"]},
+ {id:"books", tf:"year", theme:"shelf", cat:"Meaningful", title:"Read 12 books", why:"One a month. A mix of fiction, biography and books that challenge you.", reward:"Every 3 books, a bookshop visit. At 12, a special edition of your favourite", ms:["3 books","6 books","9 books","12 books"]},
+ {id:"provinces", tf:"year", theme:"mountain", cat:"Adventure", title:"Visit all 9 South African provinces", why:"Most South Africans have seen three or four. Few can say they've seen all nine.", reward:"A printed photo book of the journey", ms:["3 provinces","5 provinces","7 provinces","All 9 provinces"]},
+ {id:"teach", tf:"year", theme:"tree", cat:"Meaningful", title:"Teach someone a skill you have, start to finish", why:"Teaching is the best test of whether you really know something, and it changes someone else's year too.", reward:"A celebration meal together when they can do it on their own", ms:["Choose the person and the skill","Plan the steps","First lesson","Halfway check-in","They do it without your help"]},
+];
+let DB = null;
+let uidCounter = 0;
+const state = { goals: loadLocal(), view: "home", tab: "mine", filter: "all", pickTheme: "tree", confirmDelete: false };
+
+/* ---------- helpers ---------- */
+function id(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function loadLocal(){ try{ const v = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); return Array.isArray(v) ? v : []; }catch(e){ return []; } }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state.goals)); }catch(e){} }
+function mProg(m){ if(m.done) return 1; if(!m.tasks.length) return 0; return m.tasks.filter(t=>t.done).length / m.tasks.length; }
+function gProg(g){ if(!g.milestones.length) return 0; return g.milestones.reduce((a,m)=>a+mProg(m),0) / g.milestones.length; }
+function pct(p){ return Math.round(p*100); }
+function getGoal(gid){ return state.goals.find(g=>g.id===gid); }
+const DAY = 86400000;
+function fmtDate(t){ return new Date(t).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}); }
+function dueText(g){
+  if(!g.dueAt || gProg(g) >= 1) return "";
+  const d = Math.ceil((g.dueAt - Date.now())/DAY);
+  if(d > 1) return `${d} days left`;
+  if(d === 1) return "Due tomorrow";
+  if(d === 0) return "Due today";
+  return `<span class="late">${-d} days past your target</span>`;
+}
+const CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function persist(goal){
+  saveLocal();
+  if(DB && goal){ DB.collection("goals").doc(goal.id).set(JSON.parse(JSON.stringify(goal))).catch(()=>{}); }
+}
+function removeGoal(gid){
+  state.goals = state.goals.filter(g=>g.id!==gid);
+  saveLocal();
+  if(DB){ DB.collection("goals").doc(gid).delete().catch(()=>{}); }
+}
+
+/* ---------- visuals (viewBox 0 0 200 200, p = 0..1) ---------- */
+const st = v => `style="fill:var(${v})"`;
+const ground = `<rect x="0" y="182" width="200" height="18" ${st("--ground")}/>`;
+
+function drawTree(p){
+  const g = 182; let s = ground;
+  if(p < 0.04) return s + `<ellipse cx="100" cy="${g-4}" rx="7" ry="5" ${st("--bark")}/><path d="M100 ${g-9} q-4 -8 -9 -9 q6 -1 9 7" ${st("--leaf2")}/>`;
+  const h = 18 + 112*p, top = g-h, w = 3 + 9*p;
+  s += `<path d="M${100-w} ${g} Q${100-w*0.5} ${g-h*0.5} 100 ${top} Q${100+w*0.5} ${g-h*0.5} ${100+w} ${g}Z" ${st("--bark")}/>`;
+  const nb = Math.floor(p*6);
+  for(let i=0;i<nb;i++){
+    const y = g - h*(0.42+0.09*i), dir = i%2 ? 1 : -1, len = (20 + p*22)*(1-i*0.1);
+    s += `<path d="M100 ${y.toFixed(1)} q${(dir*len*0.5).toFixed(1)} ${(-len*0.2).toFixed(1)} ${(dir*len).toFixed(1)} ${(-len*0.55).toFixed(1)}" style="stroke:var(--bark);fill:none" stroke-width="${Math.max(1.5,w*0.35).toFixed(1)}" stroke-linecap="round"/>`;
+  }
+  const L = [[0,0,1],[-22,8,.8],[22,8,.8],[-12,-16,.85],[14,-18,.85],[-34,-4,.65],[34,-2,.65],[0,-30,.7],[-26,-26,.6],[26,-28,.6],[-40,14,.55],[40,16,.55],[-8,20,.6],[10,22,.6],[0,-44,.5],[-18,-40,.5],[18,-42,.5]];
+  const nl = Math.max(1, Math.round(p*L.length)), R = 9 + 11*p, sp = 0.45 + 0.55*p;
+  for(let i=0;i<nl;i++){
+    const [dx,dy,r] = L[i];
+    s += `<circle cx="${(100+dx*sp*1.3).toFixed(1)}" cy="${(top+10+dy*sp*1.2).toFixed(1)}" r="${(R*r).toFixed(1)}" ${st(i%3===0?"--leaf2":"--leaf")}/>`;
+  }
+  if(p >= 1){ [[-20,4],[18,-10],[4,18],[-30,-18],[30,10]].forEach(([dx,dy])=>{ s += `<circle cx="${100+dx}" cy="${top+10+dy}" r="4.5" ${st("--fruit")}/>`; }); }
+  return s;
+}
+
+function drawStrength(p){
+  const plates = p <= 0 ? 0 : Math.min(4, Math.ceil(p*4 - 1e-9));
+  const up = p >= 1, barY = up ? 36 : 94;
+  let s = ground;
+  s += `<path d="M100 130 L84 180 M100 130 L116 180" style="stroke:var(--ink);fill:none" stroke-width="8" stroke-linecap="round"/>`;
+  s += `<path d="M100 88 L100 132" style="stroke:var(--ink)" stroke-width="11" stroke-linecap="round"/>`;
+  s += up
+    ? `<path d="M100 90 L74 ${barY} M100 90 L126 ${barY}" style="stroke:var(--ink);fill:none" stroke-width="6" stroke-linecap="round"/>`
+    : `<path d="M100 92 L80 114 L74 ${barY} M100 92 L120 114 L126 ${barY}" style="stroke:var(--ink);fill:none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s += `<circle cx="100" cy="${up?70:68}" r="11" ${st("--ink")}/>`;
+  s += `<line x1="18" y1="${barY}" x2="182" y2="${barY}" style="stroke:var(--muted)" stroke-width="4" stroke-linecap="round"/>`;
+  for(let i=0;i<plates;i++){
+    const hh = 40 - i*4;
+    s += `<rect x="${56-i*11}" y="${barY-hh/2}" width="8" height="${hh}" rx="2" ${st("--accent")}/>`;
+    s += `<rect x="${136+i*11}" y="${barY-hh/2}" width="8" height="${hh}" rx="2" ${st("--accent")}/>`;
+  }
+  if(up){ s += `<path d="M40 16 l4 -8 M100 10 l0 -8 M160 16 l-4 -8 M28 36 l-8 0 M172 36 l8 0" style="stroke:var(--fruit)" stroke-width="3" stroke-linecap="round"/>`; }
+  return s;
+}
+
+function drawBuilding(p){
+  const F = 8, fh = 17, base = 182, x = 52, w = 96;
+  const built = p*F, full = Math.floor(built), part = built - full;
+  let s = ground;
+  for(let i=0;i<full && i<F;i++){
+    const y = base - (i+1)*fh;
+    s += `<rect x="${x}" y="${y}" width="${w}" height="${fh}" ${st("--wall")}/>`;
+    for(let j=0;j<4;j++) s += `<rect x="${x+10+j*21}" y="${y+5}" width="12" height="8" rx="1.5" ${st("--window")}/>`;
+  }
+  const topY = base - full*fh;
+  if(full < F && part > 0){
+    const y = base - (full+1)*fh;
+    s += `<rect x="${x}" y="${(topY - fh*part).toFixed(1)}" width="${w}" height="${(fh*part).toFixed(1)}" ${st("--wall")} opacity=".55"/>`;
+    s += `<rect x="${x+1}" y="${y+1}" width="${w-2}" height="${fh-2}" style="fill:none;stroke:var(--muted)" stroke-dasharray="4 3" stroke-width="1.5"/>`;
+  }
+  if(p < 1){
+    const cy = Math.min(topY, base) - 4;
+    s += `<path d="M${x+w+14} ${base} L${x+w+14} ${cy-40} M${x+30} ${cy-40} L${x+w+30} ${cy-40} M${x+44} ${cy-40} L${x+44} ${cy-14}" style="stroke:var(--fruit);fill:none" stroke-width="3" stroke-linecap="round"/>`;
+    s += `<rect x="${x+38}" y="${cy-14}" width="12" height="8" ${st("--fruit")}/>`;
+  } else {
+    s += `<path d="M100 ${topY} L100 ${topY-26}" style="stroke:var(--ink)" stroke-width="2.5"/><path d="M100 ${topY-26} l20 6 l-20 6Z" ${st("--accent")}/>`;
+  }
+  return s;
+}
+
+function drawMountain(p){
+  let s = `<rect x="0" y="182" width="200" height="18" ${st("--ground")}/>`;
+  s += `<path d="M8 182 L100 30 L192 182Z" ${st("--rock")}/>`;
+  s += `<path d="M100 30 L81 62 L92 57 L100 66 L108 57 L119 62Z" ${st("--snow")}/>`;
+  const pts = [[40,178],[118,150],[70,120],[124,95],[88,70],[100,36]];
+  const seg = []; let total = 0;
+  for(let i=1;i<pts.length;i++){ const d = Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]); seg.push(d); total += d; }
+  let remain = p*total, done = [pts[0]], pos = pts[0];
+  for(let i=1;i<pts.length;i++){
+    if(remain >= seg[i-1]){ remain -= seg[i-1]; done.push(pts[i]); pos = pts[i]; }
+    else { const t = remain/seg[i-1]; pos = [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t, pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t]; done.push(pos); break; }
+  }
+  const line = a => a.map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ");
+  s += `<polyline points="${line(pts)}" style="fill:none;stroke:var(--snow)" stroke-width="2.5" stroke-dasharray="3 5" stroke-linecap="round" opacity=".8"/>`;
+  s += `<polyline points="${line(done)}" style="fill:none;stroke:var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s += `<path d="M100 36 L100 14" style="stroke:var(--ink)" stroke-width="2.5"/><path d="M100 14 l18 5 l-18 5Z" ${p>=1?st("--fruit"):'style="fill:none;stroke:var(--ink)" stroke-width="1.5"'}/>`;
+  s += `<circle cx="${pos[0].toFixed(1)}" cy="${pos[1].toFixed(1)}" r="6.5" style="fill:var(--accent);stroke:var(--surface)" stroke-width="2.5"/>`;
+  return s;
+}
+
+function drawJar(p){
+  const u = "jar" + (uidCounter++);
+  const jar = "M60 60 L60 52 Q60 46 66 46 L134 46 Q140 46 140 52 L140 60 Q156 72 156 100 L156 164 Q156 182 138 182 L62 182 Q44 182 44 164 L44 100 Q44 72 60 60Z";
+  const fillTop = 182 - p*134;
+  let coins = "";
+  for(let r=0;r<16;r++){
+    const y = 176 - r*9; if(y - 4 < fillTop) break;
+    for(let c=0;c<6;c++){ const x = 52 + c*19 + (r%2?9:0); coins += `<ellipse cx="${x}" cy="${y}" rx="9" ry="4" style="fill:var(--coin);stroke:var(--coin-bg)" stroke-width="1"/>`; }
+  }
+  return `<defs><clipPath id="${u}"><path d="${jar}"/></clipPath></defs>
+    <g clip-path="url(#${u})"><rect x="40" y="${fillTop.toFixed(1)}" width="120" height="${(182-fillTop).toFixed(1)}" ${st("--coin-bg")}/>${coins}</g>
+    <path d="${jar}" style="fill:none;stroke:var(--glass)" stroke-width="3"/>
+    <rect x="54" y="34" width="92" height="13" rx="4" ${st("--bark")}/>
+    ${p>=1?`<path d="M84 22 l6 -10 l6 10 M104 22 l6 -10 l6 10" style="stroke:var(--fruit);fill:none" stroke-width="3" stroke-linecap="round"/>`:""}`;
+}
+
+function drawShelf(p){
+  const shelves = [182, 126, 70], W = [12,9,14,10,13,8,11], H = [42,36,46,38,44,33,40], C = ["--b1","--b2","--b3","--b4"];
+  const n = Math.round(p*21); let s = "", k = 0;
+  s += `<rect x="24" y="14" width="152" height="172" rx="6" style="fill:none;stroke:var(--bark)" stroke-width="4"/>`;
+  shelves.forEach((y,si)=>{
+    let x = 36;
+    for(let b=0;b<7;b++){
+      if(k < n){ const tilt = (b===6 && k===n-1 && p<1) ? ` transform="rotate(-8 ${x} ${y})"` : ""; s += `<rect x="${x}" y="${y-H[b]}" width="${W[b]}" height="${H[b]}" rx="1.5" ${st(C[(b+si)%4])}${tilt}/>`; }
+      x += W[b] + 2; k++;
+    }
+    s += `<rect x="26" y="${y}" width="148" height="5" ${st("--bark")}/>`;
+  });
+  return s;
+}
+
+const THEMES = {
+  tree:     { name:"Tree",     hint:"Health, growth", draw:drawTree },
+  strength: { name:"Strength", hint:"Fitness, training", draw:drawStrength },
+  building: { name:"Tower",    hint:"Career, business", draw:drawBuilding },
+  mountain: { name:"Summit",   hint:"Big challenges", draw:drawMountain },
+  jar:      { name:"Jar",      hint:"Savings, money", draw:drawJar },
+  shelf:    { name:"Shelf",    hint:"Learning, study", draw:drawShelf },
+};
+function visual(theme, p, label){
+  const t = THEMES[theme] || THEMES.tree;
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="${esc(label)}">${t.draw(Math.max(0,Math.min(1,p)))}</svg>`;
+}
+
+/* ---------- rendering ---------- */
+const app = document.getElementById("app");
+
+function statusLine(g){
+  const p = gProg(g), total = g.milestones.length, done = g.milestones.filter(m=>mProg(m)===1).length;
+  if(!total) return "Add your first milestone";
+  if(p >= 1) return `All ${total} milestones done`;
+  return `${done} of ${total} milestones done · ${pct(p)}%`;
+}
+
+function renderHome(){
+  let html = `<header class="top"><h1 class="brand">Groundwork</h1><button class="btn" data-act="new">New goal</button></header>
+    <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="${state.tab==="mine"}" data-act="tab" data-tab="mine">My goals</button><button class="tab" role="tab" aria-selected="${state.tab==="ideas"}" data-act="tab" data-tab="ideas">Goal ideas</button></div>`;
+  if(state.tab === "ideas"){ app.innerHTML = html + ideasHTML(); return; }
+  if(!state.goals.length){
+    html += `<div class="empty"><p>Pick one big goal, break it into milestones, and watch it grow as you finish them.</p><button class="btn" data-act="tab" data-tab="ideas">Browse goal ideas</button></div>`;
+  } else {
+    html += `<div class="grid">` + state.goals.map(g=>{
+      const p = gProg(g);
+      return `<button class="card" data-act="open" data-g="${g.id}">
+        ${visual(g.theme, p, `${g.title}, ${pct(p)} percent`)}
+        <h2>${esc(g.title)}</h2>
+        <div class="bar"><i style="width:${pct(p)}%"></i></div>
+        <p class="meta">${statusLine(g)}${dueText(g)?"<br>"+dueText(g):""}</p>
+      </button>`;
+    }).join("") + `</div>`;
+  }
+  app.innerHTML = html;
+}
+
+function ideasHTML(){
+  const added = new Set(state.goals.map(g=>g.ideaId).filter(Boolean));
+  let html = `<div class="themes" role="group" aria-label="Filter by time frame"><button class="chip" data-act="filter" data-f="all" aria-pressed="${state.filter==="all"}">All</button>` +
+    Object.entries(TF).map(([k,t])=>`<button class="chip" data-act="filter" data-f="${k}" aria-pressed="${state.filter===k}">${t.label}</button>`).join("") + `</div>`;
+  Object.entries(TF).forEach(([k,t])=>{
+    if(state.filter !== "all" && state.filter !== k) return;
+    const list = IDEAS.filter(i=>i.tf===k);
+    html += `<h2 class="tf-head">${t.label}</h2><p class="tf-sub">${t.sub}</p><div class="ideas">` + list.map(i=>`
+      <article class="idea">
+        <div class="idea-top">${visual(i.theme, 0.75, "")}<div><h3>${esc(i.title)}</h3><span class="cat">${i.cat}</span></div></div>
+        <p>${esc(i.why)}</p>
+        <div class="reward"><b>Reward</b><span>${esc(i.reward)}</span></div>
+        <details><summary>${i.ms.length} milestones</summary><ol>${i.ms.map(m=>`<li>${esc(m)}</li>`).join("")}</ol></details>
+        ${added.has(i.id) ? `<button class="btn" disabled>In your goals</button>` : `<button class="btn" data-act="adopt" data-i="${i.id}">Add to my goals</button>`}
+      </article>`).join("") + `</div>`;
+  });
+  return html;
+}
+
+function renderGoal(g){
+  const p = gProg(g);
+  let html = `<button class="link" data-act="home">‹ All goals</button>
+    <div class="hero" id="hero">${visual(g.theme, p, `${g.title} visual, ${pct(p)} percent`)}</div>
+    <h1 class="title">${esc(g.title)}</h1>
+    <p class="meta">${statusLine(g)}</p>
+    ${g.dueAt ? `<div class="due"><span class="meta">Target: ${fmtDate(g.dueAt)}${dueText(g)?" · "+dueText(g):""}</span>${p<1?`<button class="link" data-act="push">Give myself another week</button>`:""}</div>` : ""}
+    ${g.reward ? (p>=1 ? `<div class="prize won"><strong>Reward unlocked</strong>${esc(g.reward)}. You earned it.</div>` : `<div class="prize"><strong>Your reward</strong>${esc(g.reward)}. Unlocks when every milestone is done.</div>`) : ""}
+    <div class="themes" role="group" aria-label="Visual style">` +
+      Object.entries(THEMES).map(([k,t])=>`<button class="chip" data-act="theme" data-t="${k}" aria-pressed="${g.theme===k}">${t.name}</button>`).join("") +
+    `</div>
+    <h2 class="section-label">Milestones</h2>
+    <ol class="ms">` + g.milestones.map(m=>{
+      const mp = mProg(m), complete = mp === 1;
+      return `<li>
+        <div class="mhead">
+          <span class="num" aria-hidden="true"></span>
+          <span class="mtitle">${esc(m.title)}</span>
+          ${m.tasks.length ? `<span class="meta">${m.tasks.filter(t=>t.done).length}/${m.tasks.length}</span>` : ""}
+          <button class="check ${complete?"on":""}" data-act="toggleM" data-m="${m.id}" aria-label="${complete?"Mark milestone not done":"Mark milestone done"}" aria-pressed="${complete}">${complete?CHECK:""}</button>
+          <button class="link" data-act="delM" data-m="${m.id}" aria-label="Remove milestone">✕</button>
+        </div>
+        ${m.tasks.length ? `<ul class="tasks">` + m.tasks.map(t=>`<li class="${t.done?"done":""}">
+            <button class="check ${t.done?"on":""}" data-act="toggleT" data-m="${m.id}" data-t="${t.id}" aria-label="${t.done?"Mark task not done":"Mark task done"}" aria-pressed="${t.done}">${t.done?CHECK:""}</button>
+            <span>${esc(t.title)}</span>
+            <button class="x" data-act="delT" data-m="${m.id}" data-t="${t.id}" aria-label="Remove task">×</button>
+          </li>`).join("") + `</ul>` : ""}
+        <div class="adder"><input data-add="task" data-m="${m.id}" placeholder="Add a task" maxlength="100" aria-label="Add a task to ${esc(m.title)}"><button data-act="addT" data-m="${m.id}">Add</button></div>
+      </li>`;
+    }).join("") + `</ol>
+    <div class="adder"><input data-add="milestone" placeholder="Add a milestone" maxlength="100" aria-label="Add a milestone"><button data-act="addM">Add</button></div>
+    <div class="danger-zone"><button class="btn danger" data-act="delG">${state.confirmDelete?"Tap again to delete this goal":"Delete goal"}</button></div>`;
+  app.innerHTML = html;
+}
+
+function render(){
+  const g = state.view !== "home" ? getGoal(state.view) : null;
+  if(state.view !== "home" && !g) state.view = "home";
+  g ? renderGoal(g) : renderHome();
+}
+
+function pulse(){
+  const h = document.getElementById("hero");
+  if(!h) return;
+  h.classList.remove("grew"); void h.offsetWidth; h.classList.add("grew");
+}
+
+/* ---------- actions ---------- */
+function update(g, fn, focusSel){
+  const before = gProg(g);
+  fn(g);
+  persist(g);
+  render();
+  if(gProg(g) > before) pulse();
+  if(focusSel){ const el = app.querySelector(focusSel); if(el) el.focus(); }
+}
+
+app.addEventListener("click", e=>{
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const act = b.dataset.act, g = state.view !== "home" ? getGoal(state.view) : null;
+  if(act !== "delG") state.confirmDelete = false;
+  switch(act){
+    case "new": openNew(); break;
+    case "open": state.view = b.dataset.g; render(); window.scrollTo(0,0); break;
+    case "home": state.view = "home"; render(); break;
+    case "tab": state.tab = b.dataset.tab; state.view = "home"; render(); break;
+    case "filter": state.filter = b.dataset.f; render(); break;
+    case "adopt": {
+      const i = IDEAS.find(x=>x.id===b.dataset.i); if(!i || state.goals.some(x=>x.ideaId===i.id)) break;
+      const ng = { id:id(), ideaId:i.id, title:i.title, theme:i.theme, reward:i.reward, timeframe:i.tf, createdAt:Date.now(), dueAt:Date.now()+TF[i.tf].days*DAY, milestones:i.ms.map(t=>({id:id(), title:t, done:false, tasks:[]})) };
+      state.goals.push(ng); persist(ng); state.tab = "mine"; state.view = ng.id; render(); window.scrollTo(0,0); break;
+    }
+    case "push": update(g, x=>{ x.dueAt = Math.max(x.dueAt||Date.now(), Date.now()) + 7*DAY; }); break;
+    case "theme": update(g, x=>{ x.theme = b.dataset.t; }); break;
+    case "toggleM": update(g, x=>{
+      const m = x.milestones.find(m=>m.id===b.dataset.m); if(!m) return;
+      const complete = mProg(m) === 1;
+      m.done = !complete; m.tasks.forEach(t=>t.done = !complete);
+    }); break;
+    case "toggleT": update(g, x=>{
+      const m = x.milestones.find(m=>m.id===b.dataset.m); if(!m) return;
+      const t = m.tasks.find(t=>t.id===b.dataset.t); if(!t) return;
+      t.done = !t.done; if(!t.done) m.done = false;
+    }); break;
+    case "delT": update(g, x=>{ const m = x.milestones.find(m=>m.id===b.dataset.m); if(m) m.tasks = m.tasks.filter(t=>t.id!==b.dataset.t); }); break;
+    case "delM": update(g, x=>{ x.milestones = x.milestones.filter(m=>m.id!==b.dataset.m); }); break;
+    case "addT": addTask(g, b.dataset.m); break;
+    case "addM": addMilestone(g); break;
+    case "delG":
+      if(state.confirmDelete){ state.confirmDelete = false; removeGoal(g.id); state.view = "home"; render(); }
+      else { state.confirmDelete = true; render(); }
+      break;
+  }
+});
+
+app.addEventListener("keydown", e=>{
+  if(e.key !== "Enter") return;
+  const inp = e.target.closest("[data-add]"); if(!inp) return;
+  e.preventDefault();
+  const g = getGoal(state.view); if(!g) return;
+  inp.dataset.add === "task" ? addTask(g, inp.dataset.m) : addMilestone(g);
+});
+
+function addTask(g, mid){
+  const inp = app.querySelector(`input[data-add="task"][data-m="${mid}"]`);
+  const v = inp && inp.value.trim(); if(!v) return;
+  update(g, x=>{ const m = x.milestones.find(m=>m.id===mid); if(m){ m.tasks.push({id:id(), title:v, done:false}); m.done = false; } }, `input[data-add="task"][data-m="${mid}"]`);
+}
+function addMilestone(g){
+  const inp = app.querySelector('input[data-add="milestone"]');
+  const v = inp && inp.value.trim(); if(!v) return;
+  update(g, x=>{ x.milestones.push({id:id(), title:v, done:false, tasks:[]}); }, 'input[data-add="milestone"]');
+}
+
+/* ---------- new goal dialog ---------- */
+const dlg = document.getElementById("newGoal"), picker = document.getElementById("picker");
+function renderPicker(){
+  picker.innerHTML = Object.entries(THEMES).map(([k,t])=>`<button type="button" class="pick" data-pick="${k}" aria-pressed="${state.pickTheme===k}">${visual(k, 0.7, t.name)}${t.name}<small>${t.hint}</small></button>`).join("");
+}
+picker.addEventListener("click", e=>{ const b = e.target.closest("[data-pick]"); if(!b) return; state.pickTheme = b.dataset.pick; renderPicker(); picker.querySelector(`[data-pick="${state.pickTheme}"]`).focus(); });
+function openNew(){
+  document.getElementById("goalForm").reset(); state.pickTheme = "tree"; renderPicker();
+  if(typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open","");
+  document.getElementById("gTitle").focus();
+}
+document.getElementById("cancelGoal").addEventListener("click", ()=>dlg.close());
+document.getElementById("goalForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const title = document.getElementById("gTitle").value.trim(); if(!title) return;
+  const ms = document.getElementById("gMs").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,30);
+  const tf = document.getElementById("gTf").value, reward = document.getElementById("gReward").value.trim();
+  const g = { id:id(), title, theme:state.pickTheme, reward, timeframe:tf, createdAt:Date.now(), dueAt:Date.now()+TF[tf].days*DAY, milestones: ms.map(t=>({id:id(), title:t, done:false, tasks:[]})) };
+  state.goals.push(g); persist(g); dlg.close(); state.view = g.id; render(); window.scrollTo(0,0);
+});
+
+render();
+
+/* ---------- cloud sync when available ---------- */
+(async function(){
+  try{
+    if(!window.claude || typeof window.claude.use !== "function") return;
+    const db = await window.claude.use("db"); if(!db) return;
+    DB = db;
+    let first = true;
+    db.collection("goals").onSnapshot(snap=>{
+      const docs = snap.docs.filter(d=>d.exists).map(d=>JSON.parse(JSON.stringify(d.data())));
+      if(first){
+        first = false;
+        const ids = new Set(docs.map(d=>d.id));
+        const localOnly = state.goals.filter(g=>!ids.has(g.id));
+        if(localOnly.length){ localOnly.forEach(g=>db.collection("goals").doc(g.id).set(JSON.parse(JSON.stringify(g))).catch(()=>{})); docs.push(...localOnly); }
+      }
+      docs.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      if(JSON.stringify(docs) === JSON.stringify(state.goals)) return;
+      state.goals = docs;
+      saveLocal(); render();
+    }, ()=>{});
+  }catch(e){}
+})();
+})();
+</script>
+</body>
+</html>

@@ -13,7 +13,10 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - common static asset extensions
+     * - sw.js (the service worker script — browsers hard-fail service
+     *   worker registration if the script is served via a redirect, so it
+     *   must never hit the auth-redirect logic below, signed in or not)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

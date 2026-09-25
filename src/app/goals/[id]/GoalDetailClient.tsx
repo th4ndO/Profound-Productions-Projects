@@ -8,6 +8,8 @@ import { gProg, mProg, pct } from "@/lib/progress";
 import { statusLine } from "@/lib/status";
 import { dueStatus, dueStatusText, fmtDate, pushedDueDate } from "@/lib/due";
 import type { GoalDetail } from "@/lib/goal-types";
+import type { ReminderRule } from "@/lib/reminder-types";
+import { ReminderSettings } from "./ReminderSettings";
 import {
   addMilestone,
   addTask,
@@ -48,7 +50,13 @@ function CheckIcon() {
  * Action — rolling the local state back and showing an error if that
  * write fails.
  */
-export function GoalDetailClient({ goal: initialGoal }: { goal: GoalDetail }) {
+export function GoalDetailClient({
+  goal: initialGoal,
+  reminderRule,
+}: {
+  goal: GoalDetail;
+  reminderRule: ReminderRule | null;
+}) {
   const router = useRouter();
   const [goal, setGoal] = useState(initialGoal);
   const [error, setError] = useState<string | null>(null);
@@ -293,6 +301,8 @@ export function GoalDetailClient({ goal: initialGoal }: { goal: GoalDetail }) {
           </button>
         ))}
       </div>
+
+      <ReminderSettings goalId={goal.id} initialRule={reminderRule} />
 
       <h2 className={styles.sectionLabel}>Milestones</h2>
       <ol className={styles.msList}>

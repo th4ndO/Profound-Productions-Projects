@@ -37,6 +37,15 @@ export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? FALLBACK_SUP
 export const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? FALLBACK_SUPABASE_ANON_KEY;
 
+// VAPID *public* key for Web Push (Phase 5) — like the anon key above, this
+// one is meant to be public: the browser needs it to create a push
+// subscription. The matching PRIVATE key lives only in Supabase Vault,
+// read at send-time by the send-reminders Edge Function — never here.
+const FALLBACK_VAPID_PUBLIC_KEY =
+  "BDomUgswm-6No8mVSfZRApmuX2cEALOYVr49Wotb0T5JFYQ_aDs-JDPSm6FvRfHbFCmeYcacrw6e1mTYkB0f8I8";
+export const VAPID_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? FALLBACK_VAPID_PUBLIC_KEY;
+
 // Edge Middleware only — see the module comment. Do not import these from
 // client.ts or server.ts.
 export const MIDDLEWARE_SUPABASE_URL = FALLBACK_SUPABASE_URL;

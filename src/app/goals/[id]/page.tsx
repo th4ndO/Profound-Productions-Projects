@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Theme } from "@/components/visuals/GoalVisual";
 import type { Timeframe } from "@/lib/timeframe";
 import type { GoalDetail } from "@/lib/goal-types";
+import type { ReminderRule } from "@/lib/reminder-types";
 import { GoalDetailClient } from "./GoalDetailClient";
 
 interface TaskRow {
@@ -73,5 +74,16 @@ export default async function GoalDetailPage({
   // that's deliberate, it never leaks whether the id exists at all.
   if (error || !data) notFound();
 
-  return <GoalDetailClient goal={toGoalDetail(data as GoalRow)} />;
+  const { data: reminderRow } = await supabase
+    .from("reminder_rules")
+    .select("id, days_of_week, local_time, timezone, enabled")
+    .eq("goal_id", id)
+    .maybeSingle();
+
+  return (
+    <GoalDetailClient
+      goal={toGoalDetail(data as GoalRow)}
+      reminderRule={reminderRow as ReminderRule | null}
+    />
+  );
 }

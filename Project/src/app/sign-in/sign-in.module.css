@@ -216,3 +216,10 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.switch {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 14px 0 0;
+}

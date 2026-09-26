@@ -20,8 +20,11 @@ export async function parseWorkbook(buf: ArrayBuffer, ctx: ParseContext, XLSX: t
     throw new ParseError(`This spreadsheet couldn’t be read (${msg}). Try opening it in Excel and saving it as .xlsx.`);
   }
 
+  // Reading the workbook is the slow part; count it as the first 40%.
+  ctx.progress(0.4);
   const sink = new RecordSink(ctx);
   const warnings: string[] = [];
+  const step = (s: number, within: number) => ctx.progress(0.4 + (0.6 * (s + within)) / names.length);
   const empty: string[] = [];
   const names = wb.SheetNames;
   names.forEach((name, s) => {
@@ -31,7 +34,7 @@ export async function parseWorkbook(buf: ArrayBuffer, ctx: ParseContext, XLSX: t
     const first = rows.findIndex((r) => Object.keys(r).some((k) => String(r[k]).trim() !== ''));
     if (first < 0) {
       empty.push(name);
-      ctx.progress((s + 1) / names.length);
+      step(s, 1);
       return;
     }
     const cols = Object.keys(rows[first]);
@@ -42,8 +45,9 @@ export async function parseWorkbook(buf: ArrayBuffer, ctx: ParseContext, XLSX: t
     for (let i = first + 1; i < rows.length; i++) {
       const r = rows[i];
       sink.row(group, `Sheet “${name}”, row ${r.__rowNum__ + 1}`, cols.map((c, j) => [headers[j], String(r[c] ?? '')]));
+      if (i % 5000 === 0) step(s, i / rows.length);
     }
-    ctx.progress((s + 1) / names.length);
+    step(s, 1);
   });
 
   if (!sink.records.length) warnings.push('This workbook has no data rows to search.');

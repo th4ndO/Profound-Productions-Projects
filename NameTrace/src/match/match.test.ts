@@ -4,6 +4,7 @@ import { buildExactRegex, exactMatch } from './exact';
 import { fold, osaDistance, partBudget, singleWordBudget } from './normalize';
 import { parseQuery } from './query';
 import { buildIndex, searchFiles } from './search';
+import { PackedIndex, packIndex } from './tokenIndex';
 import { smartMatch, type FuzzyPolicy } from './smart';
 import { classifyGap, tokenize } from './tokenize';
 
@@ -314,6 +315,17 @@ describe('searchFiles', () => {
     expect(span.start).toBe('John Smith | '.length);
     const exactHits = searchFiles([f], 'Sarah Connor', { exactOnly: true, caseSensitive: false, field: 'Full Name' });
     expect(exactHits.map((h) => h.record.index)).toEqual([0]);
+  });
+
+  it('the packed index (used across the worker boundary) gives identical results', () => {
+    const packed = { records, index: new PackedIndex(packIndex(buildIndex(records))) };
+    for (const q of ['Sarah Connor', 'Connor', 'S. Connor', 'Sarah C']) {
+      const a = searchFiles([file], q, { exactOnly: false, caseSensitive: false });
+      const b = searchFiles([packed], q, { exactOnly: false, caseSensitive: false });
+      expect(b).toEqual(a);
+    }
+    expect(packed.index.size).toBe(file.index.size);
+    expect(Array.from(packed.index.get('connor')!)).toEqual(file.index.get('connor'));
   });
 
   it('empty query returns nothing', () => {

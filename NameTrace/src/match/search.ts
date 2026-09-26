@@ -4,13 +4,13 @@ import { buildExactRegex, exactMatch } from './exact';
 import { osaDistance } from './normalize';
 import { parseQuery, type QueryPart } from './query';
 import { DEFAULT_FUZZY_POLICY, fuzzyBudget, smartMatch, type FuzzyPolicy } from './smart';
+import { MapIndex, type TokenIndex } from './tokenIndex';
 import { tokenize, tokensFor } from './tokenize';
 
-/** Folded token → ascending positions of the records containing it. */
-export type TokenIndex = Map<string, number[]>;
+export type { TokenIndex } from './tokenIndex';
 
-export function buildIndex(records: NormRecord[]): TokenIndex {
-  const index: TokenIndex = new Map();
+export function buildIndex(records: NormRecord[]): MapIndex {
+  const index = new Map<string, number[]>();
   for (let r = 0; r < records.length; r++) {
     for (const t of tokensFor(records[r])) {
       let list = index.get(t.fold);
@@ -18,7 +18,7 @@ export function buildIndex(records: NormRecord[]): TokenIndex {
       if (list[list.length - 1] !== r) list.push(r);
     }
   }
-  return index;
+  return new MapIndex(index);
 }
 
 export interface SearchableFile {
@@ -30,13 +30,6 @@ function firstChar(s: string): string {
   return s.length ? String.fromCodePoint(s.codePointAt(0)!) : '';
 }
 
-const keyLists = new WeakMap<TokenIndex, string[]>();
-function keysOf(index: TokenIndex): string[] {
-  let k = keyLists.get(index);
-  if (!k) keyLists.set(index, (k = [...index.keys()]));
-  return k;
-}
-
 /**
  * Index keys that could satisfy one name part: a superset of what the span
  * matcher will accept for that slot (exact, fuzzy within budget, or initial).
@@ -45,14 +38,14 @@ function partKeys(index: TokenIndex, part: QueryPart, isSurname: boolean, single
   const f = firstChar(part.fold);
   if (part.isInitial) {
     if (single) return index.has(part.fold) ? [part.fold] : [];
-    return keysOf(index).filter((k) => firstChar(k) === f);
+    return index.keyList.filter((k) => firstChar(k) === f);
   }
   const keys = index.has(part.fold) ? [part.fold] : [];
   if (!isSurname && !single && f !== part.fold && index.has(f)) keys.push(f); // "S." for "Sarah"
   const len = [...part.fold].length;
   const budget = fuzzyBudget(len, single, policy);
   if (budget === 0) return keys;
-  for (const k of keysOf(index)) {
+  for (const k of index.keyList) {
     if (k === part.fold) continue;
     if (Math.abs(k.length - part.fold.length) > budget) continue;
     if (policy === 'strict' && firstChar(k) !== f) continue;
@@ -62,9 +55,12 @@ function partKeys(index: TokenIndex, part: QueryPart, isSurname: boolean, single
 }
 
 function union(index: TokenIndex, keys: string[]): number[] {
-  if (keys.length === 1) return index.get(keys[0]) ?? [];
+  if (keys.length === 1) return Array.from(index.get(keys[0]) ?? []);
   const set = new Set<number>();
-  for (const k of keys) for (const r of index.get(k) ?? []) set.add(r);
+  for (const k of keys) {
+    const list = index.get(k);
+    if (list) for (let i = 0; i < list.length; i++) set.add(list[i]);
+  }
   return [...set];
 }
 
@@ -131,7 +127,8 @@ export function searchFiles(
     const key = qTokens.sort((a, b) => b.fold.length - a.fold.length)[0]?.fold;
     for (const f of files) {
       const positions = key ? (f.index.get(key) ?? []) : f.records.map((_, i) => i);
-      for (const p of positions) {
+      for (let i = 0; i < positions.length; i++) {
+        const p = positions[i];
         const rec = f.records[p];
         const spans = scoped(rec, exactMatch(rec.text, re), opts.field);
         if (spans.length) hits.push({ record: rec, spans, best: 'exact' });

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual } from "@/components/visuals/GoalVisual";
@@ -41,7 +40,7 @@ export default async function IdeasPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/start");
   }
 
   const { data } = await supabase.from("goals").select("idea_id").not("idea_id", "is", null);
@@ -55,7 +54,6 @@ export default async function IdeasPage({
         <h1 className={styles.brand}>Groundwork</h1>
         <div className={styles.actions}>
           <ThemeToggle className={styles.actions} buttonClassName={styles.chip} />
-          <SignOutButton className={styles.chip} />
         </div>
       </header>
 

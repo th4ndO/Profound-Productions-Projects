@@ -34,6 +34,10 @@
   padding: 18px;
 }
 
+.dataNote {
+  margin-top: 24px;
+}
+
 .sectionLabel {
   font: 700 1.05rem var(--display);
   margin: 0 0 8px;

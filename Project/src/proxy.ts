@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
 
@@ -16,7 +16,9 @@ export const config = {
      * - sw.js (the service worker script — browsers hard-fail service
      *   worker registration if the script is served via a redirect, so it
      *   must never hit the auth-redirect logic below, signed in or not)
+     * - manifest.webmanifest (browsers fetch it without cookies, so it
+     *   would always be redirected to /start)
      */
-    "/((?!_next/static|_next/image|favicon.ico|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

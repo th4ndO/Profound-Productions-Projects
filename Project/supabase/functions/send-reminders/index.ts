@@ -19,79 +19,16 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import postgres from "npm:postgres@3";
 import webpush from "npm:web-push@3";
+import { isDueNow, isQuietNow, type ScheduleRule } from "./schedule.ts";
 
-const WINDOW_MINUTES = 5;
 const DEFAULT_QUIET_START = "21:30";
 const DEFAULT_QUIET_END = "07:00";
 
-interface LocalParts {
-  dayOfWeek: number; // 0 = Sunday .. 6 = Saturday, matches reminder_rules.days_of_week
-  hour: number;
-  minute: number;
-  dateKey: string; // "YYYY-MM-DD" in that timezone, for same-day dedup
-}
-
-function localParts(timezone: string, date: Date): LocalParts {
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const parts = Object.fromEntries(fmt.formatToParts(date).map((p) => [p.type, p.value]));
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  return {
-    dayOfWeek: dayNames.indexOf(parts.weekday),
-    hour: Number(parts.hour),
-    minute: Number(parts.minute),
-    dateKey: `${parts.year}-${parts.month}-${parts.day}`,
-  };
-}
-
-function parseHHMM(value: string): number {
-  const [h, m] = value.split(":").map(Number);
-  return h * 60 + m;
-}
-
-interface ReminderRuleRow {
+interface ReminderRuleRow extends ScheduleRule {
   id: string;
   user_id: string;
   goal_id: string;
-  days_of_week: number[];
-  local_time: string;
-  timezone: string;
-  last_sent_at: string | null;
   goal_title: string;
-}
-
-function isDueNow(rule: ReminderRuleRow, now: Date): boolean {
-  const local = localParts(rule.timezone, now);
-  if (!rule.days_of_week.includes(local.dayOfWeek)) return false;
-
-  const nowMinutes = local.hour * 60 + local.minute;
-  const ruleMinutes = parseHHMM(rule.local_time.slice(0, 5));
-  const diff = nowMinutes - ruleMinutes;
-  if (diff < 0 || diff >= WINDOW_MINUTES) return false;
-
-  if (rule.last_sent_at) {
-    const lastSent = localParts(rule.timezone, new Date(rule.last_sent_at));
-    if (lastSent.dateKey === local.dateKey) return false; // already sent today
-  }
-  return true;
-}
-
-function isQuietNow(quietStart: string, quietEnd: string, timezone: string, now: Date): boolean {
-  const local = localParts(timezone, now);
-  const nowMinutes = local.hour * 60 + local.minute;
-  const start = parseHHMM(quietStart.slice(0, 5));
-  const end = parseHHMM(quietEnd.slice(0, 5));
-  if (start === end) return false;
-  if (start < end) return nowMinutes >= start && nowMinutes < end;
-  return nowMinutes >= start || nowMinutes < end; // wraps midnight, e.g. 21:30 -> 07:00
 }
 
 Deno.serve(async (_req) => {
@@ -123,61 +60,67 @@ Deno.serve(async (_req) => {
     const errors: string[] = [];
 
     for (const row of rules ?? []) {
-      const rule: ReminderRuleRow = {
-        id: row.id,
-        user_id: row.user_id,
-        goal_id: row.goal_id,
-        days_of_week: row.days_of_week,
-        local_time: row.local_time,
-        timezone: row.timezone,
-        last_sent_at: row.last_sent_at,
-        goal_title: (row.goals as unknown as { title: string } | null)?.title ?? "your goal",
-      };
+      // One bad row (e.g. a timezone Intl rejects) must not stop every
+      // other user's reminders, so each rule is handled in isolation.
+      try {
+        const rule: ReminderRuleRow = {
+          id: row.id,
+          user_id: row.user_id,
+          goal_id: row.goal_id,
+          days_of_week: row.days_of_week,
+          local_time: row.local_time,
+          timezone: row.timezone,
+          last_sent_at: row.last_sent_at,
+          goal_title: (row.goals as unknown as { title: string } | null)?.title ?? "your goal",
+        };
 
-      if (!isDueNow(rule, now)) continue;
+        if (!isDueNow(rule, now)) continue;
 
-      const { data: profile } = await admin
-        .from("profiles")
-        .select("quiet_start, quiet_end")
-        .eq("user_id", rule.user_id)
-        .maybeSingle();
-      const quietStart = profile?.quiet_start ?? DEFAULT_QUIET_START;
-      const quietEnd = profile?.quiet_end ?? DEFAULT_QUIET_END;
-      if (isQuietNow(quietStart, quietEnd, rule.timezone, now)) continue;
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("quiet_start, quiet_end")
+          .eq("user_id", rule.user_id)
+          .maybeSingle();
+        const quietStart = profile?.quiet_start ?? DEFAULT_QUIET_START;
+        const quietEnd = profile?.quiet_end ?? DEFAULT_QUIET_END;
+        if (isQuietNow(quietStart, quietEnd, rule.timezone, now)) continue;
 
-      const { data: subs } = await admin
-        .from("push_subscriptions")
-        .select("id, endpoint, p256dh, auth")
-        .eq("user_id", rule.user_id);
-      if (!subs || subs.length === 0) continue;
+        const { data: subs } = await admin
+          .from("push_subscriptions")
+          .select("id, endpoint, p256dh, auth")
+          .eq("user_id", rule.user_id);
+        if (!subs || subs.length === 0) continue;
 
-      const payload = JSON.stringify({
-        title: "Groundwork",
-        body: `Time to work on: ${rule.goal_title}`,
-        url: `/goals/${rule.goal_id}`,
-      });
+        const payload = JSON.stringify({
+          title: "Groundwork",
+          body: `Time to work on: ${rule.goal_title}`,
+          url: `/goals/${rule.goal_id}`,
+        });
 
-      let sentToAny = false;
-      for (const sub of subs) {
-        try {
-          await webpush.sendNotification(
-            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-            payload,
-          );
-          sentToAny = true;
-        } catch (err) {
-          const statusCode = (err as { statusCode?: number }).statusCode;
-          if (statusCode === 404 || statusCode === 410) {
-            await admin.from("push_subscriptions").delete().eq("id", sub.id);
-          } else {
-            errors.push(`sub ${sub.id}: ${err instanceof Error ? err.message : String(err)}`);
+        let sentToAny = false;
+        for (const sub of subs) {
+          try {
+            await webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              payload,
+            );
+            sentToAny = true;
+          } catch (err) {
+            const statusCode = (err as { statusCode?: number }).statusCode;
+            if (statusCode === 404 || statusCode === 410) {
+              await admin.from("push_subscriptions").delete().eq("id", sub.id);
+            } else {
+              errors.push(`sub ${sub.id}: ${err instanceof Error ? err.message : String(err)}`);
+            }
           }
         }
-      }
 
-      if (sentToAny) {
-        await admin.from("reminder_rules").update({ last_sent_at: now.toISOString() }).eq("id", rule.id);
-        sentCount++;
+        if (sentToAny) {
+          await admin.from("reminder_rules").update({ last_sent_at: now.toISOString() }).eq("id", rule.id);
+          sentCount++;
+        }
+      } catch (err) {
+        errors.push(`rule ${row.id}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 

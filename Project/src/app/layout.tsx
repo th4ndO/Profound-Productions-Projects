@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 
@@ -23,6 +23,16 @@ const atkinsonHyperlegible = Atkinson_Hyperlegible({
 export const metadata: Metadata = {
   title: "Groundwork",
   description: "A personal milestone tracker.",
+  appleWebApp: { capable: true, title: "Groundwork", statusBarStyle: "default" },
+  icons: { icon: "/icon.png", apple: "/icon.png" },
+};
+
+// Browser/OS chrome colour: --accent in light, --bg in dark.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#3b4cca" },
+    { media: "(prefers-color-scheme: dark)", color: "#10161d" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

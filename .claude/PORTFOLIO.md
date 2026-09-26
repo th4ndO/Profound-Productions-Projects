@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API)
 
 ## Risk levels
 
@@ -128,7 +128,7 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` | [CONFIRM] | Created 2026-09-25, probably linked to this monorepo. [CONFIRM it should exist: a monorepo of static and Expo apps may not build] |
+| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Looks redundant: [CONFIRM delete or keep] |
 
 ## Care Plan clients
 

@@ -4,7 +4,7 @@ A browser-only app that parses documents and finds every record, row, paragraph 
 detail that mentions a given person's name. No backend: documents never leave the
 device.
 
-Status: **plan only. Nothing has been built yet.** Waiting for the owner's go-ahead.
+Status: **built** (phases 1–7). See “As built” at the end for where the build differs from this plan.
 
 ---
 
@@ -324,3 +324,18 @@ react/react-dom 19.3 · vite 8.3 · @vitejs/plugin-react 6.1 · tailwindcss +
 papaparse 5.7 · xlsx from `https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz` · jspdf 4.2 ·
 jspdf-autotable 5.0 · lucide-react · vitest 5 · @playwright/test (set to the preinstalled
 Chromium) · @axe-core/playwright · dev: docx, tsx.
+
+---
+
+## 10. As built: differences from this plan
+
+| Area | Plan | As built | Why |
+|---|---|---|---|
+| D7 typo policy | First letter + ≤2 total edits | Also: 6–7 letter parts get **1** edit (2 only from 8 letters) | The plan's claim was wrong: “Connor” → “Cannon” keeps the first letter, so the first-letter rule alone didn't stop it. Tests now prove “Sarah Cannon” is rejected by default and accepted under `'brief'`. |
+| Bracketed names | Brackets break a name | A single bracketed word is part of the name, and bracketed query parts are optional | A real export's “Leader at 1728” value had the form `First (nickname) Last` and couldn't match itself (0 of 3 rows). |
+| Column scope | Not in the brief | **Column** picker plus value suggestions; matching limited to one field | The owner filters by “Leader at 1728”. A plain name search also hits attendees and other columns. |
+| D8 paging | 200 cards | **100** cards per page | Rendering is the largest part of a search on big files. |
+| D6 search worker | Decide after measuring | **Stays on the main thread** | 50k records: p95 ≈ 51 ms. 100k rows in Chromium: 36–187 ms from Enter to render. |
+| Worker hand-off | One “done” message | Records in batches of 2,000; index packed into transferable typed arrays; repeated strings interned; columns computed in the worker | One structured clone of 100k records froze the page for ~1.1 s. Now the worst task is 50–140 ms, mostly garbage collection. |
+| Build | — | `vite.config.ts` forces `NODE_ENV=production` for builds | This environment's `NODE_ENV=development` was shipping React's dev build (495 KB → 273 KB first load). |
+| XLSX row numbers | `__rowNum__` | Rows read with column-letter keys (`header: 'A'`) | `__rowNum__` exists only on object-mode rows, not `header: 1` arrays. |

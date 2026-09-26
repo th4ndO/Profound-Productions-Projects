@@ -20,7 +20,7 @@ function isPublicPath(pathname: string) {
 /**
  * Refreshes the Supabase session cookie on every request and redirects
  * unauthenticated visitors away from protected routes. Called from
- * src/middleware.ts.
+ * src/proxy.ts (Next 16 renamed the middleware convention to "proxy").
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

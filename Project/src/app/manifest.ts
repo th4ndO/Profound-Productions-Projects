@@ -5,7 +5,7 @@ import type { MetadataRoute } from "next";
  * Groundwork to the home screen — and on iOS, Web Push only works for an
  * installed (home screen) web app, so reminders depend on this.
  *
- * Must stay excluded from the auth middleware (see src/middleware.ts):
+ * Must stay excluded from the auth middleware (see src/proxy.ts):
  * browsers fetch the manifest without cookies, so it would otherwise be
  * redirected to /sign-in for every visitor.
  */

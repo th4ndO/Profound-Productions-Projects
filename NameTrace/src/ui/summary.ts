@@ -1,7 +1,15 @@
 import type { MatchKind, SearchHit, Unit } from '../model/types';
 
+// One shared formatter: toLocaleString() builds a new one on every call, which
+// showed up in profiles when rendering large files.
+const numberFormat = new Intl.NumberFormat('en-ZA');
+
+export function formatNumber(n: number): string {
+  return numberFormat.format(n);
+}
+
 export function plural(n: number, one: string, many: string): string {
-  return `${n.toLocaleString('en-ZA')} ${n === 1 ? one : many}`;
+  return `${formatNumber(n)} ${n === 1 ? one : many}`;
 }
 
 /** "a, b and c" */

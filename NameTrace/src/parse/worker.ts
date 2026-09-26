@@ -8,6 +8,7 @@ import { parseBuffer, type Loaders } from './dispatch';
 import type { Mammoth } from './docx';
 import { RECORD_BATCH, type FromWorker, type ToWorker } from './protocol';
 import { packIndex } from '../match/tokenIndex';
+import { columnStats } from '../model/fields';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -53,7 +54,7 @@ self.onmessage = async (e: MessageEvent<ToWorker>) => {
     for (let i = 0; i < doc.records.length; i += RECORD_BATCH) {
       post({ type: 'records', fileId, records: doc.records.slice(i, i + RECORD_BATCH) });
     }
-    self.postMessage({ type: 'done', fileId, fileType: doc.type, unit: doc.unit, index, warnings: doc.warnings } satisfies FromWorker, [
+    self.postMessage({ type: 'done', fileId, fileType: doc.type, unit: doc.unit, index, columns: columnStats(doc.records), warnings: doc.warnings } satisfies FromWorker, [
       index.starts.buffer,
       index.postings.buffer,
     ]);

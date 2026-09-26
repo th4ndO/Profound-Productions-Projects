@@ -3,7 +3,7 @@ import type { FileEntry } from '../state/fileStore';
 import { Badge } from './Badge';
 import { FieldGrid } from './FieldGrid';
 import { Highlight } from './Highlight';
-import { plural } from './summary';
+import { formatNumber, plural } from './summary';
 
 const SPLIT_LIMIT = 300;
 const CONTEXT = 2;
@@ -83,7 +83,7 @@ export function Preview({
             </li>
           ))}
         </ol>
-        {file.records.length > SPLIT_LIMIT && <p className="mt-3 text-xs text-muted">Showing the first {SPLIT_LIMIT} of {file.records.length.toLocaleString('en-ZA')}.</p>}
+        {file.records.length > SPLIT_LIMIT && <p className="mt-3 text-xs text-muted">Showing the first {SPLIT_LIMIT} of {formatNumber(file.records.length)}.</p>}
       </div>
     );
   }

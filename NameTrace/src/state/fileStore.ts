@@ -1,4 +1,5 @@
 import { PackedIndex, type TokenIndex } from '../match/tokenIndex';
+import type { ColumnStat } from '../model/fields';
 import type { FileType, NormRecord, Unit } from '../model/types';
 import { MAX_FILE_BYTES } from '../parse/detect';
 import type { FromWorker, ToWorker } from '../parse/protocol';
@@ -15,6 +16,7 @@ export interface FileEntry {
   unit?: Unit;
   records: NormRecord[];
   index?: TokenIndex;
+  columns: ColumnStat[];
   warnings: string[];
   error?: string;
 }
@@ -87,7 +89,7 @@ export class FileStore {
     for (const file of list) {
       const id = newId();
       ids.push(id);
-      const entry: FileEntry = { id, name: file.name, size: file.size, status: 'queued', progress: 0, records: [], warnings: [] };
+      const entry: FileEntry = { id, name: file.name, size: file.size, status: 'queued', progress: 0, records: [], columns: [], warnings: [] };
       if (file.size > MAX_FILE_BYTES) {
         entry.status = 'error';
         entry.error = `This file is ${formatBytes(file.size)}. NameTrace handles files up to 60 MB. Split it into smaller files and add them separately.`;
@@ -142,20 +144,42 @@ export class FileStore {
     this.running.set(id, worker);
     this.update(id, { status: 'parsing', progress: 0 });
     const received: NormRecord[] = [];
+    // Structured clone gives every record its own copy of repeated strings.
+    // Point them at one shared copy so the duplicates are collected young
+    // instead of surviving (and being copied) through garbage collection.
+    const shared = new Map<string, string>();
+    const intern = (s: string) => {
+      const hit = shared.get(s);
+      if (hit !== undefined) return hit;
+      shared.set(s, s);
+      return s;
+    };
     worker.onmessage = (e) => {
       if (this.running.get(id) !== worker) return; // removed meanwhile
       const m = e.data;
       if (m.type === 'progress') this.update(id, { progress: m.fraction });
       else if (m.type === 'records') {
-        for (const r of m.records) received.push(r);
+        for (const r of m.records) {
+          r.fileId = intern(r.fileId);
+          r.fileName = intern(r.fileName);
+          r.group = intern(r.group);
+          if (r.fields) for (const f of r.fields) f[0] = intern(f[0]);
+          received.push(r);
+        }
       } else if (m.type === 'done') {
+        const index = new PackedIndex(m.index);
+        // Prepare the index while the page is idle so the first search is quick.
+        const idle = (globalThis as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+        if (idle) idle(() => index.warm(), { timeout: 2000 });
+        else setTimeout(() => index.warm(), 50);
         this.finish(id, {
           status: 'done',
           progress: 1,
           fileType: m.fileType,
           unit: m.unit,
           records: received,
-          index: new PackedIndex(m.index),
+          index,
+          columns: m.columns,
           warnings: m.warnings,
         });
       } else if (m.type === 'error') this.finish(id, { status: 'error', error: m.message });

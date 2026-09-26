@@ -55,10 +55,12 @@ export function packIndex(index: MapIndex): PackedIndexData {
 }
 
 export class PackedIndex implements TokenIndex {
-  readonly keyList: string[];
+  private list: string[] | null = null;
   private lookup: Map<string, number> | null = null;
-  constructor(private data: PackedIndexData) {
-    this.keyList = data.keys ? data.keys.split(SEP) : [];
+  constructor(private data: PackedIndexData) {}
+  /** Split lazily: only needed once someone searches this file. */
+  get keyList(): string[] {
+    return (this.list ??= this.data.keys ? this.data.keys.split(SEP) : []);
   }
   private pos(key: string): number | undefined {
     if (!this.lookup) {
@@ -76,5 +78,10 @@ export class PackedIndex implements TokenIndex {
   }
   get size() {
     return this.keyList.length;
+  }
+  /** Build the lazy structures ahead of the first search. */
+  warm(): void {
+    void this.keyList;
+    this.pos('');
   }
 }

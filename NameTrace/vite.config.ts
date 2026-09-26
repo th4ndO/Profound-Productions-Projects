@@ -13,8 +13,13 @@ function devCsp(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), devCsp()],
-  worker: { format: 'es' },
-  build: { target: 'es2022', chunkSizeWarningLimit: 1500 },
+export default defineConfig(({ command }) => {
+  // A NODE_ENV=development left in the shell makes Vite bundle React's
+  // development build (larger and much slower). Builds are always production.
+  if (command === 'build') process.env.NODE_ENV = 'production';
+  return {
+    plugins: [react(), tailwindcss(), devCsp()],
+    worker: { format: 'es' as const },
+    build: { target: 'es2022', chunkSizeWarningLimit: 1500 },
+  };
 });

@@ -4,7 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual } from "@/components/visuals/GoalVisual";
-import { CATEGORIES, CATEGORY_LABELS, IDEAS, isCategory, type Category } from "@/lib/ideas";
+import { CATEGORY_LABELS, IDEAS, isCategory, type Category } from "@/lib/ideas";
+import { IdeaFilters } from "./IdeaFilters";
+import { ideasHref } from "./href";
 import { TIMEFRAMES, TIMEFRAME_LABELS, TIMEFRAME_SUB, type Timeframe } from "@/lib/timeframe";
 import { adoptIdea } from "@/app/goals/actions";
 import styles from "./ideas.module.css";
@@ -28,13 +30,6 @@ interface IdeaGoalRow {
  * combine. `?filter=` is the old name for `?tf=`, still accepted so
  * existing links keep working.
  */
-function ideasHref(cat: Category | "all", tf: Timeframe | "all") {
-  const params = new URLSearchParams();
-  if (cat !== "all") params.set("cat", cat);
-  if (tf !== "all") params.set("tf", tf);
-  const qs = params.toString();
-  return qs ? `/ideas?${qs}` : "/ideas";
-}
 
 export default async function IdeasPage({
   searchParams,
@@ -72,33 +67,7 @@ export default async function IdeasPage({
 
       <GoalTabs active="ideas" />
 
-      <p className={styles.filterLabel} id="cat-filter-label">
-        Category
-      </p>
-      <div className={styles.filters} role="group" aria-labelledby="cat-filter-label">
-        <Link href={ideasHref("all", filter)} className={styles.chip} aria-pressed={cat === "all"}>
-          All
-        </Link>
-        {CATEGORIES.map((c) => (
-          <Link key={c.id} href={ideasHref(c.id, filter)} className={styles.chip} aria-pressed={cat === c.id}>
-            {c.label}
-          </Link>
-        ))}
-      </div>
-
-      <p className={styles.filterLabel} id="tf-filter-label">
-        Time frame
-      </p>
-      <div className={styles.filters} role="group" aria-labelledby="tf-filter-label">
-        <Link href={ideasHref(cat, "all")} className={styles.chip} aria-pressed={filter === "all"}>
-          Any
-        </Link>
-        {TIMEFRAMES.map((tf) => (
-          <Link key={tf} href={ideasHref(cat, tf)} className={styles.chip} aria-pressed={filter === tf}>
-            {TIMEFRAME_LABELS[tf]}
-          </Link>
-        ))}
-      </div>
+      <IdeaFilters cat={cat} tf={filter} />
 
       {visibleCount === 0 ? (
         <p className={styles.none}>

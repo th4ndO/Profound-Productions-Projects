@@ -24,12 +24,13 @@ filled in by the owner.
 | `nos236-creat8ves-inc` | `th4ndO/Creat8ve-Inc` @ `/` | none | no env vars |
 | `house-sookoo-data-tracker` | `th4ndO/house-sookoo-data-tracker` @ `/` (branch `master`) | none | no env vars |
 
-No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The two monorepo projects (`nametrace`, `project`) have "skip unaffected" on, so a change in `NameTrace/` doesn't rebuild Groundwork. The root-level `profound-productions-projects` project was deleted on 2026-09-26 (owner approval).
+No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The two monorepo projects (`nametrace`, `project`) have "skip unaffected" on, but it does **not** stop cross-builds: every merge to main redeploys both (see open items). The root-level `profound-productions-projects` project was deleted on 2026-09-26 (owner approval).
 
 Open items:
 - `coco-bliss-project-v2` has two sets of Supabase vars: the app's `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` and Vercel-Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`, production only). The client uses the right project; that the integration set points at the same project was not checked (it would mean decrypting values) [CONFIRM].
 - Vercel Supabase integration (`icfg_cG3iWLR1c5mO1Vn9igX6NSfy`) limited to `coco-bliss-project-v2` only on 2026-09-26 (owner approval); Coco Bliss env vars unchanged (31, 13 from the integration).
 - The non-deploying monorepo copies `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` were deleted on 2026-09-26 (owner approval). The first two were byte-identical to their original repos; `house-sookoo-data-tracker` couldn't be compared (repo not attachable), but its import commit `46a7394` keeps the files.
+- Every merge to main redeploys both `nametrace` and `project` to production: NameTrace-only merges #13 and #16 also deployed Groundwork, and #15 rebuilt NameTrace (health check 2026-09-26). Likely cause: no workspace for Vercel's affected-detection. Fix option: an Ignored Build Step such as `git diff --quiet HEAD^ HEAD -- .` in each project [OPEN, owner].
 
 ## Risk levels
 

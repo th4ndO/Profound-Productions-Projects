@@ -89,11 +89,11 @@ Special rules:
 | Field | Value |
 |---|---|
 | Supabase ref | none (100% client-side, no backend) |
-| Vercel project | none yet [CONFIRM whether/where to deploy] |
-| Live URL | none (not deployed) |
-| Repo | monorepo folder `NameTrace/` (branch `claude/peaceful-bohr-ff184f`, no PR yet); local path [CONFIRM] |
-| Risk | **GREEN** (no backend, no stored data) |
-| Status | Built (all 7 phases), 95 unit + 7 e2e tests pass; not deployed, no PR |
+| Vercel project | `nametrace` (`prj_jRjNuKxhlWH6yRqMNNgJ6CnxyYO1`), linked to this repo, root directory `NameTrace`, production branch `main` (merging to `main` deploys production) |
+| Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
+| Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
+| Risk | **GREEN** (no backend, no stored data) [CONFIRM still GREEN now that it is publicly deployed] |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.

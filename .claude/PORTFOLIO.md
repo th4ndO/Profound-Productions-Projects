@@ -93,7 +93,7 @@ Special rules:
 | Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
 | Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
 | Risk | **AMBER** (owner decision 2026-09-26: public site that people load POPIA data into; no backend, no stored data) |
-| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13; guided tour via PR #16, merged 2026-09-26 after gatekeeper PASS). Next: optional fixed dates in make-fixtures.ts to stop binary churn |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.

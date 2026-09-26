@@ -66,7 +66,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **a. Accept or fix the gatekeeper WARNs?** (1) hardening of anonymous sign-up (gatekeeper's retroactive review, 2026-09-26; details kept out of this public repo); (2) no cleanup of stale anonymous users; (3) no per-user usage limits; (4) no sign-out, so a shared device shows the previous person's goals. Options: accept for the MVP / fix some. Recommended (context-keeper's suggestion, not decided in session): accept (1)–(3) for the MVP, fix (4) first. Blocks nothing today; the advisor WARNs stay open until answered.
+- **a. Accept or fix the gatekeeper WARNs?** (1) hardening of anonymous sign-up (gatekeeper's retroactive review, 2026-09-26; details kept out of this public repo); (2) no cleanup of stale anonymous users; (3) no per-user usage limits. (4) sign-out is done (owner asked; Settings → "Sign out of this device" erases the user's data, then signs out). Options for (1)–(3): accept for the MVP / fix some. Blocks nothing today; the advisor WARNs stay open until answered.
 - **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
 
 ### Next step
@@ -75,7 +75,7 @@ Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merg
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
 - Migration version drift: repo files `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`.
-- Goal-page theme switcher is a horizontal scroller that hides most of the 12 visuals.
+- Signed-out anonymous auth users stay behind with no data (deleting auth users needs the service role); pairs with (2) stale-user cleanup.
 - App icon is still a flat placeholder.
 - Real-device push delivery never verified.
 
@@ -104,3 +104,40 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Checked read-only this session and **nothing was changed**. The database is healthy, but all 6 tables are empty. No app or frontend exists in GitHub, Vercel, or (per the owner) the owner's PC. "Name trace project" meant NameTrace, not this.
 - **Open risk:** an access-control issue in the database (details kept out of this public repo; see the project's Supabase security advisor). It was described here earlier, so treat it as disclosed.
 - Low urgency while the database is empty and has no app. **Fix before any data goes in**, via schema-keeper on a Supabase branch, with owner approval.
+
+---
+
+## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
+
+### State
+- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's Vercel project `profound-productions-projects` builds from the repo root, not this folder (checked 2026-09-26).
+- **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
+  - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
+  - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.
+  - Homepage copy fixed: it wrongly said you can't book through the site. `4424a0f` makes the copy say that reviews and reports need a login (this was gatekeeper's finding).
+- Release chain: **qa-tester was not available**, so the Portfolio Lead ran QA itself: `tsc`, the prod build, Playwright at 360px and 1024px against a local prod build of the same commit, and curl route checks on the preview. gatekeeper-reviewer gave PASS. security-auditor wasn't needed because auth, payments, uploads, and admin were not touched. The owner explicitly approved the deploy.
+- **The logged-in header was only simulated. Nobody has tested it with a real account** (see OPEN e).
+- Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, someone set the Vercel `hustle-corner` Root Directory to `groundwork`, and every build after that failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It was reset to the repo root through the Vercel API.
+
+### Decisions (and why) — newest first
+- Deleted the monorepo's stale `Hustle-Corner/` copy (owner's request) so nobody edits code that doesn't deploy.
+- Shipped the guide after QA by the Portfolio Lead, a gatekeeper PASS, and owner approval. qa-tester wasn't available in the session.
+- Reset the `hustle-corner` Root Directory to the repo root. The `groundwork` value broke every build and most likely belonged to the ACADEMIC Groundwork project.
+- Signup no longer checks student email domains, so every signup gets `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1` in `Hustle-Corner-`). This is not a bug.
+- Privacy contact and legal review are parked. The owner said "get it working first".
+
+### OPEN decisions (need the owner)
+- **b. Groundwork (ACADEMIC) Vercel project `project`:** its Root Directory was **not** checked, because academic projects are review-only. Should someone check whether `groundwork` was meant for it? Recommended: the owner checks it personally. Until then, Groundwork deploys may also be wrong.
+- **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
+- **e. Logged-in header check:** the Dashboard link and the wrapped account row were only simulated. Recommended: the owner logs in once on a phone and checks them on the live site. Nothing is blocked, but a broken header would hide onboarding from new sellers.
+
+### Next step
+Log in on a phone at https://hustle-corner.vercel.app. Check that the header shows "Dashboard", that the account links wrap as one row, and that `/how-it-works` looks right on both tabs (closes OPEN e).
+
+### Gotchas
+- A local `next build` needs `NODE_ENV=production`. The container sets `NODE_ENV=development`, which makes the build fail with "<Html> should not be imported outside of pages/_document".
+- Sellers get **no notification** when someone requests a booking. The guide tells users this. It's a product gap, not yet fixed.
+- The Supabase migration history on the live DB doesn't match the repo's migrations folder. Make any schema change through schema-keeper, and reconcile the two first.
+- The site stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
+- Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs. Test against a local prod build of the same commit instead.
+- Branch `claude/loving-brown-e2pvis` in `Hustle-Corner-` is merged. Delete it if it's still there.

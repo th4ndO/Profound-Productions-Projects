@@ -98,3 +98,21 @@
   color: #c2413b;
   margin: 10px 0 0;
 }
+
+.signOutRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.section button.danger {
+  background: transparent;
+  color: #c2413b;
+  border: 1.5px solid currentColor;
+}
+
+.section button.cancel {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+}

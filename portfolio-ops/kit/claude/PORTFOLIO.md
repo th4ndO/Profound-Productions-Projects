@@ -77,7 +77,7 @@ Special rules:
 | Supabase ref | `ulbzuafadfxdymrtdzgy` (eu-west-1) |
 | Vercel project | `hustle-corner` (`prj_4WCOTeuEQr0OYzLR0cyQEvHjqajJ`) |
 | Live URL | https://hustle-corner.vercel.app |
-| Repo | monorepo folder `Hustle-Corner/` (from `th4ndO/Hustle-Corner-`); local path [CONFIRM] |
+| Repo | GitHub `th4ndO/Hustle-Corner-` (`main`), which deploys. Not in the monorepo; local path [CONFIRM] |
 | Risk | **GREEN** |
 | Status | MVP (UP Hatfield side-hustle directory) |
 

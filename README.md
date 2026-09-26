@@ -7,7 +7,6 @@ Each folder was imported from its original repository with full commit history
 | Folder | Original repository |
 | --- | --- |
 | `Project` | [th4ndO/Project-](https://github.com/th4ndO/Project-) |
-| `Hustle-Corner` | [th4ndO/Hustle-Corner-](https://github.com/th4ndO/Hustle-Corner-) |
 | `Creat8ve-Inc` | [th4ndO/Creat8ve-Inc](https://github.com/th4ndO/Creat8ve-Inc) |
 | `MamaG-Official` | [th4ndO/MamaG---Offical](https://github.com/th4ndO/MamaG---Offical) |
 | `MamaG-App` | [th4ndO/MamaG_App](https://github.com/th4ndO/MamaG_App) |
@@ -18,5 +17,8 @@ Each folder was imported from its original repository with full commit history
 | `demo-repo` | [th4ndO/demo-repo](https://github.com/th4ndO/demo-repo) |
 | `Profound-Productions` | th4ndO/Profound-Productions (private) |
 | `house-sookoo-data-tracker` | th4ndO/house-sookoo-data-tracker (private) |
+
+CampusHustle ("The Business Corner") was removed from this monorepo on 2026-09-26.
+It lives only in [th4ndO/Hustle-Corner-](https://github.com/th4ndO/Hustle-Corner-), which is what deploys.
 
 Coco Bliss projects (`coco-bliss-production-source`, `CocoBliss---Website`) are intentionally excluded.

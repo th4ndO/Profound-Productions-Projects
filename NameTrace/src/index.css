@@ -55,14 +55,16 @@
 @layer components {
   /* Soft neon-emerald highlight for matched text. */
   .hl {
-    @apply rounded-[3px] bg-mint/20 text-ink;
+    @apply rounded-[3px] bg-mint/20 px-px text-ink;
+    box-decoration-break: clone;
     box-shadow:
       inset 0 0 0 1px color-mix(in oklab, var(--color-mint) 70%, transparent),
       0 0 10px color-mix(in oklab, var(--color-mint) 25%, transparent);
   }
   /* Lower confidence: dashed outline instead of the solid ring and glow. */
   .hl-fuzzy {
-    @apply rounded-[3px] bg-mint/10 text-ink;
+    @apply rounded-[3px] bg-mint/10 px-px text-ink;
+    box-decoration-break: clone;
     outline: 1px dashed var(--color-mint);
     outline-offset: 0;
   }
@@ -87,5 +89,14 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }

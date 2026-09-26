@@ -5,3 +5,4 @@ playwright-report
 *.tsbuildinfo
 *.local.test.ts
 public/pdfjs
+e2e/zz-*

@@ -51,6 +51,13 @@ internal web server). There is nothing to configure and no server code.
 
 ## How to use it
 
+New users can select **Take the tour** in the header (or **New here? Take a
+1-minute tour** on the start screen). The 9-step guided tour highlights each part of the
+page. It can load **sample files** (invented names, served from this site) and
+run a sample search, so every step has real results to point at. Use the arrow keys
+or buttons to move through it, and Esc to close. It never starts by itself and
+stores nothing.
+
 1. Drop files on the left (or choose them). Each file shows its progress,
    and any warnings or errors with what to do next.
 2. Type a name. Results update as you type (a 140 ms pause), and Enter searches at once.

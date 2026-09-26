@@ -85,8 +85,8 @@
 
 .themes {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
   padding: 4px 0 10px;
 }
 

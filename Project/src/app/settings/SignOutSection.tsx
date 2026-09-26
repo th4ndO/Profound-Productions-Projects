@@ -25,15 +25,16 @@ export function SignOutSection() {
     setError(null);
     startTransition(async () => {
       try {
-        // Stop this browser receiving pushes. Best-effort: the server-side
-        // subscription row is deleted by signOutAndErase regardless.
+        await signOutAndErase();
+        // Only now stop this browser receiving pushes: doing it first would
+        // leave a dead endpoint registered if the erase failed. Best-effort;
+        // the server-side subscription row is already gone.
         try {
           const subscription = await getExistingSubscription();
           await subscription?.unsubscribe();
         } catch {
-          // ignore: the server delete below is what stops reminders
+          // ignore: deleting the server row is what stops reminders
         }
-        await signOutAndErase();
         // Drop cached pages from the erased session; with no session the
         // app then starts a fresh, empty one via /start.
         router.replace("/");

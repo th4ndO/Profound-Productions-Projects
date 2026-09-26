@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API)
 
 ## Risk levels
 
@@ -128,6 +128,7 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
+| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | none | **Deleted** (absent from the team's project list, checked 2026-09-26 ~14:10 UTC). It built the repo root and served a 404; neither Groundwork (`project`) nor NameTrace (`nametrace`) depended on it. |
 
 ## Care Plan clients
 

@@ -120,6 +120,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, someone set the Vercel `hustle-corner` Root Directory to `groundwork`, and every build after that failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It was reset to the repo root through the Vercel API.
 
 ### Decisions (and why) — newest first
+- Checked Groundwork's Vercel project `project` (read-only, 2026-09-26): Root Directory `Project`, production branch `main`, deploys READY. So the `groundwork` value found on `hustle-corner` was not copied from it; most likely typed into the wrong project. Closes the former open item "Groundwork Vercel Root Directory check".
 - Deleted the monorepo's stale `Hustle-Corner/` copy (owner's request) so nobody edits code that doesn't deploy.
 - Shipped the guide after QA by the Portfolio Lead, a gatekeeper PASS, and owner approval. qa-tester wasn't available in the session.
 - Reset the `hustle-corner` Root Directory to the repo root. The `groundwork` value broke every build and most likely belonged to the ACADEMIC Groundwork project.
@@ -127,7 +128,6 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Privacy contact and legal review are parked. The owner said "get it working first".
 
 ### OPEN decisions (need the owner)
-- **b. Groundwork (ACADEMIC) Vercel project `project`:** its Root Directory was **not** checked, because academic projects are review-only. Should someone check whether `groundwork` was meant for it? Recommended: the owner checks it personally. Until then, Groundwork deploys may also be wrong.
 - **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
 - **e. Logged-in header check:** the Dashboard link and the wrapped account row were only simulated. Recommended: the owner logs in once on a phone and checks them on the live site. Nothing is blocked, but a broken header would hide onboarding from new sellers.
 

@@ -128,7 +128,6 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` | [CONFIRM] | Created 2026-09-25, probably linked to this monorepo. [CONFIRM it should exist: a monorepo of static and Expo apps may not build] |
 
 ## Care Plan clients
 

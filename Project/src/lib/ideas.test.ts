@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATEGORIES, IDEAS, isCategory } from "./ideas";
 import { TIMEFRAMES } from "./timeframe";
-
-const THEMES = ["tree", "strength", "shelf", "building", "mountain", "jar"];
+import { THEMES } from "../components/visuals/GoalVisual";
 
 describe("IDEAS", () => {
   it("has unique ids (goals.idea_id relies on them)", () => {

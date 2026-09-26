@@ -95,7 +95,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - **Leftover branches** (fully merged; this session got 403 deleting them): `claude/beautiful-mccarthy-3l2kh2`, `claude/gracious-sagan-meu582`. Delete them yourself. Do **not** delete `claude/peaceful-bohr-ff184f`: it got a new commit today.
 
 ### Gotchas
-- Vercel project `profound-productions-projects` 404s on every path but still builds on every push. Decide whether to delete it or disconnect its Git link.
+- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. Its three-builds-per-push waste helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead.
 
 ---
 

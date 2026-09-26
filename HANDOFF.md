@@ -59,9 +59,10 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
   - Migration `reminder_rules_goal_ownership` **applied to production** 2026-09-26. Attack test `Project/supabase/tests/reminder_rules_goal_ownership_rls.sql` passed 17/17 against production (in a forced-rollback transaction, 0 leftover rows). Advisors: nothing new.
   - The app-side check in `reminder-actions.ts` is merged but **not yet built to production**: the Vercel Hobby limit (100 deployments/day) was hit. The next successful Groundwork build includes it.
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
-- Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped, see OPEN b); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
+- Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped; acknowledged by the owner, see Decisions); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
 
 ### Decisions (and why) — newest first
+- **Owner acknowledged that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate** (owner, 2026-09-26). From now on, schema changes go through schema-keeper (a Supabase branch, or an owner-accepted local proof as in #23), and production changes follow the full release order in `.claude/CLAUDE.md`: qa-tester, then security-auditor if auth, payments, uploads or admin changed, then gatekeeper-reviewer, then owner approval.
 - **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is the one that grows on its own: every new browser adds a user row that is never removed. Supabase has no automatic cleanup; a periodic delete of old anonymous users would fix it (via schema-keeper). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
 - #23 migration proven on local Postgres instead of a Supabase branch — owner accepted this; `create_branch` timed out twice (branching probably needs a paid plan). This was gatekeeper-reviewer's only BLOCK.
 - Deleted Vercel project `profound-productions-projects` (owner) — it served only a 404 and used ~42% of builds.
@@ -72,7 +73,6 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **b. Acknowledge that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate.** Future schema changes go via schema-keeper (a branch, or an owner-accepted local proof as in #23).
 - **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first. Blocks shipping on heavy days.
 
 ### Next step

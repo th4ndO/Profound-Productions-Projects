@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual } from "@/components/visuals/GoalVisual";
-import { IDEAS } from "@/lib/ideas";
+import { CATEGORIES, CATEGORY_LABELS, IDEAS, isCategory, type Category } from "@/lib/ideas";
 import { TIMEFRAMES, TIMEFRAME_LABELS, TIMEFRAME_SUB, type Timeframe } from "@/lib/timeframe";
 import { adoptIdea } from "@/app/goals/actions";
 import styles from "./ideas.module.css";
@@ -23,17 +23,28 @@ interface IdeaGoalRow {
 
 /**
  * "Goal ideas" (BUILD SPEC §6) — ported from reference/groundwork.html's
- * `ideasHTML()`. The prototype filters client-side with `state.filter`;
- * here the filter is a `?filter=` search param so the page stays a plain
- * Server Component, consistent with the rest of the app.
+ * `ideasHTML()`. Filters are search params so the page stays a plain
+ * Server Component: `?cat=` (category) and `?tf=` (time frame), which
+ * combine. `?filter=` is the old name for `?tf=`, still accepted so
+ * existing links keep working.
  */
+function ideasHref(cat: Category | "all", tf: Timeframe | "all") {
+  const params = new URLSearchParams();
+  if (cat !== "all") params.set("cat", cat);
+  if (tf !== "all") params.set("tf", tf);
+  const qs = params.toString();
+  return qs ? `/ideas?${qs}` : "/ideas";
+}
+
 export default async function IdeasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ cat?: string; tf?: string; filter?: string }>;
 }) {
-  const { filter: filterRaw } = await searchParams;
-  const filter: Timeframe | "all" = filterRaw && isTimeframe(filterRaw) ? filterRaw : "all";
+  const { cat: catRaw, tf: tfRaw, filter: legacyTf } = await searchParams;
+  const tfValue = tfRaw ?? legacyTf;
+  const filter: Timeframe | "all" = tfValue && isTimeframe(tfValue) ? tfValue : "all";
+  const cat: Category | "all" = catRaw && isCategory(catRaw) ? catRaw : "all";
 
   const supabase = await createClient();
   const {
@@ -47,6 +58,8 @@ export default async function IdeasPage({
   const added = new Set(((data ?? []) as IdeaGoalRow[]).map((g) => g.idea_id));
 
   const timeframesToShow = filter === "all" ? TIMEFRAMES : [filter];
+  const matching = cat === "all" ? IDEAS : IDEAS.filter((i) => i.cat === cat);
+  const visibleCount = matching.filter((i) => timeframesToShow.includes(i.tf)).length;
 
   return (
     <div className={styles.wrap}>
@@ -59,19 +72,43 @@ export default async function IdeasPage({
 
       <GoalTabs active="ideas" />
 
-      <div className={styles.filters} role="group" aria-label="Filter by time frame">
-        <Link href="/ideas" className={styles.chip} aria-pressed={filter === "all"}>
+      <p className={styles.filterLabel} id="cat-filter-label">
+        Category
+      </p>
+      <div className={styles.filters} role="group" aria-labelledby="cat-filter-label">
+        <Link href={ideasHref("all", filter)} className={styles.chip} aria-pressed={cat === "all"}>
           All
         </Link>
+        {CATEGORIES.map((c) => (
+          <Link key={c.id} href={ideasHref(c.id, filter)} className={styles.chip} aria-pressed={cat === c.id}>
+            {c.label}
+          </Link>
+        ))}
+      </div>
+
+      <p className={styles.filterLabel} id="tf-filter-label">
+        Time frame
+      </p>
+      <div className={styles.filters} role="group" aria-labelledby="tf-filter-label">
+        <Link href={ideasHref(cat, "all")} className={styles.chip} aria-pressed={filter === "all"}>
+          Any
+        </Link>
         {TIMEFRAMES.map((tf) => (
-          <Link key={tf} href={`/ideas?filter=${tf}`} className={styles.chip} aria-pressed={filter === tf}>
+          <Link key={tf} href={ideasHref(cat, tf)} className={styles.chip} aria-pressed={filter === tf}>
             {TIMEFRAME_LABELS[tf]}
           </Link>
         ))}
       </div>
 
+      {visibleCount === 0 ? (
+        <p className={styles.none}>
+          No ideas match both filters yet.{" "}
+          <Link href={ideasHref(cat, "all")}>Show every time frame</Link>
+        </p>
+      ) : null}
+
       {timeframesToShow.map((tf) => {
-        const list = IDEAS.filter((i) => i.tf === tf);
+        const list = matching.filter((i) => i.tf === tf);
         if (!list.length) return null;
         return (
           <section key={tf}>
@@ -86,10 +123,15 @@ export default async function IdeasPage({
                       <GoalVisual theme={idea.theme} p={0.75} label="" />
                       <div>
                         <h3>{idea.title}</h3>
-                        <span className={styles.cat}>{idea.cat}</span>
+                        <span className={styles.cat}>{CATEGORY_LABELS[idea.cat]}</span>
                       </div>
                     </div>
                     <p>{idea.why}</p>
+                    {idea.evidence ? (
+                      <p className={styles.evidence}>
+                        <b>Evidence</b> {idea.evidence}
+                      </p>
+                    ) : null}
                     <div className={styles.reward}>
                       <b>Reward</b>
                       <span>{idea.reward}</span>

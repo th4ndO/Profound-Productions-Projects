@@ -70,16 +70,16 @@ Special rules:
 - Hosts the Care Plan business; the care-plan-runbook skill covers client sites.
 - The /admin panel writes to Supabase, so auth and RLS changes need gatekeeper-reviewer.
 
-## CampusHustle
+## CampusHustle (branded "The Business Corner")
 
 | Field | Value |
 |---|---|
 | Supabase ref | `ulbzuafadfxdymrtdzgy` (eu-west-1) |
 | Vercel project | `hustle-corner` (`prj_4WCOTeuEQr0OYzLR0cyQEvHjqajJ`) |
 | Live URL | https://hustle-corner.vercel.app |
-| Repo | monorepo folder `Hustle-Corner/` (from `th4ndO/Hustle-Corner-`); local path [CONFIRM] |
+| Repo | **deploys from** GitHub `th4ndO/Hustle-Corner-` (`main`); monorepo folder `Hustle-Corner/` is a stale snapshot, do not edit; local path [CONFIRM] |
 | Risk | **GREEN** |
-| Status | MVP (UP Hatfield side-hustle directory) |
+| Status | MVP live (UP Hatfield side-hustle directory); build config fixed 2026-09-26; how-it-works guide on branch `claude/loving-brown-e2pvis`, preview only, no PR |
 
 Special rules:
 - Stores student sellers' contact details (WhatsApp numbers), so it's still personal data: keep RLS on and don't print rows.

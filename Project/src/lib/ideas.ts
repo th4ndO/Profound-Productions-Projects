@@ -103,7 +103,7 @@ export const IDEAS: Idea[] = [
   {
     id: "dish",
     tf: "week",
-    theme: "tree",
+    theme: "garden",
     cat: "life-skills",
     title: "Master one signature meal",
     why: "Having one dish you can cook for anyone, anytime, is quietly impressive.",
@@ -160,7 +160,7 @@ export const IDEAS: Idea[] = [
   {
     id: "stars",
     tf: "week",
-    theme: "mountain",
+    theme: "moon",
     cat: "fun",
     title: "Find 5 constellations and a planet by eye",
     why: "The southern sky is one of the best in the world, and most people can't name a thing in it.",
@@ -176,7 +176,7 @@ export const IDEAS: Idea[] = [
   {
     id: "sunset",
     tf: "week",
-    theme: "tree",
+    theme: "moon",
     cat: "health",
     title: "A 7-day phone sunset",
     why: "No phone after 21:00 for a week. You'll notice the difference in your sleep and thinking.",
@@ -222,7 +222,7 @@ export const IDEAS: Idea[] = [
   {
     id: "song",
     tf: "month",
-    theme: "tree",
+    theme: "canvas",
     cat: "fun",
     title: "Play one full song on guitar or piano",
     why: "One song you can actually play is worth more than a year of 'I want to learn'.",
@@ -280,7 +280,7 @@ export const IDEAS: Idea[] = [
   {
     id: "photo",
     tf: "quarter",
-    theme: "tree",
+    theme: "canvas",
     cat: "fun",
     title: "Shoot a 12-photo series in manual mode",
     why: "Learning light and exposure changes how you see everything, including your design work.",
@@ -368,7 +368,7 @@ export const IDEAS: Idea[] = [
   {
     id: "provinces",
     tf: "year",
-    theme: "mountain",
+    theme: "balloon",
     cat: "adventure",
     title: "Visit all 9 South African provinces",
     why: "Most South Africans have seen three or four. Few can say they've seen all nine.",
@@ -378,7 +378,7 @@ export const IDEAS: Idea[] = [
   {
     id: "teach",
     tf: "year",
-    theme: "tree",
+    theme: "lanterns",
     cat: "relationships",
     title: "Teach someone a skill you have, start to finish",
     why: "Teaching is the best test of whether you really know something, and it changes someone else's year too.",
@@ -444,7 +444,7 @@ export const IDEAS: Idea[] = [
   {
     id: "sleep-7",
     tf: "month",
-    theme: "tree",
+    theme: "moon",
     cat: "health",
     title: "Sleep 7+ hours on a fixed schedule for 30 days",
     why: "Enough sleep, at the same time every day, improves mood, focus, appetite and long-term health more than almost any other habit.",
@@ -462,7 +462,7 @@ export const IDEAS: Idea[] = [
   {
     id: "alcohol-free",
     tf: "month",
-    theme: "tree",
+    theme: "moon",
     cat: "health",
     title: "A month alcohol-free",
     why: "Even moderate drinking disrupts sleep. A month off shows you how you actually feel without it.",
@@ -491,7 +491,7 @@ export const IDEAS: Idea[] = [
   {
     id: "veg-5",
     tf: "week",
-    theme: "tree",
+    theme: "garden",
     cat: "diet",
     title: "Eat 5 portions of fruit and veg every day for a week",
     why: "One portion is about 80 g: a banana, an apple, or a handful of spinach. Five a day lowers the risk of heart disease and stroke.",
@@ -507,7 +507,7 @@ export const IDEAS: Idea[] = [
   {
     id: "fibre-25",
     tf: "month",
-    theme: "tree",
+    theme: "garden",
     cat: "diet",
     title: "Eat 25 g of fibre a day for a month",
     why: "Most people eat far less. Beans, oats, whole grains and vegetables get you there, and your gut and heart benefit.",
@@ -525,7 +525,7 @@ export const IDEAS: Idea[] = [
   {
     id: "no-sugary-drinks",
     tf: "month",
-    theme: "jar",
+    theme: "garden",
     cat: "diet",
     title: "Swap sugary drinks for water for 30 days",
     why: "One 330 ml can of cola holds about 35 g of sugar, more than the WHO's ideal limit for a whole day. It's the easiest sugar to cut.",
@@ -542,7 +542,7 @@ export const IDEAS: Idea[] = [
   {
     id: "less-salt",
     tf: "week",
-    theme: "shelf",
+    theme: "garden",
     cat: "diet",
     title: "Halve your salt for two weeks",
     why: "Most people eat about twice the healthy amount of salt, which raises blood pressure. Your taste buds adjust in a couple of weeks.",
@@ -697,7 +697,7 @@ export const IDEAS: Idea[] = [
   {
     id: "if-then",
     tf: "week",
-    theme: "tree",
+    theme: "stones",
     cat: "mindset",
     title: "Plan three habits with if-then plans",
     why: "\"After I pour my coffee, I'll write my to-do list\" works far better than \"I'll be more organised\".",
@@ -714,7 +714,7 @@ export const IDEAS: Idea[] = [
   {
     id: "habit-66",
     tf: "quarter",
-    theme: "tree",
+    theme: "stones",
     cat: "mindset",
     title: "Make one habit automatic",
     why: "It takes longer than 21 days, often around two months. And missing a single day doesn't reset you.",
@@ -731,7 +731,7 @@ export const IDEAS: Idea[] = [
   {
     id: "meditate",
     tf: "month",
-    theme: "mountain",
+    theme: "moon",
     cat: "mindset",
     title: "Meditate for 10 minutes a day for a month",
     why: "Not magic, but a real, measurable help with anxiety and low mood for many people.",
@@ -743,7 +743,7 @@ export const IDEAS: Idea[] = [
   {
     id: "weekly-review",
     tf: "quarter",
-    theme: "shelf",
+    theme: "stones",
     cat: "mindset",
     title: "Do a weekly review for 12 weeks",
     why: "Twenty minutes every Sunday to look back and plan ahead keeps your goals from quietly drifting.",
@@ -760,7 +760,7 @@ export const IDEAS: Idea[] = [
   {
     id: "friend-weekly",
     tf: "quarter",
-    theme: "tree",
+    theme: "lanterns",
     cat: "relationships",
     title: "Call or see a friend every week for 12 weeks",
     why: "Close relationships predict a long, healthy, happy life better than social class, IQ or genes.",
@@ -777,7 +777,7 @@ export const IDEAS: Idea[] = [
   {
     id: "phone-free-dinner",
     tf: "month",
-    theme: "tree",
+    theme: "lanterns",
     cat: "relationships",
     title: "Phone-free dinners for a month",
     why: "A phone on the table pulls attention away from the people in front of you, even when nobody picks it up.",
@@ -787,7 +787,7 @@ export const IDEAS: Idea[] = [
   {
     id: "volunteer",
     tf: "quarter",
-    theme: "tree",
+    theme: "lanterns",
     cat: "relationships",
     title: "Volunteer 10 hours for a cause you care about",
     why: "Helping others regularly builds connection and a sense of purpose, for them and for you.",

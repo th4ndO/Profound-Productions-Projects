@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API)
 
 ## Risk levels
 

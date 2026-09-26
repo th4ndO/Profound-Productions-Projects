@@ -1,6 +1,6 @@
 # Handoff — Profound-Productions-Projects monorepo — 2026-09-26
 
-One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo.
+One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #23).
 
 ---
 
@@ -45,43 +45,50 @@ One section per project; keep other projects' sections when editing. NameTrace a
 
 ## Groundwork (folder `Project/`, Supabase `bvapxwiryuzzbxesbtqo`) — GREEN
 
-Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answered "personal project". Registry entry updated.
+Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answered "personal project" (confirmed directly; shipped with #15). Registry entry updated.
 
 ### State (production = `main`; a merge to main deploys)
-- Live at https://project-tau-self-69.vercel.app. Vercel project `project` was re-linked today from `th4ndO/project-` to this monorepo (root `Project/`).
+- Live at https://project-tau-self-69.vercel.app. Vercel project `project` is linked to this monorepo (root `Project/`).
 - Merged and live:
-  - #5: reminders at 23:56–23:59 never fired, and one bad timezone aborted the run for everyone (both fixed); installable-app manifest; `middleware.ts` renamed to `proxy.ts`; RLS policies use `(select auth.uid())`; magic-link sign-in removed, anonymous sessions via `/start`.
-  - #6: `??` → `||` for empty env vars (fixed a production outage of `/start`).
-  - #7: `/sign-in` and `/auth/callback` redirect to `/`.
-  - #8: 11 idea categories (incl. Diet), 28 research-backed ideas with evidence lines.
-  - #9: category and time-frame filters are dropdowns.
-  - #12: six new goal visuals (garden, moon, lanterns, path, canvas, balloon).
-- Live outside git: migrations `rls_initplan` and `goal_themes_v2` applied **directly to live** (no branch, no schema-keeper: the gate was skipped); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` redeployed (v2).
+  - #5: reminder timing/timezone fixes; installable-app manifest; `middleware.ts` → `proxy.ts`; RLS uses `(select auth.uid())`; magic-link removed, anonymous sessions via `/start`.
+  - #6 (`??` → `||` for empty env vars), #7 (`/sign-in`, `/auth/callback` → `/`), #8 (11 idea categories, 28 ideas), #9 (filter dropdowns), #12 (six new goal visuals).
+  - #15: open-redirect fix on `/start?next=` (plus a 500 on a repeated `?next=`).
+  - #18: Settings → "Sign out of this device" (two taps, with Cancel). Erases the user's goals (cascading to milestones, tasks, reminder rules), reminder rules, push subscriptions and profile, then signs out. Goal-page theme switcher now wraps. Production READY at `58ab78e`, checked on the live site. The emptied anonymous auth user stays behind (deleting auth users needs the service role).
+  - #21: `Project/vercel.json` `ignoreCommand` builds Groundwork only when `Project/` changed since the last *successful* deploy. A skipped push shows as a CANCELED deployment (that's normal).
+- **#23 (reminder rules may only reference the caller's own goals): DB live, app build pending.**
+  - Migration `reminder_rules_goal_ownership` **applied to production** 2026-09-26. Attack test `Project/supabase/tests/reminder_rules_goal_ownership_rls.sql` passed 17/17 against production (in a forced-rollback transaction, 0 leftover rows). Advisors: nothing new.
+  - The app-side check in `reminder-actions.ts` is merged but **not yet built to production**: the Vercel Hobby limit (100 deployments/day) was hit. The next successful Groundwork build includes it.
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
-- **Merged: PR #15** (`e31ee89`, in `main` and live). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). The owner confirmed the GREEN reclassification directly to the Portfolio Lead on 2026-09-26.
+- Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped, see OPEN b); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
 
 ### Decisions (and why) — newest first
 - **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is the one that grows on its own: every new browser adds a user row that is never removed. Supabase has no automatic cleanup; a periodic delete of old anonymous users would fix it (via schema-keeper). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
+- #23 migration proven on local Postgres instead of a Supabase branch — owner accepted this; `create_branch` timed out twice (branching probably needs a paid plan). This was gatekeeper-reviewer's only BLOCK.
+- Deleted Vercel project `profound-productions-projects` (owner) — it served only a 404 and used ~42% of builds.
+- `ignoreCommand` diffs against `VERCEL_GIT_PREVIOUS_SHA` (fallback `HEAD^`) — builds only when `Project/` changed since the last successful deploy, saving daily quota.
+- Sign-out erases the user's data, then signs out — owner asked; anonymous accounts can't sign back in, so leftover data would be orphaned.
 - Risk GREEN — owner confirmed a personal project; MVP, no money, users' own goal data under RLS.
-- No sign-in; anonymous Supabase account per browser via `/start` (magic-link removed in #5) — its abuse risks were accepted for the MVP (see above).
+- No sign-in; anonymous Supabase account per browser via `/start` — its abuse risks were accepted for the MVP (see above).
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
+- **b. Acknowledge that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate.** Future schema changes go via schema-keeper (a branch, or an owner-accepted local proof as in #23).
+- **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first. Blocks shipping on heavy days.
 
 ### Next step
-Answer OPEN b above. PR #15 is done (merged and live).
+Once the quota frees, confirm a production build of current `main` exists (Vercel → `project` → Deployments). If none, Create Deployment from `main`, then check a reminder can still be saved on the live site.
 
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
-- Migration version drift: repo files `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`.
-- Signed-out anonymous auth users stay behind with no data (deleting auth users needs the service role); pairs with (2) stale-user cleanup.
+- Migration version drift: repo filenames differ from live versions for every migration (e.g. `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`), now including `reminder_rules_goal_ownership` (repo `20260927090000` vs live `20260926192241`). Reconcile before the next schema change.
 - App icon is still a flat placeholder.
 - Real-device push delivery never verified.
 
 ### Gotchas
 - Advisor `auth_allow_anonymous_sign_ins` WARNs are expected (anonymous sign-ins are deliberate).
 - `Project/.env.production` is committed with public keys only; anything else there is a finding.
+- A CANCELED Groundwork deployment usually just means `ignoreCommand` skipped it (no `Project/` change), not a failure.
+- Supabase branching (`create_branch`) is unreliable on this plan; plan schema proofs around it.
 
 ---
 

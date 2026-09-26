@@ -126,9 +126,9 @@ Special rules:
 
 | Vercel project | URL | Notes |
 |---|---|---|
-| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
-| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Looks redundant: [CONFIRM delete or keep] |
+| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Deploys from its own repo `th4ndO/Creat8ve-Inc` (Vercel API, 2026-09-26); the monorepo folder `Creat8ve-Inc/` is a copy that does **not** deploy, so edit the source repo. Client landing page [CONFIRM whether on a Care Plan] |
+| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Deploys from its own repo `th4ndO/house-sookoo-data-tracker` (Vercel API, 2026-09-26); the monorepo folder `house-sookoo-data-tracker/` is a copy that does **not** deploy, so edit the source repo. Church roster data, client-side only [CONFIRM risk level] |
+| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). **Deleted by the owner on 2026-09-26** (Vercel API: project not found). No Vercel project now uses this repo's root; only `project` (`Project/`) and `nametrace` (`NameTrace/`) are linked to this repo. |
 
 ## Care Plan clients
 

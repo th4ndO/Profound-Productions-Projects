@@ -19,25 +19,6 @@
   margin: 0 0 24px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
-.field label {
-  font-weight: 700;
-}
-
-.field input {
-  border: 1.5px solid var(--line);
-  background: var(--bg);
-  border-radius: 12px;
-  padding: 10px 12px;
-  width: 100%;
-}
-
 .btn {
   border: 0;
   border-radius: 999px;
@@ -46,7 +27,6 @@
   color: var(--accent-ink);
   font-weight: 700;
   cursor: pointer;
-  width: 100%;
 }
 
 .btn:disabled {

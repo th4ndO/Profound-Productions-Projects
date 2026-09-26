@@ -2,14 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { MIDDLEWARE_SUPABASE_URL, MIDDLEWARE_SUPABASE_ANON_KEY } from "./config";
 
-// Routes that don't require a session. Everything else redirects to
-// /sign-in for an unauthenticated visitor. Phase 1 has no real app pages
-// yet, so this protects the placeholder home page too.
+// Routes that don't require a session. Everything else redirects a
+// visitor with no session to /start, which creates an anonymous account
+// for this browser (there's no sign-in) and sends them back.
 //
 // "/dev" is a dev-only verification area (e.g. /dev/visuals, Phase 2
 // BUILD SPEC §8) — not real app content, so it stays public rather than
 // requiring a signed-in session to view.
-const PUBLIC_PATH_PREFIXES = ["/sign-in", "/dev"];
+const PUBLIC_PATH_PREFIXES = ["/start", "/dev"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATH_PREFIXES.some(
@@ -54,7 +54,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !isPublicPath(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
+    url.pathname = "/start";
     url.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }

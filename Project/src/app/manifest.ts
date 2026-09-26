@@ -7,7 +7,7 @@ import type { MetadataRoute } from "next";
  *
  * Must stay excluded from the auth middleware (see src/proxy.ts):
  * browsers fetch the manifest without cookies, so it would otherwise be
- * redirected to /sign-in for every visitor.
+ * redirected to /start for every visitor.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

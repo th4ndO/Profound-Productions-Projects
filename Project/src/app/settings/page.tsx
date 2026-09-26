@@ -17,7 +17,7 @@ export default async function SettingsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/start");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -42,6 +42,15 @@ export default async function SettingsPage() {
         quietEnd={(profile?.quiet_end ?? DEFAULT_QUIET_END).slice(0, 5)}
         deviceCount={deviceCount ?? 0}
       />
+
+      <section className={`${styles.section} ${styles.dataNote}`}>
+        <h2 className={styles.sectionLabel}>Your data</h2>
+        <p className={styles.meta}>
+          There&apos;s no account to sign in to: your goals belong to this browser. Clearing
+          this site&apos;s data, or switching browser or device, starts you fresh. On iPhone,
+          use Groundwork from its Home Screen icon — it keeps separate data from Safari.
+        </p>
+      </section>
     </div>
   );
 }

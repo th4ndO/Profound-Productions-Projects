@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual, type Theme } from "@/components/visuals/GoalVisual";
@@ -33,7 +32,7 @@ export default async function Home() {
   // Defense in depth: middleware already redirects unauthenticated
   // visitors, but Server Components should never assume that ran.
   if (!user) {
-    redirect("/sign-in");
+    redirect("/start");
   }
 
   const { data } = await supabase
@@ -52,7 +51,6 @@ export default async function Home() {
           <Link href="/settings" className={styles.ghost}>
             Settings
           </Link>
-          <SignOutButton className={styles.ghost} />
         </div>
       </header>
 

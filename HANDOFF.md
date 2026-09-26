@@ -4,16 +4,21 @@ One section per project; keep other projects' sections when editing. NameTrace a
 
 ---
 
-## NameTrace (folder `NameTrace/`) — GREEN
+## NameTrace (folder `NameTrace/`, Vercel `nametrace`) — AMBER
 
 ### State
 - Client-side-only web app (Vite 8, React 19, Tailwind 4, TS 5.9). Reads PDF, DOCX, XLSX/XLS/ODS, CSV/TSV, JSON, TXT/MD/LOG in a Web Worker and finds every mention of a person's name: exact matches, name variants, and possible typos.
-- No backend, database, Supabase or Vercel project. The CSP blocks requests to other origins, and an e2e test checks this.
-- All 7 build phases are done and pushed (commits `893f9d4` plan through `8d8505a` README). 95 unit tests and 7 Playwright e2e tests pass. axe reports no serious or critical issues.
-- **Not deployed.** No PR is open.
+- No backend, database or Supabase. The CSP blocks requests to other origins, and an e2e test checks this.
+- **Live** at https://nametrace-green.vercel.app (merge to `main` deploys), including the Leaders view (PR #19). See PORTFOLIO.md for history.
+- **PR #29 is open, not merged:** https://github.com/th4ndO/Profound-Productions-Projects/pull/29 (branch `claude/peaceful-bohr-ff184f`, head `18a01ecf0ccffeed7b5e77fb1d8354fe8e0bc426`). Owner asked for both parts ("do 1 and 2"):
+  1. Build-skip rule: `ignoreCommand` in `NameTrace/vercel.json` and `Project/vercel.json` is now `[ -n "$VERCEL_GIT_PREVIOUS_SHA" ] && git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- .`, so it builds when there is no previous deploy or the SHA is unknown.
+  2. Deterministic fixtures: `make-fixtures.ts` pins the PDF date and file ID and rebuilds the DOCX zip with fixed dates; jszip 3.10.2 added as an exact devDependency.
+  - Checks: tsc clean, vitest 108/108, Playwright 11/11, gatekeeper-reviewer PASS.
 - Main real-world use: church roster exports, filtered by the "Leader at 1728" column.
 
 ### Decisions (and why) — newest first
+- Build-skip rule uses `VERCEL_GIT_PREVIOUS_SHA` (PR #29) — the old `HEAD^` fallback could skip a new branch's first preview.
+- Fixtures made deterministic with jszip pinned exactly (PR #29) — mammoth and docx already depend on jszip; regenerating fixtures no longer produces diffs.
 - `vite.config.ts` forces NODE_ENV=production for builds. The build environment had NODE_ENV=development, so React's dev build shipped.
 - Search runs on the main thread. Measured p95 was about 51 ms at 50k records, and 36–187 ms end-to-end at 100k rows.
 - Added a column picker to support the Leader-at-1728 workflow.
@@ -22,12 +27,12 @@ One section per project; keep other projects' sections when editing. NameTrace a
 
 ### OPEN decisions (need the owner)
 - **a. Typo policy:** keep strict, or switch to the brief's budgets? Options: strict (recommended, fewer false positives) / brief. Nothing is blocked; it's a one-line switch.
-- **b. Deploy?** Options: a new Vercel project / keep it local-only. If you deploy, follow the release order in CLAUDE.md (qa-tester, then gatekeeper-reviewer, then your approval). Recommended: try it locally first. Blocks any live URL.
-- **c. Open a PR** for this branch into main? Recommended: yes, once (a) is settled. Blocks merging.
 - **d. Unicode font for non-Latin names in the PDF export** (adds about 400 KB or more)? Recommended: not until a roster actually needs it, since the CSV export already keeps every character.
+- **e. Merge PR #29?** Needs your explicit approval. A merge deploys production for both `nametrace` and `project` (Groundwork). Recommended: approve once (f) is confirmed. Blocks the build-skip fix going live.
+- **f. No Vercel preview for `18a01ec`** when last checked. Possibly the Hobby limit (100 deployments/day), possibly just delayed. AMBER rule: confirm a preview is READY before merging. Blocks (e).
 
 ### Next step
-`cd NameTrace && npm install && npm run dev`. Load a real roster export locally, then decide (a) and (b).
+Check Vercel for a READY preview of `18a01ec`. Once it is READY and you approve, merge PR #29 by the full SHA, then confirm https://nametrace-green.vercel.app still serves and the Leaders view works.
 
 ### Gotchas
 - **The monorepo is PUBLIC.** Never commit real exports, since they contain personal data covered by POPIA. All fixtures are synthetic.
@@ -140,7 +145,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Groundwork: make sure config values are always strings.
 
 ### Gotchas
-- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead.
+- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead (PR #29 changes that command; see NameTrace).
 
 ---
 

@@ -46,6 +46,19 @@ export async function upsertReminderRule(
     throw new Error("Pick a valid timezone.");
   }
 
+  // The reminder must belong to one of the caller's own goals. RLS on
+  // reminder_rules enforces this too (reminder_rules_goal_ownership
+  // migration); checking here gives a clear error instead of a raw policy
+  // violation. Under RLS this select only ever sees the caller's goals.
+  const { data: goal, error: goalError } = await supabase
+    .from("goals")
+    .select("id")
+    .eq("id", goalId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (goalError) throw new Error(goalError.message);
+  if (!goal) throw new Error("That goal wasn't found.");
+
   const { data: existing } = await supabase
     .from("reminder_rules")
     .select("id")

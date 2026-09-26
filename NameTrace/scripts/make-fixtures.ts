@@ -203,7 +203,6 @@ const SAMPLES = join(import.meta.dirname, '..', 'public', 'samples');
 mkdirSync(SAMPLES, { recursive: true });
 void docxWritten.then(() => {
   const samples: [string, string][] = [
-    ['roster-export.xls', 'sample-roster.xlsx'],
     ['minutes.pdf', 'sample-minutes.pdf'],
     ['report.docx', 'sample-report.docx'],
     ['notes.txt', 'sample-notes.txt'],
@@ -213,3 +212,41 @@ void docxWritten.then(() => {
     console.log('wrote sample', to);
   }
 });
+
+// A fuller roster for the tour's leader view: several leaders at 1728, people
+// who came more than once, one leader written two ways, one row without a
+// leader. Every name, number and address is invented.
+function sampleRoster(): Uint8Array {
+  const leaders = ['Thabo Nkosi', 'Megan Botha', 'Sarah Connor', 'Pieter Jacobs'];
+  const people = [
+    ['Aisha Pillay', 0], ['Tariq Naidoo', 0], ['Kyle Reese', 0], ['Lerato Dlamini', 0], ['Zanele Mokoena', 0],
+    ['Sipho Khumalo', 1], ['Refilwe Mahlangu', 1], ['David van der Merwe', 1], ['Nomsa Zulu', 1],
+    ['John Connor', 2], ['Anna Petersen', 2], ['Kagiso Molefe', 2], ['Megan Adams', 2],
+    ['Pieter de Wet', 3], ['Thandi Ndlovu', 3], ['José Álvarez', 3],
+  ] as const;
+  const events: [string, string][] = [
+    ['Sunday service', 'Service'], ['Youth night', 'Youth'], ['Prayer evening', 'Prayer'], ['Varsity gathering', 'Campus'],
+  ];
+  const rows: (string | number)[][] = [
+    ['Full Name', 'Leader at 12', 'Leader at 144', 'Leader at 1728', 'Address', 'Mobile Number', 'Email', 'Event Name', 'Event Type', 'First Visit'],
+  ];
+  let serial = 45300; // Excel date serial, early January 2024
+  people.forEach(([name, l], i) => {
+    const visits = 1 + (i % 3);
+    for (let v = 0; v < visits; v++) {
+      const [event, type] = events[(i + v) % events.length];
+      // Two of Thabo's rows spell his name with a nickname, as real exports do.
+      const leader = l === 0 && v === 1 && i < 2 ? 'Thabo (TK) Nkosi' : leaders[l];
+      const first = name.split(' ')[0].toLowerCase();
+      rows.push([name, 'Grace Mahlangu', 'Peter Coetzee', leader, `${10 + i} Jacaranda Street`, `08200001${String(i).padStart(2, '0')}`, `${first}@example.com`, event, type, serial + i * 3 + v * 7]);
+    }
+  });
+  rows.push(['Bongani Sithole', 'Grace Mahlangu', 'Peter Coetzee', '', '3 Protea Road', '0820000199', '', 'Sunday service', 'Service', serial + 40]);
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  for (let r = 2; r <= rows.length; r++) if (ws[`J${r}`]) ws[`J${r}`].z = 'm/d/yyyy';
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Roster');
+  return new Uint8Array(XLSX.write(wb, { type: 'array', bookType: 'xlsx', compression: true }) as ArrayBuffer);
+}
+writeFileSync(join(SAMPLES, 'sample-roster.xlsx'), sampleRoster());
+console.log('wrote sample sample-roster.xlsx');

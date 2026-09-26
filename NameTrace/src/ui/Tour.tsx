@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, ChevronRight, Search, Upload, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Search, Upload, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Spinner } from './Spinner';
 import { useMediaQuery } from './useMediaQuery';
@@ -61,6 +61,9 @@ export function Tour({
   samples,
   onLoadSamples,
   onTrySearch,
+  onPickLeader,
+  hasLeaders,
+  leaderName,
   wide,
 }: {
   onClose: () => void;
@@ -68,6 +71,9 @@ export function Tour({
   samples: SampleState;
   onLoadSamples: () => void;
   onTrySearch: () => void;
+  onPickLeader: () => void;
+  hasLeaders: boolean;
+  leaderName: string | null;
   wide: boolean;
 }) {
   const [index, setIndex] = useState(0);
@@ -83,26 +89,27 @@ export function Tour({
       title: 'Welcome to NameTrace',
       body: (
         <>
-          <p>Find every place a person’s name appears in your documents: PDFs, Word files, spreadsheets, CSV, JSON and text files.</p>
+          <p>Load a roster export, pick a leader at 1728, and see everyone under them: once each, with their contact details and every event they came to.</p>
+          <p className="mt-2">You can also find any person by name across PDFs, Word files, spreadsheets and text files.</p>
           <p className="mt-2">Your files never leave this device. They are read in your browser, and nothing is uploaded or saved.</p>
-          <p className="mt-2 text-muted">This tour takes about a minute. Use the arrow keys or the buttons to move, and Esc to close.</p>
+          <p className="mt-2 text-muted">Use the arrow keys or the buttons to move, and Esc to close.</p>
         </>
       ),
     },
     {
       id: 'add-files',
       target: 'add-files',
-      title: 'Add your files',
+      title: 'Add your roster',
       body: (
         <>
-          <p>Drop files here, or select the box to choose them. You can add several at once, up to 60 MB each.</p>
+          <p>Drop your roster export here, or select the box to choose it. Excel (.xlsx or .xls), CSV and other files work, and you can add several at once.</p>
           {samples === 'done' ? (
             <p className="mt-3 flex items-center gap-2 text-mint">
               <Check aria-hidden className="size-4" /> Sample files added. Select Next.
             </p>
           ) : !hasFiles || samples !== 'idle' ? (
             <div className="mt-3">
-              <p className="mb-2 text-muted">No files handy? Try it with sample files that use made-up names.</p>
+              <p className="mb-2 text-muted">No file handy? Try it with a sample roster that uses made-up names.</p>
               <button type="button" className={action} onClick={onLoadSamples} disabled={samples === 'loading'}>
                 {samples === 'loading' ? <Spinner /> : <Upload aria-hidden className="size-4" />}
                 {samples === 'loading' ? 'Loading samples…' : 'Load sample files'}
@@ -114,23 +121,69 @@ export function Tour({
       ),
     },
     {
-      id: 'search',
-      target: 'search',
-      title: 'Type a name',
+      id: 'leaders',
+      target: 'leaders',
+      title: 'Choose a leader at 1728',
+      body: hasLeaders ? (
+        <>
+          <p>Every leader in the Leader at 1728 column is listed with how many people they have. Type in the filter box to find one quickly.</p>
+          <p className="mt-2">If a leader’s name is written in different ways, the spellings are grouped and shown as “Also written as…”.</p>
+          <button type="button" className={`${action} mt-3`} onClick={onPickLeader}>
+            <Users aria-hidden className="size-4" />
+            Show {leaderName ? `${leaderName}’s` : 'a leader’s'} people
+          </button>
+        </>
+      ) : (
+        <p>Once a roster with a “Leader at 1728” column is loaded, every leader appears here with how many people they have. Add a roster, or load the sample files.</p>
+      ),
+    },
+    {
+      id: 'people',
+      target: 'results',
+      title: 'Everyone under that leader',
       body: (
         <>
-          <p>Results update as you type. Press Enter to search straight away and Esc to clear.</p>
+          <p>Each person appears once, even if they came to several events, with their phone number, email, address and every visit with its date.</p>
           <p className="mt-2">
-            From anywhere on the page, press <kbd className="rounded border border-edge px-1">/</kbd> or <kbd className="rounded border border-edge px-1">Ctrl K</kbd> to jump
-            back here.
+            A{' '}
+            <span className="rounded-full bg-warn/10 px-2 py-0.5 text-xs text-amber-200 outline-1 -outline-offset-1 outline-warn/60 outline-dashed">Leader written “…”</span> mark
+            shows a visit where the leader’s name was spelled differently, so you can check it.
           </p>
-          {hasFiles ? (
+          <p className="mt-2 text-muted">Use “Find someone in this list” and “Sort by” above the cards to narrow it down.</p>
+        </>
+      ),
+    },
+    {
+      id: 'export',
+      target: 'export',
+      title: 'Export the list',
+      body: (
+        <ul className="space-y-2">
+          <li>
+            <strong className="font-semibold text-ink">CSV</strong> gives one row per person with their contact details and visits, ready for Excel.
+          </li>
+          <li>
+            <strong className="font-semibold text-ink">PDF</strong> makes a printable list for the leader.
+          </li>
+          <li>
+            <strong className="font-semibold text-ink">Copy all</strong> puts a plain-text list on your clipboard, ready to paste into a message.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: 'mode',
+      target: hasLeaders ? 'mode' : 'search',
+      title: 'Find a person',
+      body: (
+        <>
+          <p>Switch to “Find a person” to search for anyone by name across all your files, including PDFs and Word documents.</p>
+          <p className="mt-2">It also finds “Connor, Sarah”, “S. Connor”, emails like sarah.connor@… and likely typos, each marked so you know how it matched.</p>
+          {hasFiles && (
             <button type="button" className={`${action} mt-3`} onClick={onTrySearch}>
               <Search aria-hidden className="size-4" />
               Search for “Sarah Connor”
             </button>
-          ) : (
-            <p className="mt-2 text-muted">Add a file first, then try a name.</p>
           )}
         </>
       ),
@@ -138,80 +191,30 @@ export function Tour({
     {
       id: 'results',
       target: 'results',
-      title: 'Read the results',
+      title: 'Read the search results',
       body: (
         <>
-          <p>The summary counts what was found in each file type: pages, sheets, sections and so on.</p>
-          <p className="mt-2">Each result says where it was found and how it matched:</p>
+          <p>Each result says where it was found and how it matched:</p>
           <ul className="mt-2 space-y-1.5">
             <li>
-              <mark className="hl font-serif">Sarah Connor</mark> <span className="text-muted">Exact: the name as typed</span>
+              <mark className="hl font-serif">Sarah Connor</mark> <span className="text-muted">Exact</span>
             </li>
             <li>
-              <mark className="hl font-serif">Connor, Sarah</mark> <span className="text-muted">Name variant: reversed, initials, emails</span>
+              <mark className="hl font-serif">Connor, Sarah</mark> <span className="text-muted">Name variant</span>
             </li>
             <li>
               <mark className="hl-fuzzy font-serif">Sarah Conner</mark> <span className="text-muted">Possible typo: worth checking</span>
             </li>
           </ul>
+          <p className="mt-2 text-muted">{wide ? 'Select a result’s title to see it in context on the right.' : 'Select a result’s title to see it in context.'}</p>
         </>
-      ),
-    },
-    {
-      id: 'preview',
-      target: wide ? 'preview' : 'results',
-      title: 'See it in context',
-      body: wide ? (
-        <p>Select a result’s title to show it here with the paragraphs around it, or the whole spreadsheet row. With nothing selected, this panel shows how the file was split up.</p>
-      ) : (
-        <p>Select a result’s title to see it with the paragraphs around it, or the whole spreadsheet row. It opens as a sheet from the bottom of the screen.</p>
-      ),
-    },
-    {
-      id: 'options',
-      target: 'options',
-      title: 'Narrow it down',
-      body: (
-        <ul className="space-y-2">
-          <li>
-            <strong className="font-semibold text-ink">Exact match only</strong> finds just the name as you typed it.
-          </li>
-          <li>
-            <strong className="font-semibold text-ink">Case sensitive</strong> makes capital letters count.
-          </li>
-          <li>
-            <strong className="font-semibold text-ink">Column</strong> searches one spreadsheet column. For example, pick “Leader at 1728”, then select a leader’s name to list
-            everyone under them.
-          </li>
-          <li>
-            <strong className="font-semibold text-ink">Search in</strong> limits the search to one file when you have several.
-          </li>
-        </ul>
       ),
     },
     {
       id: 'files',
       target: 'files',
       title: 'Check your files',
-      body: <p>Each file shows its progress and anything that needs your attention, such as a scanned PDF that needs text recognition (OCR) first. Select ✕ to remove a file.</p>,
-    },
-    {
-      id: 'export',
-      target: 'export',
-      title: 'Export what you found',
-      body: (
-        <ul className="space-y-2">
-          <li>
-            <strong className="font-semibold text-ink">CSV</strong> keeps every match with its original columns, ready for Excel.
-          </li>
-          <li>
-            <strong className="font-semibold text-ink">PDF</strong> makes a printable report.
-          </li>
-          <li>
-            <strong className="font-semibold text-ink">Copy all</strong> puts a plain-text list on your clipboard.
-          </li>
-        </ul>
-      ),
+      body: <p>Each file shows its progress and anything that needs attention, such as an empty sheet or a scanned PDF that needs text recognition (OCR). Select ✕ to remove a file.</p>,
     },
     {
       id: 'done',

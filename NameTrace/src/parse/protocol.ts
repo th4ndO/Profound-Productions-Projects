@@ -1,4 +1,5 @@
 import type { PackedIndexData } from '../match/tokenIndex';
+import type { LeaderIndex } from '../leaders/leaders';
 import type { ColumnStat } from '../model/fields';
 import type { FileType, NormRecord, Unit } from '../model/types';
 
@@ -17,6 +18,7 @@ export type FromWorker =
       unit: Unit;
       index: PackedIndexData;
       columns: ColumnStat[];
+      leaders: LeaderIndex;
       warnings: string[];
     }
   | { type: 'error'; fileId: string; message: string };

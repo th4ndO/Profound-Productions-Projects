@@ -356,3 +356,32 @@ Chromium) · @axe-core/playwright · dev: docx, tsx.
 - README “How to use it” section. `e2e/tour.spec.ts`: full walkthrough on desktop and mobile, card within the viewport at every step, axe with the tour open, focus return, no off-origin requests.
 
 **Out of scope:** auto-starting the tour, remembering that the tour was seen, and changes to parsing, search or export.
+
+---
+
+## 12. Leader view: “everyone under one Leader at 1728” (added 2026-09-26)
+
+**Why:** the owner’s real job is not “find a name anywhere”. It is: pick a leader at 1728 and see
+everyone under them. That was possible only through Column → value chip, three clicks deep, and it
+listed raw rows instead of people. The owner confirmed two defaults: **one line per person**, and
+**close variants of a leader’s name are included but marked**.
+
+**Scope**
+- A **Leaders | Find a person** switch at the top of the left column. Leaders is the default
+  whenever a loaded spreadsheet has a leader column. Find a person is the existing name search,
+  unchanged.
+- **Leader column:** auto-detected (`Leader at 1728` first, then any column containing “leader”),
+  with a picker when there is more than one (for example Leader at 144).
+- **Leader list:** every leader with people and record counts, and a filter box. Spellings of the
+  same leader are grouped with the existing smart matcher (bracketed nickname, small typo) and
+  shown as “also written as …”. Rows with no leader are grouped as “No leader listed”.
+- **People under a leader:** one card per person, deduplicated by the Full Name column (folded
+  accents, case and spacing). Each card shows contact details (mobile, email, address), every event
+  with its type and date, the number of visits, and a mark when a row’s leader was written
+  differently. People can be filtered by name and sorted by name, most visits or latest visit.
+- **Export follows the view:** in Leaders, CSV, PDF and Copy export the selected leader’s people
+  (one row per person). In Find a person they export search results as before.
+- **Tour rewritten** around this flow, with a richer generated sample roster: several leaders,
+  repeat visitors, and one leader written two ways.
+
+**Out of scope:** editing data, leaders at 12/144 as a hierarchy tree, and saving anything.

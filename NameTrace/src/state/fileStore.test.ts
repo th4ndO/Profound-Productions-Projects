@@ -42,7 +42,7 @@ describe('FileStore', () => {
     await tick();
     expect(FakeWorker.all).toHaveLength(2);
     expect(store.getSnapshot().map((f) => f.status)).toEqual(['parsing', 'parsing', 'queued']);
-    FakeWorker.all[0].send({ type: 'done', fileType: 'pdf', unit: { one: 'page', many: 'pages' }, index: { keys: '', starts: new Int32Array(1), postings: new Int32Array(0) }, columns: [], warnings: ['w'] });
+    FakeWorker.all[0].send({ type: 'done', fileType: 'pdf', unit: { one: 'page', many: 'pages' }, index: { keys: '', starts: new Int32Array(1), postings: new Int32Array(0) }, columns: [], leaders: { byColumn: {}, personKeys: null }, warnings: ['w'] });
     await tick();
     expect(FakeWorker.all).toHaveLength(3);
     expect(FakeWorker.all[0].terminated).toBe(true);

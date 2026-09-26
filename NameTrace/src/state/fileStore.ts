@@ -1,4 +1,5 @@
 import { PackedIndex, type TokenIndex } from '../match/tokenIndex';
+import type { LeaderIndex } from '../leaders/leaders';
 import type { ColumnStat } from '../model/fields';
 import type { FileType, NormRecord, Unit } from '../model/types';
 import { MAX_FILE_BYTES } from '../parse/detect';
@@ -17,6 +18,7 @@ export interface FileEntry {
   records: NormRecord[];
   index?: TokenIndex;
   columns: ColumnStat[];
+  leaders?: LeaderIndex;
   warnings: string[];
   error?: string;
 }
@@ -180,6 +182,7 @@ export class FileStore {
           records: received,
           index,
           columns: m.columns,
+          leaders: m.leaders,
           warnings: m.warnings,
         });
       } else if (m.type === 'error') this.finish(id, { status: 'error', error: m.message });

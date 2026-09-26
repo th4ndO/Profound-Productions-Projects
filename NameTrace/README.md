@@ -52,24 +52,44 @@ internal web server). There is nothing to configure and no server code.
 ## How to use it
 
 New users can select **Take the tour** in the header (or **New here? Take a
-1-minute tour** on the start screen). The 9-step guided tour highlights each part of the
-page. It can load **sample files** (invented names, served from this site) and
-run a sample search, so every step has real results to point at. Use the arrow keys
-or buttons to move through it, and Esc to close. It never starts by itself and
-stores nothing.
+1-minute tour** on the start screen). The 9-step guided tour highlights each part of
+the page. It can load **sample files** (invented names, served from this site), open a
+leader's people and run a sample search, so every step has real results to point at.
+Use the arrow keys or buttons to move through it, and Esc to close. It never starts by
+itself and stores nothing.
 
-1. Drop files on the left (or choose them). Each file shows its progress,
-   and any warnings or errors with what to do next.
-2. Type a name. Results update as you type (a 140 ms pause), and Enter searches at once.
+### Everyone under a leader (the main view)
+
+1. Drop your roster export on the left: .xlsx, .xls (including .xlsx files saved with a
+   .xls name), .ods or CSV. You can add several at once.
+2. When a file has a **Leader at 1728** column, the page opens in **Leaders**. Every
+   leader is listed with how many people they have. Type in **Filter leaders** to find
+   one. If there are other leader columns (Leader at 12 or 144), pick one under **Leader column**.
+3. Select a leader to see **everyone under them, once each**:
+   - their phone number, email and address, with links to call or email
+   - every event they came to, with its type and date
+   - how many visits they made
+4. **Spellings of a leader are grouped.** For example, “Thabo Nkosi” and “Thabo (TK) Nkosi”,
+   or a one-letter typo, count as one leader and are shown as “Also written as…”. Each
+   visit recorded under a different spelling is marked **Leader written “…”** so you
+   can check it. Rows with an empty leader cell are listed under **No leader listed**.
+5. Use **Find someone in this list** and **Sort by** (name, most visits, latest visit)
+   to narrow it down.
+6. Export that leader's people: **CSV** (one row per person, with contacts and
+   visits), **PDF** (a printable list) or **Copy all** (plain text for a message).
+
+### Find a person
+
+Switch to **Find a person** to search for any name across all files, including PDFs,
+Word documents and text files.
+
+1. Type a name. Results update as you type (a 140 ms pause), and Enter searches at once.
    `/` or `Ctrl K` / `⌘K` jumps to the search box, and `Esc` clears it.
-3. Narrow down with **Search in** (one file or all) and **Column**. For
-   spreadsheets, choose a column such as **Leader at 1728** to match names only
-   in that column. The most common names in that column appear as one-click
-   suggestions.
-4. Select a result to see it in context: the neighbouring paragraphs, or the
-   whole row. With nothing selected, the preview shows how the file was split.
-5. Export: **CSV** (every match, with the original columns), **PDF** (a
-   printable report), or **Copy all** (plain text).
+2. Narrow down with **Search in** (one file or all) and **Column** (for example, only
+   the Full Name column).
+3. Select a result to see it in context: the neighbouring paragraphs, or the
+   whole row.
+4. Export: **CSV** (every match, with the original columns), **PDF** or **Copy all**.
 
 ---
 

@@ -25,6 +25,16 @@ node portfolio-ops\install\install.js agents-report   # list all agents (check f
   `--mcp-rename Supabase=claude_ai_Supabase,Vercel=claude_ai_Vercel` to the `agents` step, and use the same flag every time.
 - Restart Claude Code afterwards, then check `/hooks` and `/agents`.
 
+## Updating after the kit changes (Command Prompt)
+
+```
+cd /d %USERPROFILE%\Documents\Profound-Productions-Projects && git pull && node portfolio-ops\install\install.js backup && node portfolio-ops\install\install.js registry && node portfolio-ops\install\install.js hooks --update && node portfolio-ops\install\install.js agents --update --mcp-rename Supabase=claude_ai_Supabase,Vercel=claude_ai_Vercel
+```
+
+`--update` replaces only kit-owned files (hooks, the 8 agents) and keeps the old copy as `.bak`. `registry`
+refreshes the Portfolio Lead block in CLAUDE.md; PORTFOLIO.md is never overwritten (a `PORTFOLIO.md.kit-new`
+appears if the kit's copy changed, so you can compare and merge your edits by hand).
+
 ## Verify (safe, fake data only)
 
 ```powershell

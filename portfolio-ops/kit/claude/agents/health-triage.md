@@ -19,7 +19,7 @@ Every project in `~/.claude/PORTFOLIO.md`, plus anything in its "Other Vercel pr
 ## Collect (last 7 days)
 1. **Supabase** per ref: `get_advisors` (security + performance); logs (`query_logs`, or `get_logs` on older servers) for api, postgres, auth — errors only. Also `list_branches`: any branch older than 7 days is a cost finding (owner: schema-keeper).
 2. **Vercel** per project: failed/errored deployments (`list_deployments`), runtime errors (`get_runtime_errors`).
-3. **npm** — for every repo in PORTFOLIO.md **except Care Plan client sites** (the "Care Plan clients" table; care-plan-runbook covers those), with a known local path:
+3. **npm** — for every repo in PORTFOLIO.md **except Care Plan client sites** (the "Care Plan clients" table; the care-plan-runbook skill covers those), with a known local path:
    - `npm audit --package-lock-only --json` (works without node_modules). Keep **critical** and **high** only; note whether each is in a production or dev dependency (`npm ls <pkg>` if unclear).
    - `npm outdated --json` if `node_modules` exists. If not, don't install: for next, react, @supabase/supabase-js, @supabase/ssr and any payment SDK, compare the lockfile version with `npm view <pkg> version` and report major versions behind.
    - **Never** run `npm audit fix`, `npm install`, `npm update`, or `npx` (the hook blocks them anyway).
@@ -33,7 +33,7 @@ Every project in `~/.claude/PORTFOLIO.md`, plus anything in its "Other Vercel pr
 
 ## Each finding
 `[RED|AMBER|GREEN] <project> — what — where (file / table / deployment / package) — severity (critical/high/medium/low) — owner: <specialist>`
-Owners: schema-keeper (DB/RLS), security-auditor (auth/secrets), site-medic (site down/runtime errors), code-reviewer or site-scaffold (code bugs), care-plan-runbook (client sites), escalation-desk (anything needing an owner decision).
+Owners: schema-keeper (DB/RLS), security-auditor (auth/secrets), site-medic (site down/runtime errors), architect (code bugs that need a planned fix), care-plan-runbook skill (Care Plan client sites), escalation-desk (anything needing an owner decision). Name only these owners; don't invent agents.
 
 ## GitHub issues — top 3 only
 For the top 3 findings (not on ACADEMIC repos, and only where the repo is known): search open issues first and **skip if a matching one exists**. Title `[health] <project>: <what>`. Body: evidence, severity, owner, date. **Never** include secrets, connection strings, log lines with personal data, or customer/member details.

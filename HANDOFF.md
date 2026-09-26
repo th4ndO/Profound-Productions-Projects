@@ -85,14 +85,59 @@ Answer OPEN a and b above. PR #15 is done (merged and live).
 
 ---
 
+## Vercel/Supabase clash audit and cleanup (2026-09-26)
+
+### State
+- **No clashes found.** Each of the 7 remaining Vercel projects has its own domains. Each app with a database uses its own Supabase project (checked against the refs in the live client bundles). No two Vercel projects share a repo plus root dir. No Supabase branches are open. 2 Vercel projects (`nametrace`, `project`) are linked to the monorepo.
+- **Not read-only any more.** At the owner's instruction today:
+  - The Vercel Supabase integration was limited to `coco-bliss-project-v2`. Verified after: Coco Bliss still has 31 env vars, 13 of them from the integration.
+  - The redundant Vercel project `profound-productions-projects` was deleted. Verified: it returns 404, and 7 Vercel projects remain.
+  - The non-deploying monorepo copies `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` were deleted **on this branch** (`claude/gifted-franklin-7o53s5`). The first two were identical to the original repos. house-sookoo couldn't be compared; its files are kept in commit `46a7394`.
+- gatekeeper-reviewer PASSed the branch. **The merge to main is awaiting the owner's approval.**
+- Registry: see "Clash audit (2026-09-26)" in `.claude/PORTFOLIO.md`. Coco Bliss deploys from `th4ndO/coco-bliss-production-source`.
+
+### Decisions (and why) — newest first
+- Deleted the three monorepo copies (owner's instruction) — nobody should edit code that doesn't deploy.
+- Deleted Vercel `profound-productions-projects` (owner's instruction) — it rebuilt on nearly every push and served 404 everywhere.
+- Limited the Supabase integration to Coco Bliss (owner's instruction) — other projects could otherwise pick up its vars.
+
+### OPEN decisions (need the owner)
+- **1. Coco Bliss (RED) second env-var set:** it has a second set of Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`), production only. Should we decrypt `SUPABASE_URL`/`POSTGRES_HOST` to confirm they point at `xvpdqldlqbtafcbycwxp`? Options: decrypt and check (recommended; this needs your explicit request, since it's a RED project) / leave it. Nothing is blocked, but it's unverified.
+- ~~2. Integration scope~~ — resolved: limited to Coco Bliss (see State).
+- ~~3. Stale monorepo copies~~ — resolved: deleted on this branch (merge pending).
+- ~~4. Redundant Vercel project `profound-productions-projects`~~ — resolved: deleted.
+- **5. Renames** (blocked by session permissions; each needs your approval and must be done by you in the dashboards):
+  - Vercel `project` → `groundwork`.
+  - Supabase "th4ndO's Project" → `coco-bliss` (RED; cosmetic only, the ref doesn't change).
+  - Supabase `campushustle` → `hustle-corner`, or pick one name for CampusHustle / hustle-corner / "The Business Corner".
+  - Vercel `nos236-creat8ves-inc` → `creat8ve-inc`. It's a client URL: the existing `.vercel.app` domain should stay attached. Verify after.
+  - Monorepo folder `Project/` → `Groundwork/`. The Vercel `project` Root Directory must change at the moment of merge, or Groundwork builds break.
+  - Recommended: do the cosmetic ones anytime; do the folder rename only with a planned merge. Nothing is blocked.
+- **6. Unregistered monorepo folders:** `E-portfolio`, `MAFIA`, `MamaG-App`, `MamaG-Official`, `MamaGs`, `demo-repo`, `demorepo` are not in PORTFOLIO. For each: risk level (ACADEMIC?) and keep or delete? `demo-repo` and `demorepo` look like duplicates. Until answered, agents shouldn't touch them.
+- ~~**7. Every merge to main redeploys both `nametrace` and `project`.**~~ Resolved 2026-09-26 by PR #21: each app's `vercel.json` `ignoreCommand` skips the build when its folder is unchanged.
+
+### Next step
+Owner approved merging `claude/gifted-franklin-7o53s5` (2026-09-26). Next: answer 1, 5 and 6, and act on the health-check RED items.
+
+---
+
 ## Cross-project items from 2026-09-26 (health-triage and cleanup)
 
 health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in an ephemeral cloud container; it is probably gone. Key points are below.
 
 ### OPEN decisions (need the owner)
-- **Profound Productions (AMBER):** framework upgrade pending (run `npm audit` in `Profound-Productions/`). Recommended: yes, via branch, preview deploy and your approval.
+- **Profound Productions (AMBER):** framework upgrade pending. Run `npm audit` in `th4ndO/Profound-Productions`, where the code now lives only (the monorepo copy was deleted). Recommended: yes, via branch, preview deploy and your approval.
 - **network-growth (RED):** the Supabase security advisor flags two database functions (medium). Details kept out of this public repo; see the advisor or re-run health-triage. Owner: schema-keeper.
 - **Leftover branches** (fully merged; this session got 403 deleting them): `claude/beautiful-mccarthy-3l2kh2`, `claude/gracious-sagan-meu582`. Delete them yourself. Do **not** delete `claude/peaceful-bohr-ff184f`: it got a new commit today.
+
+### Health check 2026-09-26 (full brief saved outside the repo) — top items
+- **[RED] Coco Bliss:** 4 backup tables in the public schema have RLS off, so payment, order and profile data could be exposed to the anon key. Fix via schema-keeper on a branch, plus a POPIA decision via escalation-desk. (Table names kept out of this public repo; see the brief or the security advisor.)
+- **[RED] Coco Bliss:** the storefront could not reach Supabase from about 21 to 25 Sep (ENOTFOUND; likely a free-tier pause, ended when the org went Pro). site-medic: check for unfinalised Yoco payments from that window. Add an uptime alert.
+- **[RED] network-growth:** SECURITY DEFINER functions `allowlist_empty()` and `is_allowed()` can be called by anon, and the first-sign-in admin bootstrap is still open. Owner: schema-keeper / security-auditor.
+- Coco Bliss: `sync_product_stock_from_variants()` can be called by anon.
+- Leaked-password protection is off on Coco Bliss and Profound Productions.
+- CampusHustle: possible fake seed sellers still on production; preview env vars missing.
+- Groundwork: make sure config values are always strings.
 
 ### Gotchas
 - Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead.
@@ -110,7 +155,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 ## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
 
 ### State
-- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's Vercel project `profound-productions-projects` built from the repo root, not this folder (checked 2026-09-26; that project has since been deleted).
+- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's former Vercel project `profound-productions-projects` built from the repo root, not this folder; it was deleted on 2026-09-26.
 - **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
   - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
   - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.

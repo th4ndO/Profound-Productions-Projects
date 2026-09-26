@@ -57,18 +57,16 @@ Branch `claude/peaceful-bohr-ff184f` (pushed, no PR opened). One section per pro
 
 ### State
 - **Deploy source is the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), not the monorepo folder `Hustle-Corner/`.** The monorepo folder is an old snapshot: it still says "CampusHustle" and has the old verification and privacy text. Don't edit it expecting changes to go live.
-- Live site https://hustle-corner.vercel.app still serves `dpl_CyEbTsZkJeqxjdHTfdtcXhmnoYTk` (commit `efe50f2`). Production was **not** redeployed this session.
-- Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, about 50 min after the last good prod deploy, someone set the Vercel `hustle-corner` Root Directory to `groundwork`. After that every build failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It has been reset to the repo root through the Vercel API.
-- Step-by-step guide built on branch `claude/loving-brown-e2pvis` of `th4ndO/Hustle-Corner-` (commit `3a9634e`). **No PR is open.**
-  - New `/how-it-works` page with two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps).
-  - Logged-in users now get a "Dashboard" link in the header. Before this, nothing linked to `/dashboard`, so new sellers couldn't find onboarding.
-  - Account links are grouped so they wrap as one row on phones.
-  - The footer and homepage link to the guide.
-  - Homepage copy fixed: it wrongly said you can't book through the site.
-- Checks: `tsc` and the production build pass. In Chromium at 360px and 1024px there is no horizontal overflow. **The logged-in header was simulated, not tested with a real account.**
-- Preview (READY): https://hustle-corner-g7l5am7z0-profoundproductionss-8104s-projects.vercel.app/how-it-works (`dpl_HAb4JhyMayEXvhivAZDJebneZg3X`).
+- **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
+  - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
+  - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.
+  - Homepage copy fixed: it wrongly said you can't book through the site. `4424a0f` makes the copy say that reviews and reports need a login (this was gatekeeper's finding).
+- Release chain: **qa-tester was not available**, so the Portfolio Lead ran QA itself: `tsc`, the prod build, Playwright at 360px and 1024px against a local prod build of the same commit, and curl route checks on the preview. gatekeeper-reviewer gave PASS. security-auditor wasn't needed because auth, payments, uploads, and admin were not touched. The owner explicitly approved the deploy.
+- **The logged-in header was only simulated. Nobody has tested it with a real account** (see OPEN e).
+- Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, someone set the Vercel `hustle-corner` Root Directory to `groundwork`, and every build after that failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It was reset to the repo root through the Vercel API.
 
 ### Decisions (and why) — newest first
+- Shipped the guide after QA by the Portfolio Lead, a gatekeeper PASS, and owner approval. qa-tester wasn't available in the session.
 - Reset the `hustle-corner` Root Directory to the repo root. The `groundwork` value broke every build and most likely belonged to the ACADEMIC Groundwork project.
 - Signup no longer checks student email domains, so every signup gets `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1` in `Hustle-Corner-`). This is not a bug.
 - Privacy contact and legal review are parked. The owner said "get it working first".
@@ -76,14 +74,16 @@ Branch `claude/peaceful-bohr-ff184f` (pushed, no PR opened). One section per pro
 ### OPEN decisions (need the owner)
 - **a. Monorepo folder `Hustle-Corner/`:** re-sync it from `th4ndO/Hustle-Corner-`, or delete it or mark it as a snapshot? Recommended: mark it as a snapshot (or delete it) so nobody edits the wrong copy. Nothing is blocked, but it will keep misleading future sessions.
 - **b. Groundwork (ACADEMIC) Vercel project `project`:** its Root Directory was **not** checked, because academic projects are review-only. Should someone check whether `groundwork` was meant for it? Recommended: the owner checks it personally. Until then, Groundwork deploys may also be wrong.
-- **c. Ship the guide?** Review the preview first. Recommended: yes, after QA. This blocks the guide from going live.
 - **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
+- **e. Logged-in header check:** the Dashboard link and the wrapped account row were only simulated. Recommended: the owner logs in once on a phone and checks them on the live site. Nothing is blocked, but a broken header would hide onboarding from new sellers.
 
 ### Next step
-Open the preview link above and click through both tabs on a phone. If it looks right, follow this release order: qa-tester, then gatekeeper-reviewer, then owner approval, then open a PR from `claude/loving-brown-e2pvis` and merge it to `main` in `th4ndO/Hustle-Corner-`.
+Log in on a phone at https://hustle-corner.vercel.app. Check that the header shows "Dashboard", that the account links wrap as one row, and that `/how-it-works` looks right on both tabs (closes OPEN e).
 
 ### Gotchas
 - A local `next build` needs `NODE_ENV=production`. The container sets `NODE_ENV=development`, which makes the build fail with "<Html> should not be imported outside of pages/_document".
 - Sellers get **no notification** when someone requests a booking. The guide tells users this. It's a product gap, not yet fixed.
 - The Supabase migration history on the live DB doesn't match the repo's migrations folder. Make any schema change through schema-keeper, and reconcile the two first.
 - The site stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
+- Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs. Test against a local prod build of the same commit instead.
+- Branch `claude/loving-brown-e2pvis` in `Hustle-Corner-` is merged. Delete it if it's still there.

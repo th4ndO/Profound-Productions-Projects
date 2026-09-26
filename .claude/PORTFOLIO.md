@@ -79,7 +79,7 @@ Special rules:
 | Live URL | https://hustle-corner.vercel.app |
 | Repo | **deploys from** GitHub `th4ndO/Hustle-Corner-` (`main`); monorepo folder `Hustle-Corner/` is a stale snapshot, do not edit; local path [CONFIRM] |
 | Risk | **GREEN** |
-| Status | MVP live (UP Hatfield side-hustle directory); build config fixed 2026-09-26; how-it-works guide on branch `claude/loving-brown-e2pvis`, preview only, no PR |
+| Status | MVP live; how-it-works guide deployed 2026-09-26 (PR #1); Vercel Root Directory fixed 2026-09-26 |
 
 Special rules:
 - Stores student sellers' contact details (WhatsApp numbers), so it's still personal data: keep RLS on and don't print rows.

@@ -21,10 +21,36 @@ test('a 100k-row workbook parses without freezing the page', async ({ page }, in
     }).observe({ type: 'longtask', buffered: false });
   });
   const t0 = Date.now();
-  await page.locator('input[type=file]').setInputFiles(path);
-  await expect(page.locator('[data-status=done]')).toHaveCount(1, { timeout: 60_000 });
+  await page.getByTestId('file-input').setInputFiles(path);
+  await expect(page.locator('[data-testid=file-row][data-status=done]')).toHaveCount(1, { timeout: 60_000 });
   const parseMs = Date.now() - t0;
+  await page.waitForTimeout(500);
   const longTasks = await page.evaluate(() => (window as unknown as { longTasks: number[] }).longTasks);
   console.log(`big.xlsx: ${parseMs} ms; main-thread long tasks: ${longTasks.length}, max ${Math.max(0, ...longTasks).toFixed(0)} ms`);
-  await expect(page.getByTestId('file')).toContainText('100000');
+  await expect(page.getByTestId('file-row')).toContainText(/100[\s,\u00a0\u202f]000 rows/);
+  // Before batching and interning, finishing this file froze the page for
+  // ~1.1 s in one task. What remains is garbage collection of 100k records
+  // (typically 80–140 ms here); the budget leaves room for slower machines.
+  expect(Math.max(0, ...longTasks)).toBeLessThan(250);
+
+  // Search latency on 100k rows, measured from Enter to the rendered summary.
+  const box = page.getByRole('searchbox', { name: 'Name to find' });
+  const timings: number[] = [];
+  for (const q of ['Sarah Connor', 'Connor, Sarah', 'Person 4217', 'Sarah Conner']) {
+    await box.fill(q);
+    const ms = await page.evaluate(async (query) => {
+      const input = document.querySelector<HTMLInputElement>('#nt-search')!;
+      const heading = document.querySelector('#nt-results-title')!;
+      const t = performance.now();
+      input.form!.requestSubmit();
+      await new Promise<void>((resolve) => {
+        const check = () => (heading.textContent?.includes(`“${query}”`) ? resolve() : requestAnimationFrame(check));
+        check();
+      });
+      return performance.now() - t;
+    }, q);
+    timings.push(ms);
+  }
+  console.log(`search on 100k rows (Enter → rendered): ${timings.map((t) => t.toFixed(0)).join(', ')} ms`);
+  expect(Math.max(...timings)).toBeLessThan(1000);
 });

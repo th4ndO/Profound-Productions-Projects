@@ -13,11 +13,11 @@ import { Filters, type FilterState } from './ui/Filters';
 import { Preview } from './ui/Preview';
 import { ResultCard } from './ui/ResultCard';
 import { SearchBox } from './ui/SearchBox';
-import { summarize } from './ui/summary';
+import { formatNumber, summarize } from './ui/summary';
 import { useMediaQuery } from './ui/useMediaQuery';
 
 const DEBOUNCE_MS = 140;
-const PAGE = 200;
+const PAGE = 100;
 
 function isEditable(el: Element | null): boolean {
   if (!el) return false;
@@ -71,9 +71,10 @@ export default function App() {
   const scopeValid = filters.scope === 'all' || done.some((f) => f.id === filters.scope);
   const scoped = useMemo(() => (scopeValid && filters.scope !== 'all' ? done.filter((f) => f.id === filters.scope) : done), [done, filters.scope, scopeValid]);
 
+  // Column names and value counts come precomputed from the worker.
   const columns = useMemo(() => {
     const seen = new Set<string>();
-    for (const f of scoped) for (const r of f.records) if (r.fields) for (const [k] of r.fields) seen.add(k);
+    for (const f of scoped) for (const c of f.columns) seen.add(c.name);
     return [...seen];
   }, [scoped]);
   const field = columns.includes(filters.field) ? filters.field : '';
@@ -81,11 +82,7 @@ export default function App() {
   const values = useMemo(() => {
     if (!field) return [] as [string, number][];
     const counts = new Map<string, number>();
-    for (const f of scoped)
-      for (const r of f.records) {
-        if (!r.fields) continue;
-        for (const [k, v] of r.fields) if (k === field) counts.set(v, (counts.get(v) ?? 0) + 1);
-      }
+    for (const f of scoped) for (const [v, n] of f.columns.find((c) => c.name === field)?.values ?? []) counts.set(v, (counts.get(v) ?? 0) + n);
     return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   }, [scoped, field]);
 
@@ -202,7 +199,7 @@ export default function App() {
               Show {Math.min(PAGE, hits.length - shown)} more
             </button>
             <p className="text-xs text-muted">
-              Showing {shown.toLocaleString('en-ZA')} of {hits.length.toLocaleString('en-ZA')}. Exports include all of them.
+              Showing {formatNumber(shown)} of {formatNumber(hits.length)}. Exports include all of them.
             </p>
           </div>
         )}
@@ -247,6 +244,9 @@ export default function App() {
             <Filters state={{ ...filters, field }} onChange={patchFilters} files={files} columns={columns} values={values} onPickValue={(v) => runNow(v)} />
           </div>
           <div className="order-4">
+            <ExportBar hits={hits} query={query} summary={summary} />
+          </div>
+          <div className="order-5">
             <FileList
               files={files}
               onRemove={(id) => {
@@ -254,9 +254,6 @@ export default function App() {
                 if (selectedHit?.record.fileId === id) setSelectedId(null);
               }}
             />
-          </div>
-          <div className="order-5">
-            <ExportBar hits={hits} query={query} summary={summary} />
           </div>
         </aside>
 

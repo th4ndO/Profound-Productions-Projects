@@ -1,4 +1,5 @@
 import type { PackedIndexData } from '../match/tokenIndex';
+import type { ColumnStat } from '../model/fields';
 import type { FileType, NormRecord, Unit } from '../model/types';
 
 export type ToWorker = { type: 'parse'; fileId: string; name: string; buffer: ArrayBuffer };
@@ -15,6 +16,7 @@ export type FromWorker =
       fileType: FileType;
       unit: Unit;
       index: PackedIndexData;
+      columns: ColumnStat[];
       warnings: string[];
     }
   | { type: 'error'; fileId: string; message: string };

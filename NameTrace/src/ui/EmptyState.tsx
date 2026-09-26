@@ -1,6 +1,7 @@
 import { FileSearch, SearchX, Upload } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Spinner } from './Spinner';
+import { formatNumber } from './summary';
 
 function Shell({ icon, title, children }: { icon: ReactNode; title: string; children?: ReactNode }) {
   return (
@@ -33,7 +34,7 @@ export function NoQuery({ records, files }: { records: number; files: number }) 
   return (
     <Shell icon={<FileSearch aria-hidden className="size-6" />} title="Type a name to search">
       <p>
-        Ready to search {records.toLocaleString('en-ZA')} {records === 1 ? 'entry' : 'entries'} in {files} {files === 1 ? 'file' : 'files'}.
+        Ready to search {formatNumber(records)} {records === 1 ? 'entry' : 'entries'} in {files} {files === 1 ? 'file' : 'files'}.
       </p>
       <p>Smart search also finds “Connor, Sarah”, “S. Connor”, “Sarah J. Connor”, emails like sarah.connor@…, and likely typos.</p>
     </Shell>

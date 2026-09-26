@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isValidTimeZone } from "@/lib/timezone";
 import type { ReminderRule } from "@/lib/reminder-types";
 
 async function requireUser() {
@@ -41,8 +42,8 @@ export async function upsertReminderRule(
   if (!/^\d{2}:\d{2}$/.test(localTime)) {
     throw new Error("Pick a valid time.");
   }
-  if (!timezone.trim()) {
-    throw new Error("A timezone is required.");
+  if (!isValidTimeZone(timezone)) {
+    throw new Error("Pick a valid timezone.");
   }
 
   const { data: existing } = await supabase

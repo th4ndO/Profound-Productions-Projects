@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { isValidTimeZone } from "@/lib/timezone";
 
 async function requireUser() {
   const supabase = await createClient();
@@ -23,7 +24,7 @@ export async function updateProfile(
 ): Promise<void> {
   const { supabase, user } = await requireUser();
 
-  if (!timezone.trim()) throw new Error("A timezone is required.");
+  if (!isValidTimeZone(timezone)) throw new Error("Pick a valid timezone.");
   if (!/^\d{2}:\d{2}$/.test(quietStart) || !/^\d{2}:\d{2}$/.test(quietEnd)) {
     throw new Error("Quiet hours need a valid time.");
   }

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./SettingsForm";
+import { SignOutSection } from "./SignOutSection";
 import styles from "./settings.module.css";
 
 export const metadata = {
@@ -50,6 +51,11 @@ export default async function SettingsPage() {
           this site&apos;s data, or switching browser or device, starts you fresh. On iPhone,
           use Groundwork from its Home Screen icon — it keeps separate data from Safari.
         </p>
+      </section>
+
+      <section className={`${styles.section} ${styles.dataNote}`}>
+        <h2 className={styles.sectionLabel}>Sign out</h2>
+        <SignOutSection />
       </section>
     </div>
   );

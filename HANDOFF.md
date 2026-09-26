@@ -66,7 +66,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **a. Accept or fix the gatekeeper WARNs?** (1) hardening of anonymous sign-up (gatekeeper's retroactive review, 2026-09-26; details kept out of this public repo); (2) no cleanup of stale anonymous users; (3) no per-user usage limits; (4) no sign-out, so a shared device shows the previous person's goals. Options: accept for the MVP / fix some. Recommended (context-keeper's suggestion, not decided in session): accept (1)–(3) for the MVP, fix (4) first. Blocks nothing today; the advisor WARNs stay open until answered.
+- **a. Accept or fix the gatekeeper WARNs?** (1) hardening of anonymous sign-up (gatekeeper's retroactive review, 2026-09-26; details kept out of this public repo); (2) no cleanup of stale anonymous users; (3) no per-user usage limits. (4) sign-out is done (owner asked; Settings → "Sign out of this device" erases the user's data, then signs out). Options for (1)–(3): accept for the MVP / fix some. Blocks nothing today; the advisor WARNs stay open until answered.
 - **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
 
 ### Next step
@@ -75,7 +75,7 @@ Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merg
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
 - Migration version drift: repo files `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`.
-- Goal-page theme switcher is a horizontal scroller that hides most of the 12 visuals.
+- Signed-out anonymous auth users stay behind with no data (deleting auth users needs the service role); pairs with (2) stale-user cleanup.
 - App icon is still a flat placeholder.
 - Real-device push delivery never verified.
 

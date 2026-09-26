@@ -128,7 +128,7 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Looks redundant: [CONFIRM delete or keep] |
+| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Owner decided 2026-09-26 to stop it building: the root `vercel.json` sets `git.deploymentEnabled: false` (it is the only project whose Root Directory is the repo root). Delete the project itself only if the owner asks. |
 
 ## Care Plan clients
 

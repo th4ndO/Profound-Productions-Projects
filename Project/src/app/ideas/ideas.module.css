@@ -43,6 +43,35 @@
   text-decoration: none;
 }
 
+.filterLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 14px 0 6px;
+}
+
+.none {
+  color: var(--muted);
+  margin: 26px 0;
+}
+
+.none a {
+  color: var(--accent);
+}
+
+.idea .evidence {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.idea .evidence b {
+  color: var(--ink);
+  margin-right: 4px;
+}
+
 .chip[aria-pressed="true"] {
   border-color: var(--accent);
   background: var(--soft);

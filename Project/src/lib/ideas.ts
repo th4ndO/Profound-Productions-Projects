@@ -1,16 +1,52 @@
 import type { Theme } from "@/components/visuals/GoalVisual";
 import type { Timeframe } from "@/lib/timeframe";
 
-/** A pre-written goal a user can adopt as-is. Ported 1:1 from reference/groundwork.html's `IDEAS`. */
+/**
+ * Idea categories, in the order the filter chips show them. Only the id is
+ * stored on an idea; nothing about the category is copied into a user's
+ * goal when they adopt it, so labels can change freely.
+ */
+export const CATEGORIES = [
+  { id: "fitness", label: "Fitness" },
+  { id: "health", label: "Health" },
+  { id: "diet", label: "Diet" },
+  { id: "education", label: "Education" },
+  { id: "career", label: "Career" },
+  { id: "money", label: "Money" },
+  { id: "mindset", label: "Mindset" },
+  { id: "relationships", label: "Relationships" },
+  { id: "life-skills", label: "Life skills" },
+  { id: "adventure", label: "Adventure" },
+  { id: "fun", label: "Fun" },
+] as const;
+
+export type Category = (typeof CATEGORIES)[number]["id"];
+
+export const CATEGORY_LABELS = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.label])) as Record<
+  Category,
+  string
+>;
+
+export function isCategory(value: string): value is Category {
+  return CATEGORIES.some((c) => c.id === value);
+}
+
+/**
+ * A pre-written goal a user can adopt as-is. The original 26 are ported
+ * from reference/groundwork.html's `IDEAS`; the rest are research-backed
+ * skills and habits, each with an `evidence` line naming its source.
+ */
 export interface Idea {
   id: string;
   tf: Timeframe;
   theme: Theme;
-  cat: string;
+  cat: Category;
   title: string;
   why: string;
   reward: string;
   ms: string[];
+  /** Short, plain-language source for the claim in `why`, shown on the card. */
+  evidence?: string;
 }
 
 export const IDEAS: Idea[] = [
@@ -18,7 +54,7 @@ export const IDEAS: Idea[] = [
     id: "cpr",
     tf: "day",
     theme: "tree",
-    cat: "Meaningful",
+    cat: "life-skills",
     title: "Learn CPR and the choking response",
     why: "Most people freeze in an emergency. A few hours of practice means you won't.",
     reward: "A proper coffee and pastry somewhere you've never been",
@@ -33,7 +69,7 @@ export const IDEAS: Idea[] = [
     id: "tyre",
     tf: "day",
     theme: "strength",
-    cat: "Life skill",
+    cat: "life-skills",
     title: "Change a car tyre start to finish",
     why: "A roadside skill that saves you from waiting hours for help.",
     reward: "Your own tyre pressure gauge for the car",
@@ -48,7 +84,7 @@ export const IDEAS: Idea[] = [
     id: "knots",
     tf: "day",
     theme: "shelf",
-    cat: "Life skill",
+    cat: "life-skills",
     title: "Tie 5 useful knots from memory",
     why: "Bowline, clove hitch, taut-line, figure-8 and trucker's hitch cover almost every tie-down.",
     reward: "A paracord keychain you tie yourself, plus a cold drink",
@@ -58,7 +94,7 @@ export const IDEAS: Idea[] = [
     id: "cube",
     tf: "day",
     theme: "building",
-    cat: "Fun",
+    cat: "fun",
     title: "Solve a Rubik's cube",
     why: "Everyone assumes it's genius-level. It's a method you can learn in an afternoon.",
     reward: "A proper speed cube",
@@ -68,7 +104,7 @@ export const IDEAS: Idea[] = [
     id: "dish",
     tf: "week",
     theme: "tree",
-    cat: "Life skill",
+    cat: "life-skills",
     title: "Master one signature meal",
     why: "Having one dish you can cook for anyone, anytime, is quietly impressive.",
     reward: "A good chef's knife",
@@ -83,7 +119,7 @@ export const IDEAS: Idea[] = [
     id: "juggle",
     tf: "week",
     theme: "strength",
-    cat: "Fun",
+    cat: "fun",
     title: "Juggle three balls for 30 catches",
     why: "Great for focus and coordination, and ten minutes a day is enough.",
     reward: "A fourth ball, and film yourself for proof",
@@ -93,7 +129,7 @@ export const IDEAS: Idea[] = [
     id: "sasl",
     tf: "week",
     theme: "shelf",
-    cat: "Meaningful",
+    cat: "education",
     title: "Learn the SASL alphabet and 50 signs",
     why: "South African Sign Language is an official language that very few hearing people know.",
     reward: "Dinner out with someone you tell about it",
@@ -109,7 +145,7 @@ export const IDEAS: Idea[] = [
     id: "ship",
     tf: "week",
     theme: "building",
-    cat: "Career",
+    cat: "career",
     title: "Build and ship a tiny tool in one week",
     why: "Finished and public beats perfect and private. It's also portfolio proof.",
     reward: "A domain name for your next idea",
@@ -125,7 +161,7 @@ export const IDEAS: Idea[] = [
     id: "stars",
     tf: "week",
     theme: "mountain",
-    cat: "Fun",
+    cat: "fun",
     title: "Find 5 constellations and a planet by eye",
     why: "The southern sky is one of the best in the world, and most people can't name a thing in it.",
     reward: "A night drive out of the city to see the Milky Way",
@@ -141,7 +177,7 @@ export const IDEAS: Idea[] = [
     id: "sunset",
     tf: "week",
     theme: "tree",
-    cat: "Meaningful",
+    cat: "health",
     title: "A 7-day phone sunset",
     why: "No phone after 21:00 for a week. You'll notice the difference in your sleep and thinking.",
     reward: "A new book for the evenings",
@@ -151,7 +187,7 @@ export const IDEAS: Idea[] = [
     id: "typing",
     tf: "month",
     theme: "shelf",
-    cat: "Career",
+    cat: "career",
     title: "Touch type at 60+ words per minute",
     why: "You type all day. This pays off every single working hour for the rest of your life.",
     reward: "A mechanical keyboard",
@@ -161,7 +197,7 @@ export const IDEAS: Idea[] = [
     id: "lang",
     tf: "month",
     theme: "shelf",
-    cat: "Meaningful",
+    cat: "education",
     title: "Hold a 2-minute conversation in a South African language you don't speak yet",
     why: "People light up when you make the effort in their language.",
     reward: "A meal out where you order in that language",
@@ -177,7 +213,7 @@ export const IDEAS: Idea[] = [
     id: "pullups",
     tf: "month",
     theme: "strength",
-    cat: "Body",
+    cat: "fitness",
     title: "Get to 5 strict pull-ups",
     why: "One of the best measures of real, usable strength.",
     reward: "New workout gear",
@@ -187,7 +223,7 @@ export const IDEAS: Idea[] = [
     id: "song",
     tf: "month",
     theme: "tree",
-    cat: "Fun",
+    cat: "fun",
     title: "Play one full song on guitar or piano",
     why: "One song you can actually play is worth more than a year of 'I want to learn'.",
     reward: "A lesson with a real teacher",
@@ -203,7 +239,7 @@ export const IDEAS: Idea[] = [
     id: "talk",
     tf: "month",
     theme: "mountain",
-    cat: "Career",
+    cat: "career",
     title: "Give a 5-minute talk without notes",
     why: "Speaking clearly in front of people opens more doors than almost any technical skill.",
     reward: "A sharp shirt for your next talk",
@@ -219,7 +255,7 @@ export const IDEAS: Idea[] = [
     id: "parkrun",
     tf: "quarter",
     theme: "strength",
-    cat: "Body",
+    cat: "fitness",
     title: "Run a parkrun 5 km without walking",
     why: "Free, every Saturday morning, and surprisingly social.",
     reward: "Proper running shoes fitted at a running store",
@@ -235,7 +271,7 @@ export const IDEAS: Idea[] = [
     id: "chess",
     tf: "quarter",
     theme: "building",
-    cat: "Fun",
+    cat: "fun",
     title: "Reach a 1200 rating on Lichess",
     why: "Strategy, patience and pattern recognition in one game.",
     reward: "A weighted wooden chess set",
@@ -245,7 +281,7 @@ export const IDEAS: Idea[] = [
     id: "photo",
     tf: "quarter",
     theme: "tree",
-    cat: "Fun",
+    cat: "fun",
     title: "Shoot a 12-photo series in manual mode",
     why: "Learning light and exposure changes how you see everything, including your design work.",
     reward: "Print and frame your best shot",
@@ -261,7 +297,7 @@ export const IDEAS: Idea[] = [
     id: "cert",
     tf: "quarter",
     theme: "building",
-    cat: "Career",
+    cat: "career",
     title: "Pass one recognised tech certification",
     why: "A cert that matches the tools you already use turns experience into proof.",
     reward: "A weekend away",
@@ -271,7 +307,7 @@ export const IDEAS: Idea[] = [
     id: "fund",
     tf: "quarter",
     theme: "jar",
-    cat: "Meaningful",
+    cat: "money",
     title: "Build a one-month emergency fund",
     why: "Having a buffer changes how you handle every surprise.",
     reward: "A small treat paid for with money outside the fund",
@@ -288,7 +324,7 @@ export const IDEAS: Idea[] = [
     id: "tugela",
     tf: "quarter",
     theme: "mountain",
-    cat: "Adventure",
+    cat: "adventure",
     title: "Hike to the top of Tugela Falls",
     why: "Chain ladders up the Drakensberg to the top of one of the tallest waterfalls on Earth.",
     reward: "A night in a mountain lodge after the hike",
@@ -303,7 +339,7 @@ export const IDEAS: Idea[] = [
     id: "scuba",
     tf: "year",
     theme: "mountain",
-    cat: "Adventure",
+    cat: "adventure",
     title: "Get Open Water scuba certified",
     why: "A whole world most people never see. Sodwana Bay is one of the best places to learn.",
     reward: "A dive trip once you're certified",
@@ -313,7 +349,7 @@ export const IDEAS: Idea[] = [
     id: "half",
     tf: "year",
     theme: "strength",
-    cat: "Body",
+    cat: "fitness",
     title: "Finish a 21 km half marathon",
     why: "The step after parkrun. Crossing that line stays with you.",
     reward: "A sports massage and a framed race photo",
@@ -323,7 +359,7 @@ export const IDEAS: Idea[] = [
     id: "books",
     tf: "year",
     theme: "shelf",
-    cat: "Meaningful",
+    cat: "education",
     title: "Read 12 books",
     why: "One a month. A mix of fiction, biography and books that challenge you.",
     reward: "Every 3 books, a bookshop visit. At 12, a special edition of your favourite",
@@ -333,7 +369,7 @@ export const IDEAS: Idea[] = [
     id: "provinces",
     tf: "year",
     theme: "mountain",
-    cat: "Adventure",
+    cat: "adventure",
     title: "Visit all 9 South African provinces",
     why: "Most South Africans have seen three or four. Few can say they've seen all nine.",
     reward: "A printed photo book of the journey",
@@ -343,10 +379,447 @@ export const IDEAS: Idea[] = [
     id: "teach",
     tf: "year",
     theme: "tree",
-    cat: "Meaningful",
+    cat: "relationships",
     title: "Teach someone a skill you have, start to finish",
     why: "Teaching is the best test of whether you really know something, and it changes someone else's year too.",
     reward: "A celebration meal together when they can do it on their own",
     ms: ["Choose the person and the skill", "Plan the steps", "First lesson", "Halfway check-in", "They do it without your help"],
+  },
+  // ---- Research-backed skills and habits. `evidence` names the source. ----
+
+  // Fitness
+  {
+    id: "steps-7k",
+    tf: "week",
+    theme: "strength",
+    cat: "fitness",
+    title: "Walk 7,000 steps a day for a week",
+    why: "You don't need 10,000. Around 7,000 steps a day already brings most of the health benefit.",
+    reward: "New walking socks or a good podcast subscription",
+    ms: [
+      "Check your normal step count for two days",
+      "Add a 15-minute walk after one meal each day",
+      "Hit 7,000 steps on 3 days",
+      "Hit 7,000 steps on 5 of the 7 days",
+    ],
+    evidence:
+      "Lancet Public Health (2025), 57 studies: 7,000 steps a day was linked to a 47% lower risk of death than 2,000; 10,000 added little more.",
+  },
+  {
+    id: "strength-2x",
+    tf: "month",
+    theme: "strength",
+    cat: "fitness",
+    title: "Strength train twice a week for a month",
+    why: "Muscle strength protects your joints, bones and metabolism as you age, and it's the part of fitness most people skip.",
+    reward: "A proper pair of training shoes",
+    ms: [
+      "Pick five moves: squat, push-up, hip hinge, row and a loaded carry",
+      "First two sessions done, form over weight",
+      "Four sessions done",
+      "Six sessions done, add a little weight or reps",
+      "Eight sessions in four weeks",
+    ],
+    evidence: "WHO 2020 guidelines: muscle-strengthening activity for all major muscle groups on 2 or more days a week.",
+  },
+  {
+    id: "active-150",
+    tf: "quarter",
+    theme: "mountain",
+    cat: "fitness",
+    title: "Hit 150 active minutes every week for 12 weeks",
+    why: "The single most important exercise target: about 20 brisk minutes a day, in any form you enjoy.",
+    reward: "A fitness watch or a month at a class you've wanted to try",
+    ms: [
+      "Choose activities: brisk walks, cycling, dancing, sport",
+      "Weeks 1–4 at 150 minutes",
+      "Weeks 5–8 at 150 minutes",
+      "Weeks 9–12 at 150 minutes",
+    ],
+    evidence:
+      "WHO 2020 guidelines: adults should do 150–300 minutes of moderate (or 75–150 of vigorous) aerobic activity a week.",
+  },
+
+  // Health
+  {
+    id: "sleep-7",
+    tf: "month",
+    theme: "tree",
+    cat: "health",
+    title: "Sleep 7+ hours on a fixed schedule for 30 days",
+    why: "Enough sleep, at the same time every day, improves mood, focus, appetite and long-term health more than almost any other habit.",
+    reward: "Blackout curtains or a new pillow",
+    ms: [
+      "Pick one wake-up time for all 7 days, weekends too",
+      "Set a bedtime 7½ hours before it",
+      "Screens off 30 minutes before bed",
+      "10 nights on schedule",
+      "25 of 30 nights on schedule",
+    ],
+    evidence:
+      "American Academy of Sleep Medicine: adults need 7+ hours regularly; a regular sleep-wake schedule is part of healthy sleep.",
+  },
+  {
+    id: "alcohol-free",
+    tf: "month",
+    theme: "tree",
+    cat: "health",
+    title: "A month alcohol-free",
+    why: "Even moderate drinking disrupts sleep. A month off shows you how you actually feel without it.",
+    reward: "Put the money you'd have spent on drinks towards something you want",
+    ms: ["Tell two friends you're doing it", "Find a go-to alcohol-free drink", "Two weeks done", "30 days done"],
+    evidence: "WHO (2023): no level of alcohol consumption is safe for health.",
+  },
+  {
+    id: "checkup",
+    tf: "week",
+    theme: "shelf",
+    cat: "health",
+    title: "Know your numbers: a full health check",
+    why: "High blood pressure, blood sugar and cholesterol usually have no symptoms. The only way to know is to measure.",
+    reward: "A healthy meal out once the results are in",
+    ms: [
+      "Book a check at a clinic, pharmacy or GP",
+      "Blood pressure measured",
+      "Blood sugar and cholesterol tested",
+      "Write down your numbers and one thing to act on",
+    ],
+    evidence: "WHO: raised blood pressure is a leading, often silent, risk factor for heart disease and stroke.",
+  },
+
+  // Diet
+  {
+    id: "veg-5",
+    tf: "week",
+    theme: "tree",
+    cat: "diet",
+    title: "Eat 5 portions of fruit and veg every day for a week",
+    why: "One portion is about 80 g: a banana, an apple, or a handful of spinach. Five a day lowers the risk of heart disease and stroke.",
+    reward: "A new cookbook or a trip to a farmers' market",
+    ms: [
+      "Count your normal portions for one day",
+      "Add fruit to breakfast",
+      "Add a vegetable to lunch and dinner",
+      "Five portions on 5 of the 7 days",
+    ],
+    evidence: "WHO: eat at least 400 g (5 portions) of fruit and vegetables a day.",
+  },
+  {
+    id: "fibre-25",
+    tf: "month",
+    theme: "tree",
+    cat: "diet",
+    title: "Eat 25 g of fibre a day for a month",
+    why: "Most people eat far less. Beans, oats, whole grains and vegetables get you there, and your gut and heart benefit.",
+    reward: "A good pot for cooking beans and soups",
+    ms: [
+      "Swap to oats or a whole-grain breakfast",
+      "Add beans, lentils or chickpeas to 3 meals a week",
+      "Choose brown bread, rice or pasta",
+      "Two weeks at 25 g a day",
+      "A full month at 25 g a day",
+    ],
+    evidence:
+      "The Lancet (2019), 185 studies: the biggest risk reductions came at 25–29 g of fibre a day; heart disease risk fell as intake rose.",
+  },
+  {
+    id: "no-sugary-drinks",
+    tf: "month",
+    theme: "jar",
+    cat: "diet",
+    title: "Swap sugary drinks for water for 30 days",
+    why: "One 330 ml can of cola holds about 35 g of sugar, more than the WHO's ideal limit for a whole day. It's the easiest sugar to cut.",
+    reward: "A good reusable water bottle, plus the money you saved",
+    ms: [
+      "Count how many sugary drinks you have now",
+      "Find a replacement you like: sparkling water, rooibos, lemon water",
+      "One week sugary-drink-free",
+      "30 days sugary-drink-free",
+    ],
+    evidence:
+      "WHO: keep free sugars under 10% of daily energy, ideally under 5% (about 25 g, 6 teaspoons); fruit juice counts as free sugar.",
+  },
+  {
+    id: "less-salt",
+    tf: "week",
+    theme: "shelf",
+    cat: "diet",
+    title: "Halve your salt for two weeks",
+    why: "Most people eat about twice the healthy amount of salt, which raises blood pressure. Your taste buds adjust in a couple of weeks.",
+    reward: "A set of herbs and spices to cook with instead",
+    ms: [
+      "Take the salt shaker off the table",
+      "Read labels: pick the lower-salt bread, stock and sauces",
+      "Season with herbs, lemon and garlic instead",
+      "Two weeks of cooking with half the salt",
+    ],
+    evidence: "WHO: adults should eat under 5 g of salt a day; the global average is about 11 g.",
+  },
+
+  // Education
+  {
+    id: "spaced-recall",
+    tf: "month",
+    theme: "shelf",
+    cat: "education",
+    title: "Learn anything with daily flashcards for 30 days",
+    why: "Testing yourself, spread out over days, beats re-reading and highlighting by a wide margin.",
+    reward: "A course or book on the topic you're learning",
+    ms: [
+      "Pick a topic and install a spaced-repetition app like Anki",
+      "Write your first 30 cards",
+      "15 minutes of reviews daily for a week",
+      "30-day review streak",
+    ],
+    evidence:
+      "Dunlosky et al. (2013), a review of 10 study techniques: practice testing and spaced practice were the only two rated high utility.",
+  },
+  {
+    id: "cs50",
+    tf: "year",
+    theme: "building",
+    cat: "education",
+    title: "Finish Harvard's free CS50 course",
+    why: "The most popular intro to computer science in the world, free online. Even if you never code for a living, it teaches you how to think through problems.",
+    reward: "A new laptop bag or a proper keyboard",
+    ms: ["Week 0: Scratch", "C and algorithms", "Python", "SQL and web", "Final project submitted"],
+  },
+
+  // Career
+  {
+    id: "cv-refresh",
+    tf: "week",
+    theme: "building",
+    cat: "career",
+    title: "Rebuild your CV and LinkedIn from scratch",
+    why: "Most CVs list duties. Rewriting yours around results makes you ready for the opportunity before it shows up.",
+    reward: "A professional headshot",
+    ms: [
+      "List your 5 biggest results, with numbers",
+      "Rewrite the CV around them, one page",
+      "Update LinkedIn to match",
+      "Get feedback from one person in your field",
+    ],
+  },
+  {
+    id: "deep-work",
+    tf: "month",
+    theme: "building",
+    cat: "career",
+    title: "Do 90 minutes of focused work every workday for a month",
+    why: "Switching between tasks and notifications has a real cost. One protected block a day is where your best work gets done.",
+    reward: "Noise-cancelling headphones",
+    ms: [
+      "Pick the same 90-minute slot every day",
+      "Phone in another room, notifications off",
+      "5 workdays done",
+      "20 workdays done",
+    ],
+  },
+  {
+    id: "raise",
+    tf: "quarter",
+    theme: "mountain",
+    cat: "career",
+    title: "Prepare for and ask for a raise",
+    why: "Asking, with evidence, is a skill. Most people never practise it and earn less for it.",
+    reward: "A celebration dinner, whatever the outcome",
+    ms: [
+      "Research the pay range for your role",
+      "Write down your results since your last raise",
+      "Practise the conversation with a friend",
+      "Book the meeting and ask",
+    ],
+  },
+
+  // Money
+  {
+    id: "budget",
+    tf: "week",
+    theme: "jar",
+    cat: "money",
+    title: "Build a budget where every rand has a job",
+    why: "You can't steer money you can't see. A budget turns vague stress into clear choices.",
+    reward: "A nice notebook or budgeting app upgrade",
+    ms: [
+      "List all income",
+      "List every fixed expense and debit order",
+      "Go through last month's statements for everything else",
+      "Assign every rand: bills, savings, spending",
+    ],
+  },
+  {
+    id: "debt-avalanche",
+    tf: "quarter",
+    theme: "jar",
+    cat: "money",
+    title: "Pay off your most expensive debt",
+    why: "Paying off debt at 20%+ interest is a guaranteed return no investment can match.",
+    reward: "A small treat for every milestone, paid in cash",
+    ms: [
+      "List every debt with its interest rate",
+      "Pay the minimum on all of them",
+      "Put every extra rand on the highest-interest one",
+      "Halfway there",
+      "Paid off",
+    ],
+  },
+  {
+    id: "tfsa",
+    tf: "year",
+    theme: "jar",
+    cat: "money",
+    title: "Open a tax-free savings account and add to it every month",
+    why: "Growth inside a TFSA is never taxed. Starting small and early matters more than starting big.",
+    reward: "At 12 months, a weekend away funded by money outside the TFSA",
+    ms: [
+      "Compare low-fee TFSA providers",
+      "Open it and set a monthly debit order",
+      "3 months of contributions",
+      "6 months of contributions",
+      "12 months of contributions",
+    ],
+    evidence:
+      "SARS: from 1 March 2026 you can put in up to R46,000 a year (R500,000 lifetime); going over the limit is taxed at 40%.",
+  },
+  {
+    id: "fund-3",
+    tf: "year",
+    theme: "jar",
+    cat: "money",
+    title: "Grow your emergency fund to 3 months of expenses",
+    why: "Three months of breathing room turns a job loss or a broken car from a crisis into an inconvenience.",
+    reward: "Something you've wanted, bought with money outside the fund",
+    ms: ["1 month saved", "2 months saved", "3 months saved", "Moved to a separate, easy-access account"],
+  },
+
+  // Mindset
+  {
+    id: "if-then",
+    tf: "week",
+    theme: "tree",
+    cat: "mindset",
+    title: "Plan three habits with if-then plans",
+    why: "\"After I pour my coffee, I'll write my to-do list\" works far better than \"I'll be more organised\".",
+    reward: "A nice planner or habit tracker",
+    ms: [
+      "Pick three habits you keep meaning to start",
+      "Write each as \"After I [cue], I will [action]\"",
+      "Do all three for 3 days",
+      "Do all three for 7 days",
+    ],
+    evidence:
+      "Gollwitzer & Sheeran (2006), 94 studies: if-then plans had a medium-to-large effect on reaching goals (d = 0.65).",
+  },
+  {
+    id: "habit-66",
+    tf: "quarter",
+    theme: "tree",
+    cat: "mindset",
+    title: "Make one habit automatic",
+    why: "It takes longer than 21 days, often around two months. And missing a single day doesn't reset you.",
+    reward: "Something that makes the habit nicer to do",
+    ms: [
+      "Pick one small habit and one daily cue for it",
+      "Day 21",
+      "Day 45",
+      "Day 66: it feels automatic",
+    ],
+    evidence:
+      "Lally et al. (2010), UCL: habits took 66 days on average to become automatic (18 to 254), and missing one day didn't derail them.",
+  },
+  {
+    id: "meditate",
+    tf: "month",
+    theme: "mountain",
+    cat: "mindset",
+    title: "Meditate for 10 minutes a day for a month",
+    why: "Not magic, but a real, measurable help with anxiety and low mood for many people.",
+    reward: "A meditation cushion or a quiet day retreat",
+    ms: ["Pick a guided app or a simple breath count", "7 days in a row", "20 days", "30 days"],
+    evidence:
+      "JAMA Internal Medicine (2014), 47 trials: mindfulness programmes gave moderate improvements in anxiety and depression.",
+  },
+  {
+    id: "weekly-review",
+    tf: "quarter",
+    theme: "shelf",
+    cat: "mindset",
+    title: "Do a weekly review for 12 weeks",
+    why: "Twenty minutes every Sunday to look back and plan ahead keeps your goals from quietly drifting.",
+    reward: "A good pen and journal",
+    ms: [
+      "Write 3 questions: what went well, what didn't, what's next",
+      "4 reviews done",
+      "8 reviews done",
+      "12 reviews done, then read them all back",
+    ],
+  },
+
+  // Relationships
+  {
+    id: "friend-weekly",
+    tf: "quarter",
+    theme: "tree",
+    cat: "relationships",
+    title: "Call or see a friend every week for 12 weeks",
+    why: "Close relationships predict a long, healthy, happy life better than social class, IQ or genes.",
+    reward: "A day out with the friend you reconnected with most",
+    ms: [
+      "List 5 people you've lost touch with",
+      "4 weeks of calls or visits",
+      "8 weeks",
+      "12 weeks",
+    ],
+    evidence:
+      "Harvard Study of Adult Development (85+ years): the quality of relationships was the strongest predictor of health and happiness.",
+  },
+  {
+    id: "phone-free-dinner",
+    tf: "month",
+    theme: "tree",
+    cat: "relationships",
+    title: "Phone-free dinners for a month",
+    why: "A phone on the table pulls attention away from the people in front of you, even when nobody picks it up.",
+    reward: "A special dinner at home with the people you ate with",
+    ms: ["Agree the rule with your household", "Phones in a basket at dinner", "One week", "A full month"],
+  },
+  {
+    id: "volunteer",
+    tf: "quarter",
+    theme: "tree",
+    cat: "relationships",
+    title: "Volunteer 10 hours for a cause you care about",
+    why: "Helping others regularly builds connection and a sense of purpose, for them and for you.",
+    reward: "Bring a friend along for the last session, then a meal together",
+    ms: ["Find a local organisation", "First session", "5 hours", "10 hours"],
+  },
+
+  // Life skills
+  {
+    id: "swim",
+    tf: "quarter",
+    theme: "mountain",
+    cat: "life-skills",
+    title: "Learn to swim 50 metres without stopping",
+    why: "Drowning is a leading cause of accidental death worldwide. Swimming is a skill that can save your life.",
+    reward: "A beach or dam day trip",
+    ms: ["Book lessons or a coach", "Float and breathe comfortably", "Swim 10 m", "Swim 25 m", "Swim 50 m non-stop"],
+    evidence: "WHO: drowning is among the leading causes of unintentional injury death; basic swimming skills reduce the risk.",
+  },
+  {
+    id: "home-repairs",
+    tf: "week",
+    theme: "building",
+    cat: "life-skills",
+    title: "Learn 4 basic home repairs",
+    why: "Small fixes cost a fortune to call someone out for, and take minutes once you know how.",
+    reward: "A proper starter toolkit",
+    ms: [
+      "Fix a leaking tap washer",
+      "Patch a hole in a wall",
+      "Reset a tripped circuit breaker safely",
+      "Unblock a drain without chemicals",
+    ],
   },
 ];

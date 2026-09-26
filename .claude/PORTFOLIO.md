@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link)
 
 ## Risk levels
 
@@ -101,21 +101,23 @@ Special rules:
 - The git-ignored `NameTrace/src/testing/real.local.test.ts` runs on real data and must print aggregates only.
 - CSP blocks off-origin requests (asserted by an e2e test); keep it that way.
 
-## Recipe Costing Planner (academic)
+## Groundwork
 
 | Field | Value |
 |---|---|
-| Supabase ref | `bvapxwiryuzzbxesbtqo`. Note: Supabase names this project **"groundwork"**, not "recipe-costing-planner-db" [CONFIRM same project] |
-| Vercel project | probably `project` (`prj_k2uCOzF5Fny10tCGThm5iWljXqKk`): the `Project/` folder references this ref [CONFIRM] |
-| Live URL | https://project-tau-self-69.vercel.app [CONFIRM] |
-| Repo | monorepo folder `Project/` (from `th4ndO/project-`); local path [CONFIRM] |
-| Risk | **ACADEMIC** |
-| Status | Graded university project; module AI policy not confirmed |
+| Supabase ref | `bvapxwiryuzzbxesbtqo` (Supabase name: "groundwork") |
+| Vercel project | `project` (`prj_k2uCOzF5Fny10tCGThm5iWljXqKk`). Re-linked 2026-09-26 from `th4ndO/project-` to this monorepo: root directory `Project/`, production branch `main`, so **a merge to main deploys** |
+| Live URL | https://project-tau-self-69.vercel.app |
+| Repo | monorepo folder `Project/` (originally imported from `th4ndO/project-`, which no longer drives deploys); local path [CONFIRM] |
+| Risk | **GREEN** (owner, 2026-09-26: "personal project"). Personal MVP, no money; holds users' own goal data under RLS |
+| Status | Live personal goal/milestone tracker (Next.js 16 + Supabase). No sign-in: each browser gets an anonymous Supabase account via `/start` |
+
+History: the folder was a "Student Budget Planner", then cleared (commit `c408e26`) to start Groundwork. It was never a recipe costing planner; the old registry name "Recipe Costing Planner (academic)" was stale.
 
 Special rules:
-- **Review and test only.** No agent writes code, migrations, or config here until the owner confirms the module's AI policy.
-- innovator must never propose work on this project.
 - `Project/.env.production` is committed; it holds only public keys (URL, anon key, VAPID public key), as its header comment explains. Anything else appearing there is a finding.
+- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks await the owner's risk acceptance (see HANDOFF.md, Groundwork OPEN decisions).
+- The Vercel env vars `NEXT_PUBLIC_*` are defined as empty strings in the dashboard; the code falls back to committed public literals (`src/lib/supabase/config.ts`). Use `||`, not `??`, when reading them (an empty string with `??` caused a `/start` outage).
 
 ---
 

@@ -4,7 +4,7 @@
  * Two separate exports, deliberately NOT the same value source:
  *
  * - `SUPABASE_URL` / `SUPABASE_ANON_KEY` read `process.env.NEXT_PUBLIC_*`
- *   first, falling back to the literal only when unset. Use these
+ *   first, falling back to the literal when unset or empty. Use these
  *   everywhere except Edge Middleware (client.ts, server.ts). This lets a
  *   real env var — e.g. .env.local pointing at a local/staging Supabase
  *   project — actually take effect, which is the whole point of having one.
@@ -33,9 +33,13 @@ const FALLBACK_SUPABASE_URL = "https://bvapxwiryuzzbxesbtqo.supabase.co";
 const FALLBACK_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXB4d2lyeXV6emJ4ZXNidHFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODIwNDAsImV4cCI6MjEwNDk1ODA0MH0.JY33jU_EE_mUX2QO8zAGdTK2021ERkminaMvpQcj2-o";
 
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? FALLBACK_SUPABASE_URL;
+// `||`, not `??`: the Vercel project defines these env vars but as empty
+// strings, and an empty string must fall back too — with `??` the server
+// client got "" and every Server Action failed with "Your project's URL
+// and Key are required".
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 export const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? FALLBACK_SUPABASE_ANON_KEY;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
 // VAPID *public* key for Web Push (Phase 5) — like the anon key above, this
 // one is meant to be public: the browser needs it to create a push
@@ -44,7 +48,7 @@ export const SUPABASE_ANON_KEY =
 const FALLBACK_VAPID_PUBLIC_KEY =
   "BDomUgswm-6No8mVSfZRApmuX2cEALOYVr49Wotb0T5JFYQ_aDs-JDPSm6FvRfHbFCmeYcacrw6e1mTYkB0f8I8";
 export const VAPID_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? FALLBACK_VAPID_PUBLIC_KEY;
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || FALLBACK_VAPID_PUBLIC_KEY;
 
 // Edge Middleware only — see the module comment. Do not import these from
 // client.ts or server.ts.

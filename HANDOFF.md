@@ -95,7 +95,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - **Leftover branches** (fully merged; this session got 403 deleting them): `claude/beautiful-mccarthy-3l2kh2`, `claude/gracious-sagan-meu582`. Delete them yourself. Do **not** delete `claude/peaceful-bohr-ff184f`: it got a new commit today.
 
 ### Gotchas
-- Vercel project `profound-productions-projects` 404s on every path but still builds on every push. Decide whether to delete it or disconnect its Git link.
+- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead.
 
 ---
 
@@ -110,7 +110,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 ## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
 
 ### State
-- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's Vercel project `profound-productions-projects` builds from the repo root, not this folder (checked 2026-09-26).
+- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's Vercel project `profound-productions-projects` built from the repo root, not this folder (checked 2026-09-26; that project has since been deleted).
 - **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
   - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
   - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.

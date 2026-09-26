@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); Vercel Git links and monorepo projects re-checked 2026-09-26 (Vercel API; the empty `profound-productions-projects` project was deleted that day)
 
 ## Risk levels
 
@@ -30,7 +30,7 @@ filled in by the owner.
 | Supabase ref | `xvpdqldlqbtafcbycwxp` (dashboard name: "th4ndO's Project", eu-west-1) |
 | Vercel project | `coco-bliss-project-v2` (`prj_vxGjDBlaxZFA65SOCm59iIeKTvzJ`) |
 | Live URL | https://www.cocobliss.co.za (apex `cocobliss.co.za` 308-redirects to www) |
-| Repo | GitHub `coco-bliss-production-source` or `CocoBliss---Website` [CONFIRM which one deploys]; local path [CONFIRM] |
+| Repo | GitHub `th4ndO/coco-bliss-production-source` (the Vercel project's Git link, checked 2026-09-26); `CocoBliss---Website` is not linked to any Vercel project in the team; local path [CONFIRM] |
 | Risk | **RED** |
 | Status | Live, taking Yoco payments |
 
@@ -62,7 +62,7 @@ Special rules:
 | Supabase ref | `ofbitzqczupdobofuosh` (eu-west-1) |
 | Vercel project | `profound-productions` (`prj_eURPeIAzqOKDCWhKgugcX6ID9oB9`) |
 | Live URL | https://profound-productions.vercel.app (no custom domain attached) [CONFIRM intended domain] |
-| Repo | monorepo folder `Profound-Productions/` (from `th4ndO/Profound-Productions`); local path [CONFIRM] |
+| Repo | Deploys from its own repo `th4ndO/Profound-Productions` (Vercel API, 2026-09-26); the monorepo folder `Profound-Productions/` is a copy that does **not** deploy; local path [CONFIRM] |
 | Risk | **AMBER** |
 | Status | Live studio site: portfolio plus a password-protected /admin panel |
 
@@ -93,7 +93,7 @@ Special rules:
 | Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
 | Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
 | Risk | **AMBER** (owner decision 2026-09-26: public site that people load POPIA data into; no backend, no stored data) |
-| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour merged in PR #16 and live (production deploy from `58ab78e`, checked 2026-09-26) |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.
@@ -128,7 +128,6 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Deploys from its own repo `th4ndO/Creat8ve-Inc` (Vercel API, 2026-09-26); the monorepo folder `Creat8ve-Inc/` is a copy that does **not** deploy, so edit the source repo. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Deploys from its own repo `th4ndO/house-sookoo-data-tracker` (Vercel API, 2026-09-26); the monorepo folder `house-sookoo-data-tracker/` is a copy that does **not** deploy, so edit the source repo. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). **Deleted by the owner on 2026-09-26** (Vercel API: project not found). No Vercel project now uses this repo's root; only `project` (`Project/`) and `nametrace` (`NameTrace/`) are linked to this repo. |
 
 ## Care Plan clients
 

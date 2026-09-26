@@ -56,7 +56,7 @@ Branch `claude/peaceful-bohr-ff184f` (pushed, no PR opened). One section per pro
 ## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
 
 ### State
-- **Deploy source is the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), not the monorepo folder `Hustle-Corner/`.** The monorepo folder is an old snapshot: it still says "CampusHustle" and has the old verification and privacy text. Don't edit it expecting changes to go live.
+- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-`, and its history stays in this repo's git log.
 - **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
   - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
   - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.
@@ -66,13 +66,13 @@ Branch `claude/peaceful-bohr-ff184f` (pushed, no PR opened). One section per pro
 - Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, someone set the Vercel `hustle-corner` Root Directory to `groundwork`, and every build after that failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It was reset to the repo root through the Vercel API.
 
 ### Decisions (and why) — newest first
+- Deleted the monorepo's stale `Hustle-Corner/` copy (owner's request) so nobody edits code that doesn't deploy.
 - Shipped the guide after QA by the Portfolio Lead, a gatekeeper PASS, and owner approval. qa-tester wasn't available in the session.
 - Reset the `hustle-corner` Root Directory to the repo root. The `groundwork` value broke every build and most likely belonged to the ACADEMIC Groundwork project.
 - Signup no longer checks student email domains, so every signup gets `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1` in `Hustle-Corner-`). This is not a bug.
 - Privacy contact and legal review are parked. The owner said "get it working first".
 
 ### OPEN decisions (need the owner)
-- **a. Monorepo folder `Hustle-Corner/`:** re-sync it from `th4ndO/Hustle-Corner-`, or delete it or mark it as a snapshot? Recommended: mark it as a snapshot (or delete it) so nobody edits the wrong copy. Nothing is blocked, but it will keep misleading future sessions.
 - **b. Groundwork (ACADEMIC) Vercel project `project`:** its Root Directory was **not** checked, because academic projects are review-only. Should someone check whether `groundwork` was meant for it? Recommended: the owner checks it personally. Until then, Groundwork deploys may also be wrong.
 - **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
 - **e. Logged-in header check:** the Dashboard link and the wrapped account row were only simulated. Recommended: the owner logs in once on a phone and checks them on the live site. Nothing is blocked, but a broken header would hide onboarding from new sellers.

@@ -9,7 +9,7 @@ import { MIDDLEWARE_SUPABASE_URL, MIDDLEWARE_SUPABASE_ANON_KEY } from "./config"
 // "/dev" is a dev-only verification area (e.g. /dev/visuals, Phase 2
 // BUILD SPEC §8) — not real app content, so it stays public rather than
 // requiring a signed-in session to view.
-const PUBLIC_PATH_PREFIXES = ["/sign-in", "/auth/callback", "/dev"];
+const PUBLIC_PATH_PREFIXES = ["/sign-in", "/dev"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATH_PREFIXES.some(

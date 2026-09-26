@@ -1,64 +1,40 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./sign-in.module.css";
 
-export function SignInForm({
-  initialError,
-  next,
-}: {
-  initialError?: string;
-  next?: string;
-}) {
+export function SignInForm({ next }: { next?: string }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
-  const [error, setError] = useState<string | null>(
-    initialError ? "That link didn't work. Try sending a new one." : null,
-  );
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Only ever forward a relative path — never let an arbitrary `next` value
-  // (attacker-controlled query param) turn into an open redirect through
-  // the magic-link email.
-  const safeNext = next && next.startsWith("/") ? next : null;
+  // Only ever follow a same-site relative path — never let an arbitrary
+  // `next` value (attacker-controlled query param) become an open redirect.
+  // "//evil.example" is protocol-relative, so it's rejected too.
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setStatus("sending");
-
-    const callbackUrl = new URL("/auth/callback", window.location.origin);
-    if (safeNext) {
-      callbackUrl.searchParams.set("next", safeNext);
-    }
+    setSubmitting(true);
 
     const supabase = createClient();
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: callbackUrl.toString(),
-      },
-    });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (otpError) {
-      setError(otpError.message);
-      setStatus("idle");
+    if (signInError) {
+      setError(signInError.message);
+      setSubmitting(false);
       return;
     }
 
-    setStatus("sent");
-  }
-
-  if (status === "sent") {
-    return (
-      <div className={styles.confirm}>
-        <h2>Check your email</h2>
-        <p>
-          We sent a magic link to <strong>{email}</strong>. Open it on this
-          device to sign in.
-        </p>
-      </div>
-    );
+    // The browser client has written the session cookies; refresh so
+    // Server Components (and the auth proxy) see the signed-in user.
+    router.replace(safeNext);
+    router.refresh();
   }
 
   return (
@@ -77,8 +53,20 @@ export function SignInForm({
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-      <button type="submit" className={styles.btn} disabled={status === "sending"}>
-        {status === "sending" ? "Sending…" : "Send magic link"}
+      <div className={styles.field}>
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <button type="submit" className={styles.btn} disabled={submitting}>
+        {submitting ? "Signing in…" : "Sign in"}
       </button>
     </form>
   );

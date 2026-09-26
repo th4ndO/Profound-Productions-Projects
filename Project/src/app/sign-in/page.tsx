@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ next?: string }>;
 }) {
-  const { error, next } = await searchParams;
+  const { next } = await searchParams;
 
   return (
     <div className={styles.wrap}>
       <h1 className={styles.brand}>Groundwork</h1>
-      <p className={styles.sub}>Sign in with a magic link sent to your email.</p>
-      <SignInForm initialError={error} next={next} />
+      <p className={styles.sub}>Sign in with your email and password.</p>
+      <SignInForm next={next} />
     </div>
   );
 }

@@ -60,19 +60,3 @@
   margin: 0 0 14px;
 }
 
-.confirm {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 20px;
-}
-
-.confirm h2 {
-  font: 700 1.2rem var(--display);
-  margin: 0 0 8px;
-}
-
-.confirm p {
-  color: var(--muted);
-  margin: 0;
-}

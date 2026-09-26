@@ -9,8 +9,10 @@
  */
 const BASE = "https://same-origin.invalid";
 
-export function safeNextPath(next: string | null | undefined): string {
-  if (!next) return "/";
+export function safeNextPath(next: string | string[] | null | undefined): string {
+  // A repeated param (?next=/a&next=/b) arrives as an array; don't guess
+  // which one was meant.
+  if (typeof next !== "string" || !next) return "/";
   // Control characters (tab, newline, etc.) and backslashes never belong in
   // a path we generate ourselves, so any value containing them is refused.
   if (/[\u0000-\u001f\u007f\\]/.test(next)) return "/";

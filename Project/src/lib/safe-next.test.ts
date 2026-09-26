@@ -16,6 +16,11 @@ describe("safeNextPath", () => {
     expect(safeNextPath("ideas")).toBe("/");
   });
 
+  it("falls back to / when next is repeated (arrives as an array) instead of crashing", () => {
+    expect(safeNextPath(["/a", "/b"])).toBe("/");
+    expect(safeNextPath([])).toBe("/");
+  });
+
   it("refuses absolute and protocol-relative URLs", () => {
     expect(safeNextPath("https://evil.com")).toBe("/");
     expect(safeNextPath("//evil.com")).toBe("/");

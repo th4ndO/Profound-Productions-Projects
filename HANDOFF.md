@@ -1,6 +1,6 @@
 # Handoff — Profound-Productions-Projects monorepo — 2026-09-26
 
-One section per project; keep other projects' sections when editing. NameTrace lives on branch `claude/peaceful-bohr-ff184f` (pushed, no PR). Groundwork's in-flight fix is PR #15 (branch `claude/loving-mayer-ux3a3m`).
+One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo.
 
 ---
 
@@ -58,7 +58,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
   - #12: six new goal visuals (garden, moon, lanterns, path, canvas, balloon).
 - Live outside git: migrations `rls_initplan` and `goal_themes_v2` applied **directly to live** (no branch, no schema-keeper: the gate was skipped); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` redeployed (v2).
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
-- **In flight: PR #15** (branch `claude/loving-mayer-ux3a3m`). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). It is still BLOCKED only because the owner's GREEN reclassification must be confirmed by the owner directly, not relayed by an agent.
+- **Merged: PR #15** (`e31ee89`, in `main` and live). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). The owner confirmed the GREEN reclassification directly to the Portfolio Lead on 2026-09-26.
 
 ### Decisions (and why) — newest first
 - Risk GREEN — owner confirmed a personal project; MVP, no money, users' own goal data under RLS.
@@ -70,7 +70,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
 
 ### Next step
-Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merging deploys to production).
+Answer OPEN a and b above. PR #15 is done (merged and live).
 
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.

@@ -117,7 +117,7 @@ History: the folder was a "Student Budget Planner", then cleared (commit `c408e2
 
 Special rules:
 - `Project/.env.production` is committed; it holds only public keys (URL, anon key, VAPID public key), as its header comment explains. Anything else appearing there is a finding.
-- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks await the owner's risk acceptance (see HANDOFF.md, Groundwork OPEN decisions).
+- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks (anonymous sign-up hardening, no stale-user cleanup, no per-user limits) were **accepted by the owner for the MVP on 2026-09-26**; revisit before promoting the site publicly or if user count/DB size grows (see HANDOFF.md, Groundwork decisions).
 - The Vercel env vars `NEXT_PUBLIC_*` are defined as empty strings in the dashboard; the code falls back to committed public literals (`src/lib/supabase/config.ts`). Use `||`, not `??`, when reading them (an empty string with `??` caused a `/start` outage).
 
 ---

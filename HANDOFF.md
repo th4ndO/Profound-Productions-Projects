@@ -61,16 +61,16 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - **Merged: PR #15** (`e31ee89`, in `main` and live). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). The owner confirmed the GREEN reclassification directly to the Portfolio Lead on 2026-09-26.
 
 ### Decisions (and why) — newest first
+- **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is the one that grows on its own: every new browser adds a user row that is never removed. Supabase has no automatic cleanup; a periodic delete of old anonymous users would fix it (via schema-keeper). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
 - Risk GREEN — owner confirmed a personal project; MVP, no money, users' own goal data under RLS.
-- No sign-in; anonymous Supabase account per browser via `/start` (magic-link removed in #5) — its abuse risks are OPEN decision (a).
+- No sign-in; anonymous Supabase account per browser via `/start` (magic-link removed in #5) — its abuse risks were accepted for the MVP (see above).
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **a. Accept or fix the gatekeeper WARNs?** (1) hardening of anonymous sign-up (gatekeeper's retroactive review, 2026-09-26; details kept out of this public repo); (2) no cleanup of stale anonymous users; (3) no per-user usage limits. (4) sign-out is done (owner asked; Settings → "Sign out of this device" erases the user's data, then signs out). Options for (1)–(3): accept for the MVP / fix some. Blocks nothing today; the advisor WARNs stay open until answered.
 - **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
 
 ### Next step
-Answer OPEN a and b above. PR #15 is done (merged and live).
+Answer OPEN b above. PR #15 is done (merged and live).
 
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.

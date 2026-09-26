@@ -10,7 +10,7 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API); clash audit 2026-09-26 (Vercel git links, root dirs and env keys; Supabase refs in live client bundles; no Supabase branches open)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); Vercel Git links and monorepo projects re-checked 2026-09-26 (Vercel API); clash audit 2026-09-26 (Vercel git links, root dirs and env keys; Supabase refs in live client bundles; no Supabase branches open)
 
 ## Clash audit (2026-09-26)
 
@@ -24,13 +24,13 @@ filled in by the owner.
 | `nos236-creat8ves-inc` | `th4ndO/Creat8ve-Inc` @ `/` | none | no env vars |
 | `house-sookoo-data-tracker` | `th4ndO/house-sookoo-data-tracker` @ `/` (branch `master`) | none | no env vars |
 
-No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The two monorepo projects (`nametrace`, `project`) have "skip unaffected" on, but it does **not** stop cross-builds: every merge to main redeploys both (see open items). The root-level `profound-productions-projects` project was deleted on 2026-09-26 (owner approval).
+No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The two monorepo projects (`nametrace`, `project`) now each build only when their own folder changes (`ignoreCommand` in `NameTrace/vercel.json` and `Project/vercel.json`, PR #21); before that, every merge to main redeployed both. The root-level `profound-productions-projects` project was deleted on 2026-09-26 (owner approval).
 
 Open items:
 - `coco-bliss-project-v2` has two sets of Supabase vars: the app's `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` and Vercel-Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`, production only). The client uses the right project; that the integration set points at the same project was not checked (it would mean decrypting values) [CONFIRM].
 - Vercel Supabase integration (`icfg_cG3iWLR1c5mO1Vn9igX6NSfy`) limited to `coco-bliss-project-v2` only on 2026-09-26 (owner approval); Coco Bliss env vars unchanged (31, 13 from the integration).
 - The non-deploying monorepo copies `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` were deleted on 2026-09-26 (owner approval). The first two were byte-identical to their original repos; `house-sookoo-data-tracker` couldn't be compared (repo not attachable), but its import commit `46a7394` keeps the files.
-- Every merge to main redeploys both `nametrace` and `project` to production: NameTrace-only merges #13 and #16 also deployed Groundwork, and #15 rebuilt NameTrace (health check 2026-09-26). Likely cause: no workspace for Vercel's affected-detection. Fix option: an Ignored Build Step such as `git diff --quiet HEAD^ HEAD -- .` in each project [OPEN, owner].
+- Cross-builds (NameTrace-only merges #13/#16 also deploying Groundwork) fixed by PR #21's `ignoreCommand` on 2026-09-26.
 
 ## Risk levels
 
@@ -113,7 +113,7 @@ Special rules:
 | Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
 | Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
 | Risk | **AMBER** (owner decision 2026-09-26: public site that people load POPIA data into; no backend, no stored data) |
-| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13; guided tour via #16). **Leaders view** (pick a Leader at 1728, see everyone under them) merged in PR #19 (`43cc03e`) and live: verified on the live site 2026-09-26 (leader grouping, people list, name search, security headers, no off-origin requests) |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.

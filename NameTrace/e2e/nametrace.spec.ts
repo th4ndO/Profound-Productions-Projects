@@ -30,7 +30,14 @@ async function loadAll(page: Page) {
   await expect(page.locator('[data-testid=file-row][data-status=parsing], [data-testid=file-row][data-status=queued]')).toHaveCount(0, { timeout: 30_000 });
 }
 
+/** Rosters open in the Leaders view; name search lives under "Find a person". */
+async function toSearch(page: Page) {
+  const tab = page.getByRole('button', { name: 'Find a person' });
+  if (await tab.count()) await tab.click();
+}
+
 async function search(page: Page, q: string) {
+  await toSearch(page);
   const box = page.getByRole('searchbox', { name: 'Name to find' });
   await box.fill(q);
   await box.press('Enter');
@@ -66,6 +73,8 @@ test.describe('desktop', () => {
     await expect(page.getByText('This PDF is password-protected.', { exact: false })).toBeVisible();
     await expect(page.getByText('Save as → .docx', { exact: false })).toBeVisible();
     await expect(page.getByText('This PDF looks scanned', { exact: false })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Choose a leader' })).toBeVisible();
+    await toSearch(page);
     await expect(page.getByRole('heading', { name: 'Type a name to search' })).toBeVisible();
 
     await search(page, 'Sarah Connor');
@@ -109,14 +118,42 @@ test.describe('desktop', () => {
     expect(req.offOrigin).toEqual([]);
   });
 
-  test('filters by the Leader at 1728 column', async ({ page }) => {
+  test('Leaders view lists everyone under one leader at 1728', async ({ page }) => {
     await page.goto('/');
     await page.getByTestId('file-input').setInputFiles(join(FIXTURES, 'roster-export.xls'));
     await expect(page.locator('[data-testid=file-row][data-status=done]')).toHaveCount(1);
+    // Rosters open in the Leaders view; spellings of one leader are grouped, and the
+    // Payroll sheet (no leader column) is left out.
+    await expect(page.getByRole('button', { name: 'Leaders', pressed: true })).toBeVisible();
+    const list = page.getByRole('list', { name: 'Leaders in Leader at 1728' });
+    await expect(list.getByRole('button')).toHaveText([/^Sarah Connor.*Also written as “Sarah Conner”.*2 people$/, /^Thabo Nkosi.*2 people$/]);
+    await list.getByRole('button', { name: /^Thabo Nkosi/ }).click();
+    await expect(page.locator('#nt-results-title')).toHaveText('Thabo Nkosi: 2 people under this leader at 1728');
+    await expect(page.getByText('2 records', { exact: true })).toBeVisible();
+    const people = page.getByRole('list', { name: 'People under Thabo Nkosi' });
+    await expect(people.locator(':scope > li h3')).toHaveText(['Sarah Connor', 'Sipho Khumalo']);
+    await expect(people).toContainText('0820000003');
+    await expect(people).toContainText('Sunday service');
+
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download people as CSV' }).click()]);
+    const lines = readFileSync(await download.path()).toString('utf8').slice(1).split('\r\n').filter(Boolean);
+    expect(lines[0].startsWith('Name,Leader at 1728,Visits,First visit,Last visit,Mobile Number,Email,Address,Events')).toBe(true);
+    expect(lines.slice(1).map((l) => l.split(',')[0])).toEqual(['Sarah Connor', 'Sipho Khumalo']);
+
+    await list.getByRole('button', { name: /^Sarah Connor/ }).click();
+    await expect(page.getByText('includes 1 record where the leader is written “Sarah Conner”', { exact: false })).toBeVisible();
+    await expect(page.getByText('Leader written “Sarah Conner”')).toBeVisible();
+    await axe(page, 'leaders view');
+  });
+
+  test('column filter in Find a person still works', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('file-input').setInputFiles(join(FIXTURES, 'roster-export.xls'));
+    await expect(page.locator('[data-testid=file-row][data-status=done]')).toHaveCount(1);
+    await toSearch(page);
     await page.getByLabel('Column').selectOption('Leader at 1728');
     await page.getByRole('button', { name: /^Sarah Connor 1$/ }).click();
     await expect(page.locator('#nt-results-title')).toHaveText('Found 2 entries matching “Sarah Connor” across 1 sheet in 1 file');
-    await expect(page.getByText('1 exact, 1 possible typo')).toBeVisible();
   });
 
   test('hotkeys, clear, and zero-match suggestions', async ({ page }) => {

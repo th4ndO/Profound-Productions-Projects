@@ -9,6 +9,7 @@ import type { Mammoth } from './docx';
 import { RECORD_BATCH, type FromWorker, type ToWorker } from './protocol';
 import { packIndex } from '../match/tokenIndex';
 import { columnStats } from '../model/fields';
+import { buildLeaderIndex } from '../leaders/leaders';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -54,7 +55,9 @@ self.onmessage = async (e: MessageEvent<ToWorker>) => {
     for (let i = 0; i < doc.records.length; i += RECORD_BATCH) {
       post({ type: 'records', fileId, records: doc.records.slice(i, i + RECORD_BATCH) });
     }
-    self.postMessage({ type: 'done', fileId, fileType: doc.type, unit: doc.unit, index, columns: columnStats(doc.records), warnings: doc.warnings } satisfies FromWorker, [
+    const columns = columnStats(doc.records);
+    const leaders = buildLeaderIndex(doc.records, columns.map((c) => c.name));
+    self.postMessage({ type: 'done', fileId, fileType: doc.type, unit: doc.unit, index, columns, leaders, warnings: doc.warnings } satisfies FromWorker, [
       index.starts.buffer,
       index.postings.buffer,
     ]);

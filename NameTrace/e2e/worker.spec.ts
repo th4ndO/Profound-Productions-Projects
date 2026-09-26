@@ -34,6 +34,7 @@ test('a 100k-row workbook parses without freezing the page', async ({ page }, in
   expect(Math.max(0, ...longTasks)).toBeLessThan(250);
 
   // Search latency on 100k rows, measured from Enter to the rendered summary.
+  await page.getByRole('button', { name: 'Find a person' }).click();
   const box = page.getByRole('searchbox', { name: 'Name to find' });
   const timings: number[] = [];
   for (const q of ['Sarah Connor', 'Connor, Sarah', 'Person 4217', 'Sarah Conner']) {

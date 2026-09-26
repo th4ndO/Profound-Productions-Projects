@@ -1,6 +1,6 @@
 # Handoff — Profound-Productions-Projects monorepo — 2026-09-26
 
-One section per project; keep other projects' sections when editing. NameTrace lives on branch `claude/peaceful-bohr-ff184f` (pushed, no PR). Groundwork's in-flight fix is PR #15 (branch `claude/loving-mayer-ux3a3m`).
+One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo.
 
 ---
 
@@ -58,7 +58,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
   - #12: six new goal visuals (garden, moon, lanterns, path, canvas, balloon).
 - Live outside git: migrations `rls_initplan` and `goal_themes_v2` applied **directly to live** (no branch, no schema-keeper: the gate was skipped); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` redeployed (v2).
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
-- **In flight: PR #15** (branch `claude/loving-mayer-ux3a3m`). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). It is still BLOCKED only because the owner's GREEN reclassification must be confirmed by the owner directly, not relayed by an agent.
+- **Merged: PR #15** (`e31ee89`, in `main` and live). Closes an open redirect gatekeeper found (`/start?next=/%5Cevil.com`, `/%09/evil.com`, `/..//evil.com` sent visitors off-site) and a 500 on a repeated `?next=`. Gatekeeper found no code issues in it (41/41 tests pass). The owner confirmed the GREEN reclassification directly to the Portfolio Lead on 2026-09-26.
 
 ### Decisions (and why) — newest first
 - Risk GREEN — owner confirmed a personal project; MVP, no money, users' own goal data under RLS.
@@ -70,7 +70,7 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - **b. Acknowledge that today's schema changes and deploys skipped the release gate.** Future schema changes go via schema-keeper on a branch.
 
 ### Next step
-Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merging deploys to production).
+Answer OPEN a and b above. PR #15 is done (merged and live).
 
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
@@ -114,10 +114,10 @@ Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merg
   - Monorepo folder `Project/` → `Groundwork/`. The Vercel `project` Root Directory must change at the moment of merge, or Groundwork builds break.
   - Recommended: do the cosmetic ones anytime; do the folder rename only with a planned merge. Nothing is blocked.
 - **6. Unregistered monorepo folders:** `E-portfolio`, `MAFIA`, `MamaG-App`, `MamaG-Official`, `MamaGs`, `demo-repo`, `demorepo` are not in PORTFOLIO. For each: risk level (ACADEMIC?) and keep or delete? `demo-repo` and `demorepo` look like duplicates. Until answered, agents shouldn't touch them.
-- **7. Every merge to main redeploys both `nametrace` and `project`.** "Skip unaffected" does not stop it: NameTrace-only merges #13 and #16 also deployed Groundwork to production, and #15 rebuilt NameTrace (likely because there is no workspace for Vercel's affected-detection). Fix option: set an Ignored Build Step such as `git diff --quiet HEAD^ HEAD -- .` in each project. Recommended: yes. Until then, any merge ships Groundwork to production.
+- ~~**7. Every merge to main redeploys both `nametrace` and `project`.**~~ Resolved 2026-09-26 by PR #21: each app's `vercel.json` `ignoreCommand` skips the build when its folder is unchanged.
 
 ### Next step
-Approve (or not) merging `claude/gifted-franklin-7o53s5` into main, then answer 1, 5, 6 and 7.
+Owner approved merging `claude/gifted-franklin-7o53s5` (2026-09-26). Next: answer 1, 5 and 6, and act on the health-check RED items.
 
 ---
 
@@ -138,6 +138,9 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Leaked-password protection is off on Coco Bliss and Profound Productions.
 - CampusHustle: possible fake seed sellers still on production; preview env vars missing.
 - Groundwork: make sure config values are always strings.
+
+### Gotchas
+- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead.
 
 ---
 

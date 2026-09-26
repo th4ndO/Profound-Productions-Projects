@@ -17,7 +17,12 @@ function quote(value: string): string {
   return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 }
 
-/** CSV of all hits, with a UTF-8 BOM so Excel reads accents correctly. */
+/** Rows to CSV text, with a UTF-8 BOM so Excel reads accents correctly. */
+export function buildCsvRows(rows: string[][]): string {
+  return '\uFEFF' + rows.map((r) => r.map(quote).join(',')).join('\r\n') + '\r\n';
+}
+
+/** CSV of all search hits. */
 export function buildCsv(hits: SearchHit[]): string {
   const extra: string[] = [];
   const seen = new Set(BASE);
@@ -33,5 +38,5 @@ export function buildCsv(hits: SearchHit[]): string {
     const fields = new Map(h.record.fields ?? []);
     rows.push([h.record.fileName, h.record.source, matchLabel(h), matchedText(h), h.record.text, ...extra.map((k) => fields.get(k) ?? '')]);
   }
-  return '﻿' + rows.map((r) => r.map(quote).join(',')).join('\r\n') + '\r\n';
+  return buildCsvRows(rows);
 }

@@ -11,7 +11,9 @@
 //                                       Phase 4: copy ops files to <Documents>/ProfoundProductions/portfolio-ops/
 //   node install.js templates [--docs <Documents folder>]
 //                                       Phase 5: copy the cloud kit to <Documents>/ProfoundProductions/templates/claude-kit/
-//   node install.js agents-report       List every agent in ~/.claude/agents (name, tools, description)
+//   node install.js agents-report       List every agent and skill in ~/.claude (name, tools, description)
+//   --update                            (hooks, agents) replace older kit-owned files, keeping <file>.bak;
+//                                       without it, a changed file is kept and the new one saved as .kit-new
 //   --home <dir>                        Treat <dir> as the home folder (for testing)
 //
 // Every step after "backup" refuses to run unless today's backup exists.
@@ -24,10 +26,11 @@ const os = require('os');
 const path = require('path');
 
 function parseArgs(argv) {
-  const args = { step: argv[0], home: os.homedir(), rename: {} };
+  const args = { step: argv[0], home: os.homedir(), rename: {}, update: false };
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === '--home') args.home = path.resolve(argv[++i]);
     else if (argv[i] === '--docs') args.docs = path.resolve(argv[++i]);
+    else if (argv[i] === '--update') args.update = true;
     else if (argv[i] === '--mcp-rename') {
       for (const pair of String(argv[++i] || '').split(',').filter(Boolean)) {
         const [from, to] = pair.split('=');
@@ -97,8 +100,12 @@ function requireBackup(home) {
   }
 }
 
+// Set by --update for kit-owned files (hooks, agents): replace them, keeping a .bak copy.
+let UPDATE = false;
+
 // Copies a kit file into ~/.claude. If a different version already exists, it is left
-// alone and the kit version is written next to it as <name>.kit-new for manual review.
+// alone and the kit version is written next to it as <name>.kit-new for manual review,
+// unless UPDATE is set, in which case the old file is saved as <name>.bak and replaced.
 function installFile(home, rel, transform) {
   const src = path.join(KIT, rel);
   const dest = path.join(home, '.claude', rel);
@@ -109,6 +116,10 @@ function installFile(home, rel, transform) {
     console.log(`created   ${dest}`);
   } else if (fs.readFileSync(dest).equals(incoming)) {
     console.log(`unchanged ${dest}`);
+  } else if (UPDATE) {
+    fs.copyFileSync(dest, dest + '.bak');
+    fs.writeFileSync(dest, incoming);
+    console.log(`updated   ${dest} (previous version saved as ${path.basename(dest)}.bak)`);
   } else {
     fs.writeFileSync(dest + '.kit-new', incoming);
     console.log(`KEPT      ${dest} (differs from kit; kit version saved as ${path.basename(dest)}.kit-new for you to diff)`);
@@ -172,6 +183,8 @@ function installHookSettings(home) {
   console.log(`updated   ${file} (+${added} PreToolUse matcher${added > 1 ? 's' : ''}; previous copy: settings.json.pre-gatekeeper)`);
 }
 
+// pp-agent-kit names (5 agents + 4 skills) plus code-reviewer (official plugins). Kit agents may
+// never reuse these names.
 const PP_AGENT_KIT = ['architect', 'site-scaffold', 'client-copywriter', 'code-reviewer', 'security-auditor',
   'launch-auditor', 'qa-tester', 'handover-pack', 'care-plan-runbook', 'site-medic'];
 
@@ -224,6 +237,16 @@ function agentsReport(home) {
     console.log(`tools: ${fm.tools || '(all inherited)'}`);
     console.log(`${fm.description || '(no description)'}\n`);
   }
+  const skills = path.join(home, '.claude', 'skills');
+  if (fs.existsSync(skills)) {
+    console.log('# Skills (~/.claude/skills)\n');
+    for (const d of fs.readdirSync(skills, { withFileTypes: true }).filter((e) => e.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+      const file = path.join(skills, d.name, 'SKILL.md');
+      const fm = fs.existsSync(file) ? frontmatter(fs.readFileSync(file, 'utf8')) : {};
+      console.log(`## ${fm.name || d.name}  [skill]`);
+      console.log(`${fm.description || '(no SKILL.md description)'}\n`);
+    }
+  }
 }
 
 function docsDir(home, docsArg) {
@@ -261,6 +284,7 @@ function installTemplates(home, docsArg) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  UPDATE = args.update && ['hooks', 'agents'].includes(args.step);
   switch (args.step) {
     case 'backup':
       backup(args.home);

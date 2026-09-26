@@ -99,6 +99,12 @@ Read-only: do not write to any database.
 
 ## 4. Monthly care-plan-runbook — one routine per client
 
+**Prerequisite:** care-plan-runbook is a **skill** that currently lives only on your PC
+(`%USERPROFILE%\.claude\skills\care-plan-runbook`). Cloud Routines can't see it. Either
+commit that folder to the client repo (or this repo) as `.claude/skills/care-plan-runbook/`
+first, or run the monthly Care Plan work from Claude Code on your PC instead of a Routine.
+If the routine can't find the skill, it stops and says so (prompt step 2).
+
 Make one copy per Care Plan client and stagger them (3rd, 4th, 5th… of the month) so they
 don't pile up. The client list is still [CONFIRM] in PORTFOLIO.md.
 
@@ -109,8 +115,9 @@ don't pile up. The client list is still [CONFIRM] in PORTFOLIO.md.
 Monthly Care Plan maintenance for <CLIENT NAME> (<site URL>, Vercel project <name>).
 
 1. Read .claude/PORTFOLIO.md for this client's tier and special rules.
-2. Delegate to the care-plan-runbook agent and follow its monthly runbook for this client,
-   within the client's tier.
+2. Load the care-plan-runbook skill (.claude/skills/care-plan-runbook) and follow its monthly
+   runbook for this client, within the client's tier. If the skill isn't available in this
+   session, reply "care-plan-runbook skill not found — run this on the PC" and stop.
 3. Any change goes through a branch + PR, with gatekeeper-reviewer before merge. Never deploy
    to production or merge without my approval: stop and leave the PR for me.
 4. Save the client summary as care-plan/<client-slug>-<YYYY-MM>.md in portfolio-ops-reports,

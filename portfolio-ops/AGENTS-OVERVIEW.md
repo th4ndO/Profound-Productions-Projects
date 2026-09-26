@@ -1,47 +1,65 @@
-# Agent roster (18) and overlaps
+# Agent and skill roster
 
-The 10 pp-agent-kit agents aren't in this repo, so their lines below come from their **names** only.
-Run `node install/install.js agents-report` on your PC to print their real descriptions and tool lists,
-then check the "Verify" items against them.
+Verified on the owner's PC on 2026-09-26 (`install.js agents-report` plus a search of `~/.claude`).
+pp-agent-kit turned out to be **5 agents + 4 skills**, not 10 agents; code-reviewer comes from official plugins.
 
-| # | Agent | Source | One line |
+## Agents (the Portfolio Lead hands tasks to these)
+
+| Agent | Source | One line | Edits code? |
 |---|---|---|---|
-| 1 | architect | pp-agent-kit | Plans a build; its plan is what gatekeeper-reviewer checks scope against. |
-| 2 | site-scaffold | pp-agent-kit | Sets up a new client site. |
-| 3 | client-copywriter | pp-agent-kit | Writes client-facing site copy. |
-| 4 | code-reviewer | pp-agent-kit | Reviews code quality during development. |
-| 5 | security-auditor | pp-agent-kit | Deep security audit on demand. |
-| 6 | launch-auditor | pp-agent-kit | Pre-launch checklist for a site. |
-| 7 | qa-tester | pp-agent-kit | Functional/app-level testing. |
-| 8 | handover-pack | pp-agent-kit | Client-facing handover documents at project end. |
-| 9 | care-plan-runbook | pp-agent-kit | Monthly maintenance for Care Plan client sites. |
-| 10 | site-medic | pp-agent-kit | Diagnoses and fixes a broken site. |
-| 11 | gatekeeper-reviewer | new | Release gate: PASS/BLOCK on a diff; never fixes. |
-| 12 | schema-keeper | new | All DB/RLS changes, branch-first, attack-tested. |
-| 13 | context-keeper | new | Internal HANDOFF.md + PORTFOLIO.md status. |
-| 14 | health-triage | new | Weekly read-only portfolio health + npm audit; top-3 issues. |
-| 15 | data-steward | new | CSV/Excel imports into a branch; aggregates only. |
-| 16 | finance-reporter | new | Query-backed margin and MRR via a read-only role. |
-| 17 | escalation-desk | new | 30-second yes/no decision cards; a NO is final. |
-| 18 | innovator | new | Monthly max-3 evidence-backed proposals; read-only. |
+| architect | pp-agent-kit | Plans the build, scoped to the client's tier; its plan is what gatekeeper-reviewer checks against | No |
+| qa-tester | pp-agent-kit | Pre-demo / pre-deploy QA of the live preview (forms, mobile, links, console) | No |
+| security-auditor | pp-agent-kit | Security review before first prod deploy and after auth/payments/uploads/admin changes | No |
+| launch-auditor | pp-agent-kit | SEO, performance, accessibility audit; client-shareable summary | No |
+| site-medic | pp-agent-kit | Live-site emergency triage; proposes smallest fix + rollback, doesn't apply it | No |
+| gatekeeper-reviewer | portfolio-ops | Release gate: PASS/BLOCK on the diff vs the plan | No |
+| schema-keeper | portfolio-ops | All DB/RLS changes, branch-first, attack-tested | Yes (branches only, hook-enforced) |
+| context-keeper | portfolio-ops | Internal HANDOFF.md + PORTFOLIO.md status | Docs only |
+| health-triage | portfolio-ops | Weekly read-only portfolio health + npm audit; top-3 issues | No (hook-enforced) |
+| data-steward | portfolio-ops | CSV/Excel into a branch; aggregates only | Branch data only |
+| finance-reporter | portfolio-ops | Query-backed margin and MRR via a read-only role | No (hook-enforced) |
+| escalation-desk | portfolio-ops | 30-second yes/no decision cards; a NO is final | No |
+| innovator | portfolio-ops | Monthly max-3 evidence-backed proposals | No (hook-enforced) |
+| code-reviewer | official plugins `feature-dev` / `pr-review-toolkit` (if enabled) | Code quality review during development | Suggests |
 
-## Overlaps (resolved by these boundaries)
+## Skills (the main session loads and follows these)
+
+| Skill | Source | Used for | Available in cloud? |
+|---|---|---|---|
+| site-scaffold | pp-agent-kit | New client site setup | No (PC only, `~/.claude/skills`) |
+| client-copywriter | pp-agent-kit | Client-facing copy | No |
+| handover-pack | pp-agent-kit | Client handover documents | No |
+| care-plan-runbook | pp-agent-kit | Monthly Care Plan maintenance | No, so the Care Plan routine needs the skill committed to the repo, or runs on the PC |
+
+## Release flow for any production change
+
+architect (plan) → build → qa-tester → security-auditor (if auth, payments, uploads or admin changed) →
+gatekeeper-reviewer (PASS) → escalation-desk card if anything is blocked → **owner approves** → deploy/merge.
+Database changes: schema-keeper on a branch → gatekeeper-reviewer → owner approves `merge_branch`.
+
+## Overlaps (all resolved by the boundaries above)
 
 | Pair | Overlap | Boundary |
 |---|---|---|
-| code-reviewer ↔ gatekeeper-reviewer | both review diffs | code-reviewer = quality during development, suggests fixes; gatekeeper-reviewer = final gate, fixed checklist, PASS/BLOCK only |
-| security-auditor ↔ gatekeeper-reviewer ↔ schema-keeper | secrets, RLS | security-auditor = deep periodic audit; gatekeeper-reviewer = per-diff gate; schema-keeper = writes RLS + attack tests |
-| qa-tester ↔ schema-keeper | tests | schema-keeper owns RLS attack tests; qa-tester owns app/UI/flow tests (incl. payment flows gatekeeper-reviewer requires) |
-| site-medic ↔ health-triage | broken sites | health-triage finds and ranks (read-only); site-medic fixes |
-| care-plan-runbook ↔ health-triage | client-site health | care-plan-runbook owns Care Plan sites (health-triage skips their npm checks, still reports their Vercel/Supabase errors) |
-| handover-pack ↔ context-keeper | "handoff" docs | handover-pack = for the client; context-keeper = for you (internal HANDOFF.md) |
-| architect ↔ innovator | what to build | innovator proposes *whether*; architect plans *how* once you say yes |
-| launch-auditor ↔ gatekeeper-reviewer | pre-release | launch-auditor = site-level launch checklist once; gatekeeper-reviewer = every production change |
+| qa-tester ↔ gatekeeper-reviewer | both run before production | qa-tester checks behaviour first; gatekeeper-reviewer checks the diff last |
+| security-auditor ↔ gatekeeper-reviewer ↔ schema-keeper | secrets, RLS | auditor = deep review; gatekeeper = per-release gate; schema-keeper = writes RLS + attack tests |
+| code-reviewer ↔ gatekeeper-reviewer | both read diffs | code-reviewer = quality during development; never stands in for the gate |
+| site-medic ↔ health-triage | broken sites | health-triage finds and ranks weekly; site-medic handles live emergencies |
+| care-plan-runbook ↔ health-triage | client sites | the skill owns Care Plan sites; health-triage skips their npm checks, still reports their errors |
+| handover-pack ↔ context-keeper | "handoff" docs | handover-pack = for the client; context-keeper = for the owner |
+| architect ↔ innovator | what to build | innovator proposes *whether*; architect plans *how* once the owner says yes |
 
-## Possible conflicts — verify in the pp-agent-kit files (I can't see them)
+## Verified: no conflicts in the pp-agent-kit agents
 
-1. **site-medic** — if it deploys fixes straight to production or runs SQL on a live DB, it conflicts with the Portfolio Lead rule and schema-keeper. The gatekeeper hook will ASK/DENY anyway; the instructions should route DB fixes to schema-keeper and deploys through gatekeeper-reviewer.
-2. **site-scaffold** — if it creates Supabase projects or tables directly, it conflicts with schema-keeper (branch-first, RLS on every table). Creating projects now triggers a billing ASK.
-3. **security-auditor / code-reviewer** — if either *fixes* code itself, that's fine during development, but it must not stand in for gatekeeper-reviewer's PASS on a release.
-4. **Any agent with no `tools:` line** inherits everything, including production-capable MCP tools. The gatekeeper hook still applies, but a minimal list is safer.
-5. **ACADEMIC** — any pp-agent-kit agent that writes code will happily do so on the academic project; only the Portfolio Lead rule stops it. Consider adding the ACADEMIC line to those agents (I'd show you the diff first).
+- site-medic "does not apply fixes itself", so it doesn't conflict with the no-production rule.
+- architect "never writes code".
+- qa-tester and security-auditor are report-only.
+
+## Remaining improvements (owner decision; show the diff first)
+
+1. The 5 pp-agent-kit agents have **no `tools:` line**, so they inherit every tool, including Supabase write tools.
+   They only report, so a minimal list (Read, Grep, Glob, Bash, plus read-only MCP tools) would be safer. The gatekeeper still
+   protects RED databases either way.
+2. None of the pp-agent-kit agents or skills mentions the **ACADEMIC** rule; only the Portfolio Lead enforces it.
+3. **site-scaffold** (skill) may create Supabase tables. The Portfolio Lead rule routes those to schema-keeper, but the
+   skill's own text should say so too.

@@ -67,7 +67,7 @@ Special rules:
 | Status | Live studio site: portfolio plus a password-protected /admin panel |
 
 Special rules:
-- Hosts the Care Plan business; care-plan-runbook covers client sites.
+- Hosts the Care Plan business; the care-plan-runbook skill covers client sites.
 - The /admin panel writes to Supabase, so auth and RLS changes need gatekeeper-reviewer.
 
 ## CampusHustle
@@ -112,7 +112,7 @@ Special rules:
 
 ## Care Plan clients
 
-care-plan-runbook covers these sites; health-triage skips their npm checks.
+The care-plan-runbook skill covers these sites; health-triage skips their npm checks.
 
 | Client | Site | Plan tier | Repo |
 |---|---|---|---|

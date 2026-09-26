@@ -2,7 +2,8 @@
 // Builds portfolio-ops/templates/claude-kit/ (a repo-level .claude/ folder for cloud sessions)
 // from the same sources as the local install, so the two can't drift apart.
 //
-//   node portfolio-ops/install/build-cloud-kit.js
+//   node portfolio-ops/install/build-cloud-kit.js              (rebuild templates/claude-kit only)
+//   node portfolio-ops/install/build-cloud-kit.js --sync-root  (also refresh this repo's live .claude/)
 //
 // Differences from the local (~/.claude) install:
 //   - hook commands use "$CLAUDE_PROJECT_DIR/.claude/hooks/..." instead of $HOME
@@ -61,3 +62,11 @@ write('.claude/settings.json', JSON.stringify({
 
 // Never commit the decision log.
 write('.claude/.gitignore', 'hooks/gatekeeper.log\nreports/\n');
+
+// Keep this repo's own root .claude/ (what cloud sessions here actually load) identical to the kit.
+if (process.argv.includes('--sync-root')) {
+  const live = path.join(ROOT, '..', '.claude');
+  fs.rmSync(live, { recursive: true, force: true });
+  fs.cpSync(DOT, live, { recursive: true });
+  console.log(`synced ${path.relative(path.join(ROOT, '..'), live)}/ from templates/claude-kit/.claude`);
+}

@@ -1,0 +1,16 @@
+{
+  "_comment": "Edit freely. redRefs get the strict database rules. knownProjectRefs are real Supabase projects (never valid branch ids). Invalid JSON makes the gatekeeper fall back to its built-in defaults and log a config-error line.",
+  "redRefs": [
+    "xvpdqldlqbtafcbycwxp",
+    "whvmbftpbrqkygnltvvz"
+  ],
+  "knownProjectRefs": [
+    "xvpdqldlqbtafcbycwxp",
+    "whvmbftpbrqkygnltvvz",
+    "ofbitzqczupdobofuosh",
+    "ulbzuafadfxdymrtdzgy",
+    "bvapxwiryuzzbxesbtqo"
+  ],
+  "protectedBranches": ["main", "master"],
+  "log": true
+}

@@ -85,17 +85,31 @@ Re-run gatekeeper-reviewer on PR #15, then give explicit approval to merge (merg
 
 ---
 
+## Vercel/Supabase clash audit (2026-09-26) — read-only, no production changes
+
+### State
+- **No clashes found.** Each of the 8 Vercel projects has its own domains. Each app with a database uses its own Supabase project (checked against the refs in the live client bundles). No two Vercel projects share a repo plus root dir. No Supabase branches are open. The three Vercel projects linked to the monorepo have "skip unaffected deployments" turned on.
+- Registry fixed (see "Clash audit (2026-09-26)" in `.claude/PORTFOLIO.md`): Coco Bliss deploys from `th4ndO/coco-bliss-production-source`. The monorepo folders `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` are **copies that don't deploy**. Their Vercel projects deploy from the original repos.
+
+### OPEN decisions (need the owner)
+- **1. Coco Bliss (RED) second env-var set:** it has a second set of Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`), production only. Should we decrypt `SUPABASE_URL`/`POSTGRES_HOST` to confirm they point at `xvpdqldlqbtafcbycwxp`? Options: decrypt and check (recommended; this needs your explicit request, since it's a RED project) / leave it. Nothing is blocked, but it's unverified.
+- **2. Vercel Supabase integration scope:** it currently covers all projects. Limit it to Coco Bliss only? Recommended: yes, so other projects can't pick up its vars. Nothing is blocked.
+- **3. Stale monorepo copies** (`Profound-Productions/`, `Creat8ve-Inc/`, `house-sookoo-data-tracker/`): delete or archive them? Recommended: delete, after diffing against the original repos (the same approach used for `Hustle-Corner/`). Until then, people risk editing code that doesn't deploy.
+- **4. Redundant Vercel project `profound-productions-projects`** (open from earlier today): it rebuilds on nearly every push and serves 404 on every path. Delete it, or disconnect its Git link? Recommended: delete. It wastes build minutes until you decide.
+
+### Next step
+Answer 1–4 above.
+
+---
+
 ## Cross-project items from 2026-09-26 (health-triage and cleanup)
 
 health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in an ephemeral cloud container; it is probably gone. Key points are below.
 
 ### OPEN decisions (need the owner)
-- **Profound Productions (AMBER):** framework upgrade pending (run `npm audit` in `Profound-Productions/`). Recommended: yes, via branch, preview deploy and your approval.
+- **Profound Productions (AMBER):** framework upgrade pending. Run `npm audit` in the **original deploying repo**, not the monorepo copy `Profound-Productions/`, which doesn't deploy (see the clash audit). Recommended: yes, via branch, preview deploy and your approval.
 - **network-growth (RED):** the Supabase security advisor flags two database functions (medium). Details kept out of this public repo; see the advisor or re-run health-triage. Owner: schema-keeper.
 - **Leftover branches** (fully merged; this session got 403 deleting them): `claude/beautiful-mccarthy-3l2kh2`, `claude/gracious-sagan-meu582`. Delete them yourself. Do **not** delete `claude/peaceful-bohr-ff184f`: it got a new commit today.
-
-### Gotchas
-- Vercel project `profound-productions-projects` 404s on every path but still builds on every push. Decide whether to delete it or disconnect its Git link.
 
 ---
 

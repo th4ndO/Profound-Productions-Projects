@@ -10,7 +10,27 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); `profound-productions-projects` row re-checked 2026-09-26 (Vercel API); clash audit 2026-09-26 (Vercel git links, root dirs and env keys; Supabase refs in live client bundles; no Supabase branches open)
+
+## Clash audit (2026-09-26)
+
+| Vercel project | Deploys from (repo @ root dir) | Supabase it talks to | Evidence |
+|---|---|---|---|
+| `coco-bliss-project-v2` | `th4ndO/coco-bliss-production-source` @ `/` | `xvpdqldlqbtafcbycwxp` | client bundle on `coco-bliss-project-v2.vercel.app` |
+| `profound-productions` | `th4ndO/Profound-Productions` @ `/` | `ofbitzqczupdobofuosh` | `/admin` client bundle |
+| `hustle-corner` | `th4ndO/Hustle-Corner-` @ `/` | `ulbzuafadfxdymrtdzgy` | client bundle |
+| `project` (Groundwork) | this monorepo @ `Project/` | `bvapxwiryuzzbxesbtqo` | only ref in code (`src/lib/supabase/config.ts`) |
+| `nametrace` | this monorepo @ `NameTrace/` | none | no Supabase env vars |
+| `nos236-creat8ves-inc` | `th4ndO/Creat8ve-Inc` @ `/` | none | no env vars |
+| `house-sookoo-data-tracker` | `th4ndO/house-sookoo-data-tracker` @ `/` (branch `master`) | none | no env vars |
+| `profound-productions-projects` | this monorepo @ repo root | none | no env vars; serves 404 |
+
+No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The three monorepo projects have "skip unaffected" on, so a change in `NameTrace/` doesn't rebuild Groundwork. The root-level project sees every change as affected, so it rebuilds on nearly every push.
+
+Open items:
+- `coco-bliss-project-v2` has two sets of Supabase vars: the app's `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` and Vercel-Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`, production only). The client uses the right project; that the integration set points at the same project was not checked (it would mean decrypting values) [CONFIRM].
+- The Vercel Supabase integration is installed for **all** projects, so a new Vercel project could get another app's DB vars. Consider limiting it to Coco Bliss [CONFIRM].
+- The monorepo folders `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` are copies. Their Vercel projects deploy from the original repos, so edits here don't go live and the copies can go stale (same issue as the deleted `Hustle-Corner/` copy).
 
 ## Risk levels
 
@@ -30,7 +50,7 @@ filled in by the owner.
 | Supabase ref | `xvpdqldlqbtafcbycwxp` (dashboard name: "th4ndO's Project", eu-west-1) |
 | Vercel project | `coco-bliss-project-v2` (`prj_vxGjDBlaxZFA65SOCm59iIeKTvzJ`) |
 | Live URL | https://www.cocobliss.co.za (apex `cocobliss.co.za` 308-redirects to www) |
-| Repo | GitHub `coco-bliss-production-source` or `CocoBliss---Website` [CONFIRM which one deploys]; local path [CONFIRM] |
+| Repo | GitHub `th4ndO/coco-bliss-production-source` (`main`) deploys (Vercel git link, checked 2026-09-26); `CocoBliss---Website` does not; local path [CONFIRM] |
 | Risk | **RED** |
 | Status | Live, taking Yoco payments |
 
@@ -62,7 +82,7 @@ Special rules:
 | Supabase ref | `ofbitzqczupdobofuosh` (eu-west-1) |
 | Vercel project | `profound-productions` (`prj_eURPeIAzqOKDCWhKgugcX6ID9oB9`) |
 | Live URL | https://profound-productions.vercel.app (no custom domain attached) [CONFIRM intended domain] |
-| Repo | monorepo folder `Profound-Productions/` (from `th4ndO/Profound-Productions`); local path [CONFIRM] |
+| Repo | GitHub `th4ndO/Profound-Productions` (`main`) deploys. The monorepo folder `Profound-Productions/` is an import copy that does not deploy; local path [CONFIRM] |
 | Risk | **AMBER** |
 | Status | Live studio site: portfolio plus a password-protected /admin panel |
 
@@ -126,8 +146,8 @@ Special rules:
 
 | Vercel project | URL | Notes |
 |---|---|---|
-| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
-| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
+| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Deploys from `th4ndO/Creat8ve-Inc`; monorepo folder `Creat8ve-Inc/` is a non-deploying copy. Client landing page [CONFIRM whether on a Care Plan] |
+| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Deploys from `th4ndO/house-sookoo-data-tracker` (`master`); monorepo folder is a non-deploying copy. Church roster data, client-side only [CONFIRM risk level] |
 | `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Looks redundant: [CONFIRM delete or keep] |
 
 ## Care Plan clients

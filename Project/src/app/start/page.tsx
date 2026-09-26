@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { safeNextPath } from "@/lib/safe-next";
 import { StartSession } from "./StartSession";
 import styles from "./start.module.css";
 
@@ -18,9 +19,9 @@ export default async function StartPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  // Only follow same-site relative paths — `next` is an untrusted query
-  // param, and "//host" is protocol-relative, so reject that too.
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  // `next` is an untrusted query param; see lib/safe-next.ts for why a
+  // prefix check isn't enough.
+  const safeNext = safeNextPath(next);
 
   return (
     <div className={styles.wrap}>

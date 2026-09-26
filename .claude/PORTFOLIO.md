@@ -93,7 +93,7 @@ Special rules:
 | Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
 | Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
 | Risk | **AMBER** (owner decision 2026-09-26: public site that people load POPIA data into; no backend, no stored data) |
-| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13; guided tour via PR #16, merged 2026-09-26 after gatekeeper PASS). Next: optional fixed dates in make-fixtures.ts to stop binary churn |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.
@@ -128,7 +128,7 @@ Special rules:
 |---|---|---|
 | `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Monorepo folder `Creat8ve-Inc/`. Client landing page [CONFIRM whether on a Care Plan] |
 | `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Monorepo folder `house-sookoo-data-tracker/`. Church roster data, client-side only [CONFIRM risk level] |
-| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | none | **Deleted** (absent from the team's project list, checked 2026-09-26 ~14:10 UTC). It built the repo root and served a 404; neither Groundwork (`project`) nor NameTrace (`nametrace`) depended on it. |
+| `profound-productions-projects` (`prj_sVtMwTytbZGyaBNKVFkILzkucCHa`) | https://profound-productions-projects.vercel.app (returns 404) | Checked 2026-09-26: linked to this monorepo, Root Directory = repo root, no framework or build settings. Merges to `main` have produced READY production deploys (latest from `800ddcc`; #17 and #18 did not trigger one), but the site serves nothing (404 at `/`). It does **not** serve Groundwork (`project`) or NameTrace (`nametrace`). Looks redundant: [CONFIRM delete or keep] |
 
 ## Care Plan clients
 

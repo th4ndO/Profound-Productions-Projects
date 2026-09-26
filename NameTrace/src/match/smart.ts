@@ -1,7 +1,7 @@
 import { KIND_RANK, type MatchKind, type MatchSpan } from '../model/types';
 import { osaDistance, partBudget, singleWordBudget } from './normalize';
 import type { ParsedQuery, QueryPart } from './query';
-import { classifyGap, type Joiner, type Token } from './tokenize';
+import { classifyGap, isBracketed, type Joiner, type Token } from './tokenize';
 
 /**
  * Typo-matching policy.
@@ -84,8 +84,28 @@ function isWordToken(t: Token): boolean {
 }
 
 /**
+ * Is the gap before tokens[j] an allowed joiner? Brackets are allowed only
+ * around a single word: "Nomsa (Mo) Dlamini".
+ */
+function joinOk(tokens: Token[], j: number, joins: ReadonlySet<Joiner>): { ok: boolean; handle: boolean } {
+  const g = classifyGap(tokens[j].gapBefore, tokens[j - 1]);
+  if (joins.has(g)) return { ok: true, handle: g === 'handle' };
+  if (g === 'paren-open' && isBracketed(tokens[j])) return { ok: true, handle: false };
+  if (g === 'paren-close' && isBracketed(tokens[j - 1])) return { ok: true, handle: false };
+  return { ok: false, handle: false };
+}
+
+interface Walk {
+  endTok: number;
+  slots: SlotResult[];
+  /** Anything that makes this a name variant rather than the name as typed. */
+  structural: boolean;
+}
+
+/**
  * Try to match `parts` starting at token `i`, allowing one extra token
- * (a middle name or initial) before any part after the first.
+ * (a middle name, initial or bracketed nickname) before any part after the
+ * first. A part the query put in brackets is optional.
  */
 function walk(
   tokens: Token[],
@@ -95,38 +115,49 @@ function walk(
   allowExtra: boolean,
   firstJoins: ReadonlySet<Joiner> | null,
   opts: SmartOptions & { policy: FuzzyPolicy },
-): { endTok: number; slots: SlotResult[]; usedExtra: boolean; handle: boolean } | null {
+): Walk | null {
   const slots: SlotResult[] = [];
   let j = i;
   let usedExtra = false;
-  let handle = false;
+  let structural = false;
   for (let k = 0; k < parts.length; k++) {
-    if (j >= tokens.length) return null;
-    if (k > 0) {
-      const joins = k === 1 && firstJoins ? firstJoins : FORWARD_JOINS;
-      const g = classifyGap(tokens[j].gapBefore, tokens[j - 1]);
-      if (!joins.has(g)) return null;
-      if (g === 'handle') handle = true;
-    }
+    const part = parts[k];
+    const optional = part.bracketed && k !== surnameIndex;
+    const joins = slots.length === 1 && firstJoins ? firstJoins : FORWARD_JOINS;
     const slotOpts = { caseSensitive: opts.caseSensitive, isSurname: k === surnameIndex, single: false, policy: opts.policy };
-    let r = matchSlot(tokens[j], parts[k], slotOpts);
-    if (!r && k > 0 && allowExtra && !usedExtra && isWordToken(tokens[j]) && j + 1 < tokens.length) {
-      const g = classifyGap(tokens[j + 1].gapBefore, tokens[j]);
-      if (FORWARD_JOINS.has(g)) {
-        const r2 = matchSlot(tokens[j + 1], parts[k], slotOpts);
-        if (r2) {
-          usedExtra = true;
-          if (g === 'handle') handle = true;
-          j += 1;
-          r = r2;
+
+    let r: SlotResult | null = null;
+    let at = j;
+    if (j < tokens.length) {
+      const g = slots.length ? joinOk(tokens, j, joins) : { ok: true, handle: false };
+      if (g.ok) {
+        r = matchSlot(tokens[j], part, slotOpts);
+        if (g.handle && r) structural = true;
+        if (!r && slots.length && allowExtra && !usedExtra && isWordToken(tokens[j]) && j + 1 < tokens.length) {
+          const g2 = joinOk(tokens, j + 1, FORWARD_JOINS);
+          const r2 = g2.ok ? matchSlot(tokens[j + 1], part, slotOpts) : null;
+          if (r2) {
+            usedExtra = true;
+            structural = true;
+            at = j + 1;
+            r = r2;
+          }
         }
       }
     }
-    if (!r) return null;
+    if (!r) {
+      if (optional) {
+        structural = true; // the bracketed part the query asked for is absent
+        continue;
+      }
+      return null;
+    }
+    if (isBracketed(tokens[at]) !== part.bracketed) structural = true;
     slots.push(r);
-    j += 1;
+    j = at + 1;
   }
-  return { endTok: j - 1, slots, usedExtra, handle };
+  if (!slots.length) return null;
+  return { endTok: j - 1, slots, structural };
 }
 
 function kindOf(slots: SlotResult[], structural: boolean): MatchKind {
@@ -149,7 +180,9 @@ export function smartMatch(tokens: Token[], query: ParsedQuery, options: SmartOp
 
   const push = (i: number, endTok: number, kind: MatchKind) => {
     const start = tokens[i].start;
-    const end = tokens[endTok].baseEnd;
+    // Include the closing bracket of a bracketed last word: "Sarah Connor (Jnr)".
+    const last = tokens[endTok];
+    const end = isBracketed(last) ? last.end + 1 : last.baseEnd;
     found.push({ start, end, kind, len: end - start });
   };
 
@@ -161,16 +194,15 @@ export function smartMatch(tokens: Token[], query: ParsedQuery, options: SmartOp
     return resolve(found);
   }
 
-  const reversed = [parts[n - 1], ...parts.slice(0, n - 1)];
+  // The surname is the last part that isn't bracketed ("Sarah Connor (Jnr)").
+  let sIdx = n - 1;
+  while (sIdx > 0 && parts[sIdx].bracketed) sIdx--;
+  const reversed = [parts[sIdx], ...parts.filter((_, k) => k !== sIdx)];
   for (let i = 0; i < tokens.length; i++) {
-    const fwd = walk(tokens, i, parts, n - 1, true, null, opts);
-    if (fwd && withinTotal(fwd.slots, opts.policy)) {
-      push(i, fwd.endTok, kindOf(fwd.slots, fwd.usedExtra || fwd.handle));
-    }
+    const fwd = walk(tokens, i, parts, sIdx, true, null, opts);
+    if (fwd && withinTotal(fwd.slots, opts.policy)) push(i, fwd.endTok, kindOf(fwd.slots, fwd.structural));
     const rev = walk(tokens, i, reversed, 0, n > 2, REVERSED_FIRST_JOINS, opts);
-    if (rev && withinTotal(rev.slots, opts.policy)) {
-      push(i, rev.endTok, kindOf(rev.slots, true));
-    }
+    if (rev && withinTotal(rev.slots, opts.policy)) push(i, rev.endTok, kindOf(rev.slots, true));
   }
   return resolve(found);
 }

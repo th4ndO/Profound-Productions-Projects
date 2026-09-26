@@ -75,7 +75,10 @@ function union(index: TokenIndex, keys: string[]): number[] {
  */
 function candidateRecords(index: TokenIndex, parts: QueryPart[], policy: FuzzyPolicy): number[] {
   const single = parts.length === 1;
-  const order = parts.map((p, i) => ({ p, surname: i === parts.length - 1 }));
+  let sIdx = parts.length - 1;
+  while (sIdx > 0 && parts[sIdx].bracketed) sIdx--;
+  // Bracketed parts are optional, so they can't be required here.
+  const order = parts.map((p, i) => ({ p, surname: i === sIdx })).filter((o) => !o.p.bracketed || o.surname);
   const words = order.filter((o) => !o.p.isInitial);
   const initials = order.filter((o) => o.p.isInitial);
   const lists = words

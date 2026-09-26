@@ -160,6 +160,23 @@ describe('smart match: accepted forms', () => {
   });
 });
 
+describe('bracketed name parts', () => {
+  it('a bracketed nickname or maiden name is part of the name', () => {
+    expect(smart('Leader: Nomsa (Mo) Dlamini', 'Nomsa (Mo) Dlamini')).toEqual([{ text: 'Nomsa (Mo) Dlamini', kind: 'exact' }]);
+    expect(smart('Nomsa (Mo) Dlamini', 'Nomsa Dlamini')).toEqual([{ text: 'Nomsa (Mo) Dlamini', kind: 'variant' }]);
+    expect(smart('Sarah (Connor)', 'Sarah Connor')).toEqual([{ text: 'Sarah (Connor)', kind: 'variant' }]);
+  });
+  it('a bracketed part in the query is optional', () => {
+    expect(smart('Nomsa Dlamini', 'Nomsa (Mo) Dlamini')).toEqual([{ text: 'Nomsa Dlamini', kind: 'variant' }]);
+    expect(smart('Sarah Connor (Jnr) arrived', 'Sarah Connor (Jnr)')).toEqual([{ text: 'Sarah Connor (Jnr)', kind: 'exact' }]);
+    expect(smart('Sarah Connor arrived', 'Sarah Connor (Jnr)')).toEqual([{ text: 'Sarah Connor', kind: 'variant' }]);
+  });
+  it('brackets around more than one word still break the name', () => {
+    expect(smart('Sarah (see the note) Connor', 'Sarah Connor')).toEqual([]);
+    expect(smart('Sarah (see) (note) Connor', 'Sarah Connor')).toEqual([]);
+  });
+});
+
 describe('smart match: must NOT match', () => {
   it('across a sentence boundary', () => {
     expect(smart('John Connor. Sarah Smith', 'Sarah Connor')).toEqual([]);
@@ -169,7 +186,6 @@ describe('smart match: must NOT match', () => {
     expect(smart('Sarah | Connor', 'Sarah Connor')).toEqual([]);
     expect(smart('Connor | Sarah', 'Sarah Connor')).toEqual([]);
     expect(smart('Sarah; Connor', 'Sarah Connor')).toEqual([]);
-    expect(smart('Sarah (Connor)', 'Sarah Connor')).toEqual([]);
     expect(smart('Sarah/Connor', 'Sarah Connor')).toEqual([]);
     expect(smart('Sarah, Connor', 'Sarah Connor')).toEqual([]); // comma only allowed in reversed order
     expect(smart('Connor,, Sarah', 'Sarah Connor')).toEqual([]);

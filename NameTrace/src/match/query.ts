@@ -1,10 +1,12 @@
-import { tokenize } from './tokenize';
+import { isBracketed, tokenize } from './tokenize';
 
 export interface QueryPart {
   fold: string;
   cased: string;
   /** The query itself used an initial for this part ("S. Connor"). */
   isInitial: boolean;
+  /** The part was in brackets ("Nomsa (Mo) Dlamini"): optional when matching. */
+  bracketed: boolean;
 }
 
 export interface ParsedQuery {
@@ -32,6 +34,7 @@ export function parseQuery(raw: string): ParsedQuery | null {
     fold: t.fold,
     cased: t.cased,
     isInitial: t.isInitial || [...t.fold].length === 1,
+    bracketed: isBracketed(t),
   }));
   if (parts.length === 0) return null;
   return { parts, display: ordered };

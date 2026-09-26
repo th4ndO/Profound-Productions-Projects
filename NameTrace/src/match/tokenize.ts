@@ -17,6 +17,8 @@ export interface Token {
   dotted: boolean;
   /** The raw text between the previous token's end and this token's start. */
   gapBefore: string;
+  /** The raw text between this token's end and the next token (or the end of the text). */
+  gapAfter: string;
 }
 
 const WORD = /[\p{L}\p{M}\p{N}'’-]+/gu;
@@ -62,8 +64,12 @@ export function tokenize(text: string): Token[] {
       isInitial,
       dotted,
       gapBefore: text.slice(prevEnd, start),
+      gapAfter: '',
     });
     prevEnd = end;
+  }
+  for (let i = 0; i < tokens.length; i++) {
+    tokens[i].gapAfter = i + 1 < tokens.length ? tokens[i + 1].gapBefore : text.slice(tokens[i].end);
   }
   return tokens;
 }
@@ -91,17 +97,25 @@ export function tokensForString(text: string): Token[] {
   return t;
 }
 
-export type Joiner = 'space' | 'comma' | 'initial-dot' | 'handle' | 'break';
+export type Joiner = 'space' | 'comma' | 'initial-dot' | 'handle' | 'paren-open' | 'paren-close' | 'break';
 
 /**
  * Classify the text between two tokens. Only these joiners may sit inside a
  * name: whitespace, whitespace with one comma, nothing after an initial's dot,
- * or a lone "." / "_" as in emails and handles. Anything else breaks the name.
+ * a lone "." / "_" as in emails and handles, or brackets around one word
+ * (checked by the matcher with isBracketed). Anything else breaks the name.
  */
 export function classifyGap(gap: string, prev: Token | undefined): Joiner {
   if (gap === '') return prev?.dotted ? 'initial-dot' : 'break';
   if (/^\s+$/.test(gap)) return 'space';
   if (/^\s*,\s*$/.test(gap)) return 'comma';
   if (gap === '.' || gap === '_') return 'handle';
+  if (/^\s*\($/.test(gap)) return 'paren-open';
+  if (/^\)\s+$/.test(gap)) return 'paren-close';
   return 'break';
+}
+
+/** A single word in brackets, as in "Nomsa (Mo) Dlamini" or "Sarah Connor (Jnr)". */
+export function isBracketed(t: Token): boolean {
+  return /(^|\s)\($/.test(t.gapBefore) && /^\)(\s|$|[,.;:])/.test(t.gapAfter);
 }

@@ -119,7 +119,7 @@ Special rules:
 
 ---
 
-## Other Vercel projects (not in the 5 above)
+## Other Vercel projects (not listed above)
 
 | Vercel project | URL | Notes |
 |---|---|---|

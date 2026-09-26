@@ -89,17 +89,18 @@ Special rules:
 | Field | Value |
 |---|---|
 | Supabase ref | none (100% client-side, no backend) |
-| Vercel project | none yet [CONFIRM whether/where to deploy] |
-| Live URL | none (not deployed) |
-| Repo | monorepo folder `NameTrace/` (branch `claude/peaceful-bohr-ff184f`, no PR yet); local path [CONFIRM] |
-| Risk | **GREEN** (no backend, no stored data) |
-| Status | Built (all 7 phases), 95 unit + 7 e2e tests pass; not deployed, no PR |
+| Vercel project | `nametrace` (`prj_jRjNuKxhlWH6yRqMNNgJ6CnxyYO1`), linked to this repo, root directory `NameTrace`, production branch `main` (merging to `main` deploys production) |
+| Live URL | https://nametrace-green.vercel.app (public; verified 2026-09-26: security headers served, no off-origin requests) |
+| Repo | monorepo folder `NameTrace/`; local path [CONFIRM] |
+| Risk | **AMBER** (owner decision 2026-09-26: public site that people load POPIA data into; no backend, no stored data) |
+| Status | Live since 2026-09-26 (phases 1–7 via PRs #10 and #13). Guided tour in PR #16, awaiting the release gate |
 
 Special rules:
 - Users load personal data into it (POPIA): the owner's real use is church roster exports filtered by the "Leader at 1728" column.
 - The monorepo is PUBLIC: never commit real exports; fixtures stay synthetic.
 - The git-ignored `NameTrace/src/testing/real.local.test.ts` runs on real data and must print aggregates only.
 - CSP blocks off-origin requests (asserted by an e2e test); keep it that way.
+- AMBER: every production change goes through a branch, a PR with a Vercel preview deploy, gatekeeper-reviewer, and the owner's approval. Changes to `index.html`/`vercel.json` (CSP, headers) or any new network call need an explicit note in the PR.
 
 ## Groundwork
 

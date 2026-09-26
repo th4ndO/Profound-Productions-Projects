@@ -1,4 +1,4 @@
-import { ShieldCheck } from 'lucide-react';
+import { Compass, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { parseQuery } from './match/query';
 import { searchFiles, type SearchableFile } from './match/search';
@@ -13,10 +13,13 @@ import { Filters, type FilterState } from './ui/Filters';
 import { Preview } from './ui/Preview';
 import { ResultCard } from './ui/ResultCard';
 import { SearchBox } from './ui/SearchBox';
+import { Tour, type SampleState } from './ui/Tour';
 import { formatNumber, summarize } from './ui/summary';
 import { useMediaQuery } from './ui/useMediaQuery';
 
 const DEBOUNCE_MS = 140;
+/** Sample files with invented names, served from this site for the tour. */
+const SAMPLE_FILES = ['sample-roster.xlsx', 'sample-minutes.pdf', 'sample-report.docx', 'sample-notes.txt'];
 const PAGE = 100;
 
 function isEditable(el: Element | null): boolean {
@@ -45,6 +48,9 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const wide = useMediaQuery('(min-width: 1280px)');
+  const [tourOpen, setTourOpen] = useState(false);
+  const [samples, setSamples] = useState<SampleState>('idle');
+  const tourButton = useRef<HTMLButtonElement>(null);
 
   // Live filtering with a short debounce; Enter applies at once.
   useEffect(() => {
@@ -123,11 +129,36 @@ export default function App() {
   };
   const patchFilters = (p: Partial<FilterState>) => setFilters((f) => ({ ...f, ...p }));
 
+  const startTour = () => {
+    setDrawerOpen(false);
+    setTourOpen(true);
+  };
+  const closeTour = useCallback(() => {
+    setTourOpen(false);
+    tourButton.current?.focus();
+  }, []);
+  const loadSamples = async () => {
+    setSamples('loading');
+    try {
+      const loaded = await Promise.all(
+        SAMPLE_FILES.map(async (name) => {
+          const res = await fetch(`${import.meta.env.BASE_URL}samples/${name}`);
+          if (!res.ok) throw new Error(`${res.status}`);
+          return new File([await res.blob()], name);
+        }),
+      );
+      store.add(loaded);
+      setSamples('done');
+    } catch {
+      setSamples('error');
+    }
+  };
+
   const parsing = files.filter((f) => f.status === 'parsing' || f.status === 'queued').length;
   const multiFile = scoped.length > 1;
 
   let body: ReactNode;
-  if (!files.length) body = <NoFiles />;
+  if (!files.length) body = <NoFiles onStartTour={startTour} />;
   else if (!done.length && parsing) body = <StillParsing count={parsing} />;
   else if (!done.length) body = <NoFilesReadable />;
   else if (!query.trim())
@@ -218,19 +249,32 @@ export default function App() {
             <img src="/favicon.svg" alt="" className="size-8" />
             <h1 className="text-lg font-semibold tracking-tight text-ink">NameTrace</h1>
           </div>
-          <p className="flex items-center gap-1.5 text-xs text-muted sm:text-sm">
-            <ShieldCheck aria-hidden className="size-4 text-mint" />
-            Files stay on this device
-          </p>
+          <div className="flex items-center gap-3 sm:gap-5">
+            <p className="flex items-center gap-1.5 text-xs whitespace-nowrap text-muted sm:text-sm">
+              <ShieldCheck aria-hidden className="size-4 text-mint" />
+              <span className="sm:hidden">Stays on device</span>
+              <span className="hidden sm:inline">Files stay on this device</span>
+            </p>
+            <button
+              ref={tourButton}
+              type="button"
+              onClick={startTour}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-edge px-2.5 py-1.5 text-xs font-medium text-ink hover:border-accent hover:text-mint sm:text-sm"
+            >
+              <Compass aria-hidden className="size-4 text-mint" />
+              <span className="sm:hidden">Tour</span>
+              <span className="hidden sm:inline">Take the tour</span>
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 lg:grid lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)] lg:gap-8 lg:px-6">
         <aside aria-label="Files and search" className="contents lg:sticky lg:top-0 lg:block lg:max-h-dvh lg:space-y-6 lg:overflow-y-auto lg:py-6 lg:pr-1">
-          <div className="order-1 pt-4 lg:pt-0">
+          <div className="order-1 pt-4 lg:pt-0" data-tour="add-files">
             <DropZone onFiles={(f) => store.add(f)} compact={files.length > 0} />
           </div>
-          <div className="sticky top-0 z-30 order-2 -mx-4 bg-obsidian/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+          <div data-tour="search" className="sticky top-0 z-30 order-2 -mx-4 bg-obsidian/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
             <SearchBox ref={searchRef} value={input} onChange={setInput} onSubmit={() => runNow()} onClear={clear} listId={datalistId} />
             {datalistId && (
               <datalist id={datalistId}>
@@ -240,13 +284,13 @@ export default function App() {
               </datalist>
             )}
           </div>
-          <div className="order-3">
+          <div className="order-3" data-tour="options">
             <Filters state={{ ...filters, field }} onChange={patchFilters} files={files} columns={columns} values={values} onPickValue={(v) => runNow(v)} />
           </div>
-          <div className="order-4">
+          <div className="order-4" data-tour="export">
             <ExportBar hits={hits} query={query} summary={summary} />
           </div>
-          <div className="order-5">
+          <div className="order-5" data-tour="files">
             <FileList
               files={files}
               onRemove={(id) => {
@@ -258,7 +302,7 @@ export default function App() {
         </aside>
 
         <main className={`order-6 min-w-0 pb-16 lg:py-6 ${files.length ? 'xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] xl:gap-6' : ''}`}>
-          <section aria-labelledby="nt-results-title" className="min-w-0">
+          <section aria-labelledby="nt-results-title" className="min-w-0" data-tour="results">
             <div className="mb-4">
               <h2 id="nt-results-title" className="text-base font-semibold text-balance text-ink" aria-live="polite">
                 {summary ? summary.headline : 'Results'}
@@ -267,11 +311,22 @@ export default function App() {
             </div>
             {body}
           </section>
-          <aside aria-labelledby="nt-preview-title" className={files.length ? 'hidden xl:block' : 'hidden'}>
+          <aside aria-labelledby="nt-preview-title" data-tour="preview" className={files.length ? 'hidden xl:block' : 'hidden'}>
             <div className="sticky top-6 max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-xl border border-edge bg-charcoal p-4">{wide && preview}</div>
           </aside>
         </main>
       </div>
+
+      {tourOpen && (
+        <Tour
+          onClose={closeTour}
+          hasFiles={files.length > 0}
+          samples={samples}
+          onLoadSamples={loadSamples}
+          onTrySearch={() => runNow('Sarah Connor')}
+          wide={wide}
+        />
+      )}
 
       <Drawer open={drawerOpen && !wide && !!selectedHit} onClose={closeDrawer} labelledBy="nt-preview-title">
         {!wide && preview}

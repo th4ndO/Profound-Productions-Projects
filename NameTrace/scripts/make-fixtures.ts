@@ -4,7 +4,7 @@
  *
  *   npm run fixtures
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from 'docx';
 import { jsPDF } from 'jspdf';
@@ -132,7 +132,7 @@ const docx = new Document({
     },
   ],
 });
-Packer.toBuffer(docx).then((b) => write('report.docx', b));
+const docxWritten = Packer.toBuffer(docx).then((b) => write('report.docx', b));
 
 // ── PDFs ─────────────────────────────────────────────────────────────────────
 function textPdf(): ArrayBuffer {
@@ -196,3 +196,20 @@ write('locked.pdf', lockedPdf());
 const ole = new Uint8Array(1024);
 ole.set([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
 write('old-format.doc', ole);
+
+// ── Sample files for the in-app tour ─────────────────────────────────────────
+// Served from public/samples so "Load sample files" never leaves the site.
+const SAMPLES = join(import.meta.dirname, '..', 'public', 'samples');
+mkdirSync(SAMPLES, { recursive: true });
+void docxWritten.then(() => {
+  const samples: [string, string][] = [
+    ['roster-export.xls', 'sample-roster.xlsx'],
+    ['minutes.pdf', 'sample-minutes.pdf'],
+    ['report.docx', 'sample-report.docx'],
+    ['notes.txt', 'sample-notes.txt'],
+  ];
+  for (const [from, to] of samples) {
+    copyFileSync(join(OUT, from), join(SAMPLES, to));
+    console.log('wrote sample', to);
+  }
+});

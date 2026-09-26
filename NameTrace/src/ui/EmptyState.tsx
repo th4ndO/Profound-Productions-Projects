@@ -1,4 +1,4 @@
-import { FileSearch, SearchX, Upload } from 'lucide-react';
+import { Compass, FileSearch, SearchX, Upload } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Spinner } from './Spinner';
 import { formatNumber } from './summary';
@@ -13,11 +13,21 @@ function Shell({ icon, title, children }: { icon: ReactNode; title: string; chil
   );
 }
 
-export function NoFiles() {
+export function NoFiles({ onStartTour }: { onStartTour: () => void }) {
   return (
     <Shell icon={<Upload aria-hidden className="size-6" />} title="Add a file to start">
       <p>Drop PDFs, Word documents, spreadsheets, CSV, JSON or text files on the left, then type a name.</p>
       <p>Files are read on this device. Nothing is uploaded.</p>
+      <p className="pt-2">
+        <button
+          type="button"
+          onClick={onStartTour}
+          className="inline-flex items-center gap-2 rounded-lg border border-accent/60 bg-accent/10 px-3 py-2 text-sm font-medium text-mint hover:bg-accent/20"
+        >
+          <Compass aria-hidden className="size-4" />
+          New here? Take a 1-minute tour
+        </button>
+      </p>
     </Shell>
   );
 }

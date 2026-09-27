@@ -925,7 +925,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Keep a weekly Sabbath for 4 weeks",
     why: "\"Remember the Sabbath day by keeping it holy\" (Exodus 20:8). One day a week to rest, worship and put the phone away.",
-    reward: "A family meal or picnic to celebrate the fifth Sabbath",
+    reward: "A family meal or picnic to celebrate your fourth Sabbath",
     ms: ["Choose your day and what you'll stop doing", "Week 1", "Week 2", "Week 4"],
   },
 ];

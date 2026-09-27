@@ -69,6 +69,8 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped; acknowledged by the owner, see Decisions); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
 
 ### Decisions (and why) — newest first
+- Legacy magic-link email account (no data, unusable without sign-in) **deleted** from production (owner said yes, 2026-09-27); guarded to delete only if still non-anonymous with no data. Auth now holds anonymous users only.
+- App icon: a person pressing a barbell overhead (owner asked for "a working out person", 2026-09-27). Source `Project/assets/icon.svg`; PNGs rendered by `node scripts/build-icons.mjs` (run from `Project/`).
 - Stale-anonymous cleanup deletes only empty anonymous users >30 days old (#32, owner approved 2026-09-27) — resolves accepted WARN (2) without ever touching a user who has data.
 - #32 proven on local Postgres (17/17) instead of a Supabase branch — owner explicitly accepted this one-off again, as for #23; branching times out.
 - **Owner acknowledged that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate** (owner, 2026-09-26). From now on, schema changes go through schema-keeper on a Supabase branch (a local proof, as in #23, only as a one-off exception the owner explicitly accepts each time), and production changes follow the full release order in `.claude/CLAUDE.md`: qa-tester, then security-auditor if auth, payments, uploads or admin changed, then gatekeeper-reviewer, then owner approval.
@@ -83,7 +85,6 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 
 ### OPEN decisions (need the owner)
 - **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first. Blocks shipping on heavy days.
-- **f. Legacy email account:** one legacy non-anonymous email account from the magic-link era (created mid-September) owns no data and can't be used now that there is no sign-in. The cleanup job deliberately skips it. Options: delete it once by hand (via schema-keeper / service role) / leave it. Recommended: delete it. Nothing is blocked; it is one inert row.
 
 ### Next step
 After the first cleanup run (03:17 UTC, 2026-09-28), check `cron.job_run_details` for job `cleanup-stale-anonymous-users` and confirm it succeeded.
@@ -92,7 +93,6 @@ Also still open from #23: confirm a production build of current `main` exists (V
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
 - Migration version drift: repo filenames differ from live versions for every migration (e.g. `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`), now including `reminder_rules_goal_ownership` (repo `20260927090000` vs live `20260926192241`) and probably `cleanup_stale_anonymous_users` (repo `20260927100000`; check the live version). Reconcile before the next schema change.
-- App icon is still a flat placeholder.
 - Real-device push delivery never verified.
 
 ### Gotchas

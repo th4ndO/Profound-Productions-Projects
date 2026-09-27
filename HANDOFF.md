@@ -65,10 +65,12 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
   - Rule: deletes only anonymous users older than 30 days who own no goals, reminder_rules, push_subscriptions or profiles. Users with data and non-anonymous users are never touched.
   - Verified on production: job scheduled as postgres; anon/authenticated/service_role lack EXECUTE; dry run would delete 0 today; advisors unchanged from baseline (8 anonymous-access WARNs, 1 INFO).
   - First run not yet observed (see Next step).
+- **#33 live 2026-09-27** (`e386c76`, checked on the live site): weightlifter home screen icon (+ maskable, apple-touch, notification badge) and the "Spiritual growth" idea category.
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
 - Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped; acknowledged by the owner, see Decisions); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
 
 ### Decisions (and why) — newest first
+- **Spiritual growth ideas are Christian and Bible-centred** (owner, 2026-09-27): each idea is anchored on a Bible verse (prayer, Bible reading, Scripture memory, church, thanksgiving, service, Sabbath). The first, faith-neutral set was replaced before anyone adopted it.
 - Legacy magic-link email account (no data, unusable without sign-in) **deleted** from production (owner said yes, 2026-09-27); guarded to delete only if still non-anonymous with no data. Auth now holds anonymous users only.
 - App icon: a person pressing a barbell overhead (owner asked for "a working out person", 2026-09-27). Source `Project/assets/icon.svg`; PNGs rendered by `node scripts/build-icons.mjs` (run from `Project/`).
 - Stale-anonymous cleanup deletes only empty anonymous users >30 days old (#32, owner approved 2026-09-27) — resolves accepted WARN (2) without ever touching a user who has data.

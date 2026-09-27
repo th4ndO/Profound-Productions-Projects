@@ -10,7 +10,27 @@ filled in by the owner.
 - Vercel team: `profoundproductionss-8104's projects` (`team_7iL1yrOnIknhqSYPcwGQNhg3`)
 - Supabase org: `cnjjasuizkwoestacrxo`
 - Cloud monorepo: `th4ndO/Profound-Productions-Projects` (folders listed per project below)
-- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); Vercel Git links and monorepo projects re-checked 2026-09-26 (Vercel API; the empty `profound-productions-projects` project was deleted that day)
+- Last verified: 2026-09-25 (Vercel `list_projects` / `list_project_domains`, Supabase `list_projects`); Groundwork entry re-verified 2026-09-26 (owner answer, Vercel re-link); Vercel Git links and monorepo projects re-checked 2026-09-26 (Vercel API); clash audit 2026-09-26 (Vercel git links, root dirs and env keys; Supabase refs in live client bundles; no Supabase branches open)
+
+## Clash audit (2026-09-26)
+
+| Vercel project | Deploys from (repo @ root dir) | Supabase it talks to | Evidence |
+|---|---|---|---|
+| `coco-bliss-project-v2` | `th4ndO/coco-bliss-production-source` @ `/` | `xvpdqldlqbtafcbycwxp` | client bundle on `coco-bliss-project-v2.vercel.app` |
+| `profound-productions` | `th4ndO/Profound-Productions` @ `/` | `ofbitzqczupdobofuosh` | `/admin` client bundle |
+| `hustle-corner` | `th4ndO/Hustle-Corner-` @ `/` | `ulbzuafadfxdymrtdzgy` | client bundle |
+| `project` (Groundwork) | this monorepo @ `Project/` | `bvapxwiryuzzbxesbtqo` | only ref in code (`src/lib/supabase/config.ts`) |
+| `nametrace` | this monorepo @ `NameTrace/` | none | no Supabase env vars |
+| `nos236-creat8ves-inc` | `th4ndO/Creat8ve-Inc` @ `/` | none | no env vars |
+| `house-sookoo-data-tracker` | `th4ndO/house-sookoo-data-tracker` @ `/` (branch `master`) | none | no env vars |
+
+No two Vercel projects share a Supabase project, a domain, or a repo + root directory. The two monorepo projects (`nametrace`, `project`) now each build only when their own folder changes (`ignoreCommand` in `NameTrace/vercel.json` and `Project/vercel.json`, PR #21); before that, every merge to main redeployed both. The root-level `profound-productions-projects` project was deleted on 2026-09-26 (owner approval).
+
+Open items:
+- `coco-bliss-project-v2` has two sets of Supabase vars: the app's `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` and Vercel-Supabase-integration vars (`SUPABASE_URL`, `POSTGRES_*`, `SUPABASE_SECRET_KEY`, production only). The client uses the right project; that the integration set points at the same project was not checked (it would mean decrypting values) [CONFIRM].
+- Vercel Supabase integration (`icfg_cG3iWLR1c5mO1Vn9igX6NSfy`) limited to `coco-bliss-project-v2` only on 2026-09-26 (owner approval); Coco Bliss env vars unchanged (31, 13 from the integration).
+- The non-deploying monorepo copies `Profound-Productions/`, `Creat8ve-Inc/` and `house-sookoo-data-tracker/` were deleted on 2026-09-26 (owner approval). The first two were byte-identical to their original repos; `house-sookoo-data-tracker` couldn't be compared (repo not attachable), but its import commit `46a7394` keeps the files.
+- Cross-builds (NameTrace-only merges #13/#16 also deploying Groundwork) fixed by PR #21's `ignoreCommand` on 2026-09-26.
 
 ## Risk levels
 
@@ -30,7 +50,7 @@ filled in by the owner.
 | Supabase ref | `xvpdqldlqbtafcbycwxp` (dashboard name: "th4ndO's Project", eu-west-1) |
 | Vercel project | `coco-bliss-project-v2` (`prj_vxGjDBlaxZFA65SOCm59iIeKTvzJ`) |
 | Live URL | https://www.cocobliss.co.za (apex `cocobliss.co.za` 308-redirects to www) |
-| Repo | GitHub `th4ndO/coco-bliss-production-source` (the Vercel project's Git link, checked 2026-09-26); `CocoBliss---Website` is not linked to any Vercel project in the team; local path [CONFIRM] |
+| Repo | GitHub `th4ndO/coco-bliss-production-source` (`main`) deploys (Vercel git link, checked 2026-09-26); `CocoBliss---Website` does not; local path [CONFIRM] |
 | Risk | **RED** |
 | Status | Live, taking Yoco payments |
 
@@ -46,7 +66,7 @@ Special rules:
 | Supabase ref | `whvmbftpbrqkygnltvvz` (eu-west-2) |
 | Vercel project | none found in the team [CONFIRM: not deployed, or deployed elsewhere?] |
 | Live URL | [CONFIRM] |
-| Repo | [CONFIRM]. Possibly related: `house-sookoo-data-tracker/` (a client-side church roster explorer, Vercel `house-sookoo-data-tracker`), but it contains no Supabase ref [CONFIRM relationship] |
+| Repo | [CONFIRM]. Possibly related: `th4ndO/house-sookoo-data-tracker` (a client-side church roster explorer, Vercel `house-sookoo-data-tracker`), but it contains no Supabase ref [CONFIRM relationship] |
 | Risk | **RED** (POPIA) |
 | Status | Backend only: schema exists, tables empty, no frontend found (checked 2026-09-26). First-sign-in-becomes-admin bootstrap still open. |
 
@@ -62,7 +82,7 @@ Special rules:
 | Supabase ref | `ofbitzqczupdobofuosh` (eu-west-1) |
 | Vercel project | `profound-productions` (`prj_eURPeIAzqOKDCWhKgugcX6ID9oB9`) |
 | Live URL | https://profound-productions.vercel.app (no custom domain attached) [CONFIRM intended domain] |
-| Repo | Deploys from its own repo `th4ndO/Profound-Productions` (Vercel API, 2026-09-26); the monorepo folder `Profound-Productions/` is a copy that does **not** deploy; local path [CONFIRM] |
+| Repo | GitHub `th4ndO/Profound-Productions` (`main`) deploys; not in the monorepo (copy deleted 2026-09-26); local path [CONFIRM] |
 | Risk | **AMBER** |
 | Status | Live studio site: portfolio plus a password-protected /admin panel |
 
@@ -117,7 +137,7 @@ History: the folder was a "Student Budget Planner", then cleared (commit `c408e2
 
 Special rules:
 - `Project/.env.production` is committed; it holds only public keys (URL, anon key, VAPID public key), as its header comment explains. Anything else appearing there is a finding.
-- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks await the owner's risk acceptance (see HANDOFF.md, Groundwork OPEN decisions).
+- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks (anonymous sign-up hardening, no stale-user cleanup, no per-user limits) were **accepted by the owner for the MVP on 2026-09-26**; revisit before promoting the site publicly or if user count/DB size grows (see HANDOFF.md, Groundwork decisions).
 - The Vercel env vars `NEXT_PUBLIC_*` are defined as empty strings in the dashboard; the code falls back to committed public literals (`src/lib/supabase/config.ts`). Use `||`, not `??`, when reading them (an empty string with `??` caused a `/start` outage).
 
 ---
@@ -126,8 +146,8 @@ Special rules:
 
 | Vercel project | URL | Notes |
 |---|---|---|
-| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Deploys from its own repo `th4ndO/Creat8ve-Inc` (Vercel API, 2026-09-26); the monorepo folder `Creat8ve-Inc/` is a copy that does **not** deploy, so edit the source repo. Client landing page [CONFIRM whether on a Care Plan] |
-| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Deploys from its own repo `th4ndO/house-sookoo-data-tracker` (Vercel API, 2026-09-26); the monorepo folder `house-sookoo-data-tracker/` is a copy that does **not** deploy, so edit the source repo. Church roster data, client-side only [CONFIRM risk level] |
+| `nos236-creat8ves-inc` | https://nos236-creat8ves-inc.vercel.app | Deploys from `th4ndO/Creat8ve-Inc` (not in the monorepo). Client landing page [CONFIRM whether on a Care Plan] |
+| `house-sookoo-data-tracker` | https://house-sookoo-data-tracker.vercel.app | Deploys from `th4ndO/house-sookoo-data-tracker` (`master`; not in the monorepo). Church roster data, client-side only [CONFIRM risk level] |
 
 ## Care Plan clients
 

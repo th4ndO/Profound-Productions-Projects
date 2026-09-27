@@ -1,6 +1,6 @@
 # Handoff — Profound-Productions-Projects monorepo — 2026-09-26
 
-One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #23).
+One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #32).
 
 ---
 
@@ -60,12 +60,19 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 - **#23 (reminder rules may only reference the caller's own goals): DB live, app build pending.**
   - Migration `reminder_rules_goal_ownership` **applied to production** 2026-09-26. Attack test `Project/supabase/tests/reminder_rules_goal_ownership_rls.sql` passed 17/17 against production (in a forced-rollback transaction, 0 leftover rows). Advisors: nothing new.
   - The app-side check in `reminder-actions.ts` is merged but **not yet built to production**: the Vercel Hobby limit (100 deployments/day) was hit. The next successful Groundwork build includes it.
+- **#32 (daily cleanup of old, empty anonymous users): merged 2026-09-27 (`6434ce5`), DB-only, no Vercel deploy needed.**
+  - Migration `cleanup_stale_anonymous_users` **applied to production**. Adds `private.delete_stale_anonymous_users()` and pg_cron job `cleanup-stale-anonymous-users` (daily 03:17 UTC).
+  - Rule: deletes only anonymous users older than 30 days who own no goals, reminder_rules, push_subscriptions or profiles. Users with data and non-anonymous users are never touched.
+  - Verified on production: job scheduled as postgres; anon/authenticated/service_role lack EXECUTE; dry run would delete 0 today; advisors unchanged from baseline (8 anonymous-access WARNs, 1 INFO).
+  - First run not yet observed (see Next step).
 - Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
 - Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped; acknowledged by the owner, see Decisions); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
 
 ### Decisions (and why) — newest first
+- Stale-anonymous cleanup deletes only empty anonymous users >30 days old (#32, owner approved 2026-09-27) — resolves accepted WARN (2) without ever touching a user who has data.
+- #32 proven on local Postgres (17/17) instead of a Supabase branch — owner explicitly accepted this one-off again, as for #23; branching times out.
 - **Owner acknowledged that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate** (owner, 2026-09-26). From now on, schema changes go through schema-keeper on a Supabase branch (a local proof, as in #23, only as a one-off exception the owner explicitly accepts each time), and production changes follow the full release order in `.claude/CLAUDE.md`: qa-tester, then security-auditor if auth, payments, uploads or admin changed, then gatekeeper-reviewer, then owner approval.
-- **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is the one that grows on its own: every new browser adds a user row that is never removed. Supabase has no automatic cleanup; a periodic delete of old anonymous users would fix it (via schema-keeper). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
+- **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is resolved by #32 (daily cleanup of old, empty anonymous users, live 2026-09-27). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
 - #23 migration proven on local Postgres instead of a Supabase branch — owner accepted this; `create_branch` timed out twice (branching probably needs a paid plan). This was gatekeeper-reviewer's only BLOCK.
 - Deleted Vercel project `profound-productions-projects` (owner) — it served only a 404 and used ~42% of builds.
 - `ignoreCommand` diffs against `VERCEL_GIT_PREVIOUS_SHA` (fallback `HEAD^`) — builds only when `Project/` changed since the last successful deploy, saving daily quota.
@@ -76,13 +83,15 @@ Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answ
 
 ### OPEN decisions (need the owner)
 - **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first. Blocks shipping on heavy days.
+- **f. Legacy email account:** one legacy non-anonymous email account from the magic-link era (created mid-September) owns no data and can't be used now that there is no sign-in. The cleanup job deliberately skips it. Options: delete it once by hand (via schema-keeper / service role) / leave it. Recommended: delete it. Nothing is blocked; it is one inert row.
 
 ### Next step
-Once the quota frees, confirm a production build of current `main` exists (Vercel → `project` → Deployments). If none, Create Deployment from `main`, then check a reminder can still be saved on the live site.
+After the first cleanup run (03:17 UTC, 2026-09-28), check `cron.job_run_details` for job `cleanup-stale-anonymous-users` and confirm it succeeded.
+Also still open from #23: confirm a production build of current `main` exists (Vercel → `project` → Deployments), then check a reminder can still be saved on the live site.
 
 ### Follow-ups (not blocking)
 - Tests for `startAnonymousSession` and the proxy public paths.
-- Migration version drift: repo filenames differ from live versions for every migration (e.g. `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`), now including `reminder_rules_goal_ownership` (repo `20260927090000` vs live `20260926192241`). Reconcile before the next schema change.
+- Migration version drift: repo filenames differ from live versions for every migration (e.g. `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`), now including `reminder_rules_goal_ownership` (repo `20260927090000` vs live `20260926192241`) and probably `cleanup_stale_anonymous_users` (repo `20260927100000`; check the live version). Reconcile before the next schema change.
 - App icon is still a flat placeholder.
 - Real-device push delivery never verified.
 
@@ -91,6 +100,7 @@ Once the quota frees, confirm a production build of current `main` exists (Verce
 - `Project/.env.production` is committed with public keys only; anything else there is a finding.
 - A CANCELED Groundwork deployment usually just means `ignoreCommand` skipped it (no `Project/` change), not a failure.
 - Supabase branching (`create_branch`) is unreliable on this plan; plan schema proofs around it.
+- **Never run `Project/supabase/tests/cleanup_stale_anonymous_users.sql` on production**: it writes to `auth.users`. Local Postgres only.
 
 ---
 

@@ -1,7 +1,17 @@
 // Renders assets/icon.svg into the home screen / install icons in public/.
 // Run from Project/: node scripts/build-icons.mjs
+//
+// sharp is deliberately not in package.json: it arrives as Next's optional
+// image-optimisation dependency, and declaring it as a devDependency makes
+// npm mark its platform binaries dev-only (dropped by production installs).
 import { readFile } from "node:fs/promises";
-import sharp from "sharp";
+
+let sharp;
+try {
+  ({ default: sharp } = await import("sharp"));
+} catch {
+  throw new Error("sharp isn't installed (it comes with next). Run `npm ci` in Project/ first.");
+}
 
 const svg = await readFile(new URL("../assets/icon.svg", import.meta.url), "utf8");
 

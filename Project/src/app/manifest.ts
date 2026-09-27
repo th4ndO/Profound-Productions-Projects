@@ -23,7 +23,7 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icon.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       // Same art with the mark shrunk into the 80% safe zone, so Android's
-      // circle/squircle crop never clips the flag or ground line.
+      // circle/squircle crop never clips the barbell or ground line.
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };

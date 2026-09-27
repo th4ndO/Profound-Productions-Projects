@@ -839,7 +839,7 @@ export const IDEAS: Idea[] = [
     theme: "lanterns",
     cat: "spiritual",
     title: "Write and deliver a gratitude letter",
-    why: "Thanking someone properly, in person, lifts you as much as it lifts them.",
+    why: "Thanking someone properly, in person, is one of the quickest ways to lift your own mood.",
     reward: "Coffee or a meal with the person you thanked",
     ms: [
       "Pick someone you never properly thanked",

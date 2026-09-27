@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Groundwork home screen icon: a staircase of milestones on solid
+       ground, with a flag (the goal) on the top step. Source for the PNGs
+       in public/; regenerate with `node scripts/build-icons.mjs`. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4658d8"/>
+      <stop offset="1" stop-color="#3344c0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g id="mark">
+    <g transform="translate(-6 13)">
+      <rect x="104" y="382" width="304" height="18" rx="9" fill="#ffffff" fill-opacity="0.45"/>
+      <path d="M128 366 V294 H208 V222 H288 V150 H368 V366 Z"
+            fill="#ffffff" stroke="#ffffff" stroke-width="12" stroke-linejoin="round"/>
+      <rect x="331" y="78" width="10" height="74" rx="5" fill="#ffffff"/>
+      <path d="M341 80 L396 99 L341 118 Z" fill="#ffd166" stroke="#ffd166" stroke-width="6" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

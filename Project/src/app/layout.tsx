@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   title: "Groundwork",
   description: "A personal milestone tracker.",
   appleWebApp: { capable: true, title: "Groundwork", statusBarStyle: "default" },
-  icons: { icon: "/icon.png", apple: "/icon.png" },
+  icons: { icon: "/icon.png", apple: "/apple-touch-icon.png" },
 };
 
 // Browser/OS chrome colour: --accent in light, --bg in dark.

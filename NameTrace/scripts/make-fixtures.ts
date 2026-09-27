@@ -8,7 +8,36 @@ import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from 'docx';
 import { jsPDF } from 'jspdf';
+import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
+
+// Fixed timestamps and IDs, so regenerating fixtures doesn't rewrite binaries.
+const FIXED_DATE = new Date(Date.UTC(2024, 0, 1, 0, 0, 0));
+const FIXED_PDF_ID = '00000000000000000000000000000001';
+
+/** jsPDF stamps the current time and a random file ID; pin both. */
+function pdfBytes(doc: jsPDF): ArrayBuffer {
+  doc.setCreationDate(FIXED_DATE);
+  doc.setFileId(FIXED_PDF_ID);
+  return doc.output('arraybuffer');
+}
+
+/** The docx library stamps the current time in docProps/core.xml and on every zip entry; pin both. */
+async function stableDocx(buf: Uint8Array): Promise<Uint8Array> {
+  const zip = await JSZip.loadAsync(buf);
+  const out = new JSZip();
+  const iso = FIXED_DATE.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  for (const name of Object.keys(zip.files).sort()) {
+    const entry = zip.files[name];
+    if (entry.dir) continue;
+    let data: Uint8Array | string = await entry.async('uint8array');
+    if (name === 'docProps/core.xml') {
+      data = new TextDecoder().decode(data).replace(/(<dcterms:(?:created|modified)[^>]*>)[^<]*(<\/dcterms:)/g, `$1${iso}$2`);
+    }
+    out.file(name, data, { date: FIXED_DATE, createFolders: false });
+  }
+  return out.generateAsync({ type: 'uint8array', compression: 'DEFLATE', platform: 'UNIX' });
+}
 
 const OUT = join(import.meta.dirname, '..', 'fixtures');
 mkdirSync(OUT, { recursive: true });
@@ -132,7 +161,9 @@ const docx = new Document({
     },
   ],
 });
-const docxWritten = Packer.toBuffer(docx).then((b) => write('report.docx', b));
+const docxWritten = Packer.toBuffer(docx)
+  .then((b) => stableDocx(new Uint8Array(b)))
+  .then((b) => write('report.docx', b));
 
 // ── PDFs ─────────────────────────────────────────────────────────────────────
 function textPdf(): ArrayBuffer {
@@ -170,7 +201,7 @@ function textPdf(): ArrayBuffer {
   y += L;
   doc.text('Ref:', 72, y);
   doc.text('A-17', 72 + doc.getTextWidth('Ref:'), y); // no gap: must not add a space
-  return doc.output('arraybuffer');
+  return pdfBytes(doc);
 }
 write('minutes.pdf', textPdf());
 
@@ -181,14 +212,14 @@ function scannedPdf(): ArrayBuffer {
     doc.setFillColor(40, 40, 40);
     for (let i = 0; i < 12; i++) doc.rect(72, 72 + i * 16, 300 + (i % 3) * 40, 9, 'F');
   }
-  return doc.output('arraybuffer');
+  return pdfBytes(doc);
 }
 write('scanned.pdf', scannedPdf());
 
 function lockedPdf(): ArrayBuffer {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', encryption: { userPassword: 'secret', ownerPassword: 'owner', userPermissions: ['print'] } });
   doc.text('Confidential: Sarah Connor', 72, 72);
-  return doc.output('arraybuffer');
+  return pdfBytes(doc);
 }
 write('locked.pdf', lockedPdf());
 

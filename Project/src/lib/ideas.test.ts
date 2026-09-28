@@ -21,6 +21,16 @@ describe("IDEAS", () => {
     for (const idea of IDEAS) expect(idea.ms.length, idea.id).toBeGreaterThanOrEqual(2);
   });
 
+  it("fits the goals/milestones length checks, so adopting never fails", () => {
+    // See the initial_schema migration: goals.title <= 80, goals.reward <= 120,
+    // milestones.title <= 100.
+    for (const idea of IDEAS) {
+      expect(idea.title.length, idea.id).toBeLessThanOrEqual(80);
+      expect(idea.reward.length, idea.id).toBeLessThanOrEqual(120);
+      for (const m of idea.ms) expect(m.length, `${idea.id}: ${m}`).toBeLessThanOrEqual(100);
+    }
+  });
+
   it("has at least two ideas in every category, so no filter is empty", () => {
     for (const c of CATEGORIES) {
       expect(IDEAS.filter((i) => i.cat === c.id).length, c.id).toBeGreaterThanOrEqual(2);

@@ -59,7 +59,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Learn CPR and the choking response",
     why: "Most people freeze in an emergency. A few hours of practice means you won't.",
-    reward: "A proper coffee and pastry somewhere you've never been",
+    reward: "Ice cream from your favourite spot, eaten slowly",
     ms: [
       "Watch a certified CPR video course (or book a one-day first aid course)",
       "Practise compressions to a 100–120 bpm song",
@@ -74,7 +74,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Change a car tyre start to finish",
     why: "A roadside skill that saves you from waiting hours for help.",
-    reward: "Your own tyre pressure gauge for the car",
+    reward: "A drive-thru milkshake on the long way home",
     ms: [
       "Find the jack, spanner and spare",
       "Loosen the wheel nuts before jacking",
@@ -89,7 +89,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Tie 5 useful knots from memory",
     why: "Bowline, clove hitch, taut-line, figure-8 and trucker's hitch cover almost every tie-down.",
-    reward: "A paracord keychain you tie yourself, plus a cold drink",
+    reward: "A cold drink and an episode of your favourite show",
     ms: ["Bowline", "Clove hitch", "Taut-line hitch", "Figure-8", "Trucker's hitch, then all five blindfolded"],
   },
   {
@@ -99,7 +99,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Solve a Rubik's cube",
     why: "Everyone assumes it's genius-level. It's a method you can learn in an afternoon.",
-    reward: "A proper speed cube",
+    reward: "A movie night with popcorn and all your favourite snacks",
     ms: ["White cross", "First layer", "Second layer", "Yellow cross", "Solve it without the guide"],
   },
   {
@@ -109,7 +109,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Master one signature meal",
     why: "Having one dish you can cook for anyone, anytime, is quietly impressive.",
-    reward: "A good chef's knife",
+    reward: "Invite friends over to taste it, and they bring dessert",
     ms: [
       "Pick the dish and a trusted recipe",
       "Cook it once and note what went wrong",
@@ -124,7 +124,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Juggle three balls for 30 catches",
     why: "Great for focus and coordination, and ten minutes a day is enough.",
-    reward: "A fourth ball, and film yourself for proof",
+    reward: "Film a trick-shot video, then order your favourite takeaway",
     ms: ["One-ball arcs, eye height", "Two-ball exchange", "Three-ball flash", "10 catches in a row", "30 catches in a row"],
   },
   {
@@ -134,7 +134,7 @@ export const IDEAS: Idea[] = [
     cat: "education",
     title: "Learn the SASL alphabet and 50 signs",
     why: "South African Sign Language is an official language that very few hearing people know.",
-    reward: "Dinner out with someone you tell about it",
+    reward: "A lazy Saturday: sleep in, then breakfast out",
     ms: [
       "Fingerspell the alphabet",
       "Fingerspell your name and three friends' names",
@@ -150,7 +150,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Build and ship a tiny tool in one week",
     why: "Finished and public beats perfect and private. It's also portfolio proof.",
-    reward: "A domain name for your next idea",
+    reward: "An evening off: pizza and a film, no laptop allowed",
     ms: [
       "Pick one small problem",
       "Working version by day 4",
@@ -166,7 +166,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Find 5 constellations and a planet by eye",
     why: "The southern sky is one of the best in the world, and most people can't name a thing in it.",
-    reward: "A night drive out of the city to see the Milky Way",
+    reward: "A night picnic under the stars with hot chocolate",
     ms: [
       "Find the Southern Cross and the Pointers",
       "Use them to find due south",
@@ -182,7 +182,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "A 7-day phone sunset",
     why: "No phone after 21:00 for a week. You'll notice the difference in your sleep and thinking.",
-    reward: "A new book for the evenings",
+    reward: "A Sunday lie-in and a new paperback or e-book (under R150)",
     ms: ["Set up a charging spot outside the bedroom", "Days 1–3", "Days 4–5", "Days 6–7", "Write down what changed"],
   },
   {
@@ -192,7 +192,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Touch type at 60+ words per minute",
     why: "You type all day. This pays off every single working hour for the rest of your life.",
-    reward: "A mechanical keyboard",
+    reward: "A full day with no work-related tasks, plus your favourite takeaway",
     ms: ["Home row without looking", "30 wpm", "45 wpm", "60 wpm at 95% accuracy"],
   },
   {
@@ -202,7 +202,7 @@ export const IDEAS: Idea[] = [
     cat: "education",
     title: "Hold a 2-minute conversation in a South African language you don't speak yet",
     why: "People light up when you make the effort in their language.",
-    reward: "A meal out where you order in that language",
+    reward: "Watch a film or series in that language with your favourite takeaway",
     ms: [
       "Pick the language and a speaker to practise with",
       "Greetings and introductions",
@@ -218,7 +218,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Get to 5 strict pull-ups",
     why: "One of the best measures of real, usable strength.",
-    reward: "New workout gear",
+    reward: "A cheat meal of your choice, zero guilt",
     ms: ["30-second dead hang", "Slow negatives, 3 sets", "First strict pull-up", "3 in a row", "5 in a row"],
   },
   {
@@ -228,7 +228,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Play one full song on guitar or piano",
     why: "One song you can actually play is worth more than a year of 'I want to learn'.",
-    reward: "A lesson with a real teacher",
+    reward: "Play it for friends at a braai you host",
     ms: [
       "Pick a song with 3–4 chords",
       "Learn each chord cleanly",
@@ -244,7 +244,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Give a 5-minute talk without notes",
     why: "Speaking clearly in front of people opens more doors than almost any technical skill.",
-    reward: "A sharp shirt for your next talk",
+    reward: "A lazy afternoon movie marathon with snacks",
     ms: [
       "Pick a topic you know well",
       "Outline three points",
@@ -260,7 +260,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Run a parkrun 5 km without walking",
     why: "Free, every Saturday morning, and surprisingly social.",
-    reward: "Proper running shoes fitted at a running store",
+    reward: "A big post-run breakfast, then a whole lazy day on the couch",
     ms: [
       "Register and print your barcode",
       "Walk your first parkrun",
@@ -276,7 +276,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Reach a 1200 rating on Lichess",
     why: "Strategy, patience and pattern recognition in one game.",
-    reward: "A weighted wooden chess set",
+    reward: "Binge The Queen's Gambit (or any series) with a pile of snacks",
     ms: ["Learn the opening principles", "Do 100 tactics puzzles", "Reach 1000", "Reach 1100", "Reach 1200"],
   },
   {
@@ -286,7 +286,7 @@ export const IDEAS: Idea[] = [
     cat: "fun",
     title: "Shoot a 12-photo series in manual mode",
     why: "Learning light and exposure changes how you see everything, including your design work.",
-    reward: "Print and frame your best shot",
+    reward: "Print your best shot and host a mini exhibition night with friends",
     ms: [
       "Learn aperture, shutter speed and ISO",
       "Shoot 100 photos in manual",
@@ -302,7 +302,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Pass one recognised tech certification",
     why: "A cert that matches the tools you already use turns experience into proof.",
-    reward: "A weekend away",
+    reward: "A full day off: sleep in, eat out, do nothing useful",
     ms: ["Pick the cert and book the exam date", "Finish the official learning path", "Score 80%+ on two practice exams", "Pass the exam"],
   },
   {
@@ -312,7 +312,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Build a one-month emergency fund",
     why: "Having a buffer changes how you handle every surprise.",
-    reward: "A small treat paid for with money outside the fund",
+    reward: "A picnic in your favourite park, paid for from outside the fund",
     ms: [
       "Work out one month of essential costs",
       "Open a separate savings pocket",
@@ -329,7 +329,7 @@ export const IDEAS: Idea[] = [
     cat: "adventure",
     title: "Hike to the top of Tugela Falls",
     why: "Chain ladders up the Drakensberg to the top of one of the tallest waterfalls on Earth.",
-    reward: "A night in a mountain lodge after the hike",
+    reward: "A braai on the way home, and a rest day after",
     ms: [
       "A 10 km local hike",
       "A 15 km hike with real elevation",
@@ -344,7 +344,7 @@ export const IDEAS: Idea[] = [
     cat: "adventure",
     title: "Get Open Water scuba certified",
     why: "A whole world most people never see. Sodwana Bay is one of the best places to learn.",
-    reward: "A dive trip once you're certified",
+    reward: "A beach day with fish and chips and a sunset swim",
     ms: ["Swim 200 m comfortably", "Complete the theory", "Pool training sessions", "Four open-water dives", "Certified"],
   },
   {
@@ -354,7 +354,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Finish a 21 km half marathon",
     why: "The step after parkrun. Crossing that line stays with you.",
-    reward: "A sports massage and a framed race photo",
+    reward: "A full rest day, a massive meal, and your medal photo on the wall",
     ms: ["Run 5 km", "Run 10 km", "Enter a race", "Run 16 km in training", "Finish the half marathon"],
   },
   {
@@ -364,7 +364,7 @@ export const IDEAS: Idea[] = [
     cat: "education",
     title: "Read 12 books",
     why: "One a month. A mix of fiction, biography and books that challenge you.",
-    reward: "Every 3 books, a bookshop visit. At 12, a special edition of your favourite",
+    reward: "Every 3 books, coffee and cake at a bookshop. At 12, a day off to read in bed",
     ms: ["3 books", "6 books", "9 books", "12 books"],
   },
   {
@@ -374,7 +374,7 @@ export const IDEAS: Idea[] = [
     cat: "adventure",
     title: "Visit all 9 South African provinces",
     why: "Most South Africans have seen three or four. Few can say they've seen all nine.",
-    reward: "A printed photo book of the journey",
+    reward: "A slideshow night of your photos with friends and a big braai",
     ms: ["3 provinces", "5 provinces", "7 provinces", "All 9 provinces"],
   },
   {
@@ -384,7 +384,7 @@ export const IDEAS: Idea[] = [
     cat: "relationships",
     title: "Teach someone a skill you have, start to finish",
     why: "Teaching is the best test of whether you really know something, and it changes someone else's year too.",
-    reward: "A celebration meal together when they can do it on their own",
+    reward: "A movie night with them, their pick of snacks, when they can do it on their own",
     ms: ["Choose the person and the skill", "Plan the steps", "First lesson", "Halfway check-in", "They do it without your help"],
   },
   // ---- Research-backed skills and habits. `evidence` names the source. ----
@@ -397,7 +397,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Walk 7,000 steps a day for a week",
     why: "You don't need 10,000. Around 7,000 steps a day already brings most of the health benefit.",
-    reward: "New walking socks or a good podcast subscription",
+    reward: "A new podcast or playlist, and an ice cream on your last walk",
     ms: [
       "Check your normal step count for two days",
       "Add a 15-minute walk after one meal each day",
@@ -414,7 +414,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Strength train twice a week for a month",
     why: "Muscle strength protects your joints, bones and metabolism as you age, and it's the part of fitness most people skip.",
-    reward: "A proper pair of training shoes",
+    reward: "Your favourite burger and a rest day with no plans",
     ms: [
       "Pick five moves: squat, push-up, hip hinge, row and a loaded carry",
       "First two sessions done, form over weight",
@@ -431,7 +431,7 @@ export const IDEAS: Idea[] = [
     cat: "fitness",
     title: "Hit 150 active minutes every week for 12 weeks",
     why: "The single most important exercise target: about 20 brisk minutes a day, in any form you enjoy.",
-    reward: "A fitness watch or a month at a class you've wanted to try",
+    reward: "A day off exercise: sleep in, brunch, then a film",
     ms: [
       "Choose activities: brisk walks, cycling, dancing, sport",
       "Weeks 1–4 at 150 minutes",
@@ -450,7 +450,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "Sleep 7+ hours on a fixed schedule for 30 days",
     why: "Enough sleep, at the same time every day, improves mood, focus, appetite and long-term health more than almost any other habit.",
-    reward: "Blackout curtains or a new pillow",
+    reward: "Breakfast in bed at your usual wake-up time, then a lazy morning",
     ms: [
       "Pick one wake-up time for all 7 days, weekends too",
       "Set a bedtime 7½ hours before it",
@@ -468,7 +468,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "A month alcohol-free",
     why: "Even moderate drinking disrupts sleep. A month off shows you how you actually feel without it.",
-    reward: "Put the money you'd have spent on drinks towards something you want",
+    reward: "Spend what you saved on something fun you actually want (not drinks)",
     ms: ["Tell two friends you're doing it", "Find a go-to alcohol-free drink", "Two weeks done", "30 days done"],
     evidence: "WHO (2023): no level of alcohol consumption is safe for health.",
   },
@@ -479,7 +479,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "Know your numbers: a full health check",
     why: "High blood pressure, blood sugar and cholesterol usually have no symptoms. The only way to know is to measure.",
-    reward: "A healthy meal out once the results are in",
+    reward: "A movie night once the results are in, with snacks that fit them",
     ms: [
       "Book a check at a clinic, pharmacy or GP",
       "Blood pressure measured",
@@ -497,7 +497,7 @@ export const IDEAS: Idea[] = [
     cat: "diet",
     title: "Eat 5 portions of fruit and veg every day for a week",
     why: "One portion is about 80 g: a banana, an apple, or a handful of spinach. Five a day lowers the risk of heart disease and stroke.",
-    reward: "A new cookbook or a trip to a farmers' market",
+    reward: "Your favourite dessert, guilt-free, on day 8",
     ms: [
       "Count your normal portions for one day",
       "Add fruit to breakfast",
@@ -513,7 +513,7 @@ export const IDEAS: Idea[] = [
     cat: "diet",
     title: "Eat 25 g of fibre a day for a month",
     why: "Most people eat far less. Beans, oats, whole grains and vegetables get you there, and your gut and heart benefit.",
-    reward: "A good pot for cooking beans and soups",
+    reward: "Pizza night with friends to celebrate",
     ms: [
       "Swap to oats or a whole-grain breakfast",
       "Add beans, lentils or chickpeas to 3 meals a week",
@@ -531,7 +531,7 @@ export const IDEAS: Idea[] = [
     cat: "diet",
     title: "Swap sugary drinks for water for 30 days",
     why: "One 330 ml can of cola holds about 35 g of sugar, more than the WHO's ideal limit for a whole day. It's the easiest sugar to cut.",
-    reward: "A good reusable water bottle, plus the money you saved",
+    reward: "A movie night with popcorn, paid for with the money you saved",
     ms: [
       "Count how many sugary drinks you have now",
       "Find a replacement you like: sparkling water, rooibos, lemon water",
@@ -548,7 +548,7 @@ export const IDEAS: Idea[] = [
     cat: "diet",
     title: "Halve your salt for two weeks",
     why: "Most people eat about twice the healthy amount of salt, which raises blood pressure. Your taste buds adjust in a couple of weeks.",
-    reward: "A set of herbs and spices to cook with instead",
+    reward: "A salt-free herb or spice blend to try (under R100)",
     ms: [
       "Take the salt shaker off the table",
       "Read labels: pick the lower-salt bread, stock and sauces",
@@ -566,7 +566,7 @@ export const IDEAS: Idea[] = [
     cat: "education",
     title: "Learn anything with daily flashcards for 30 days",
     why: "Testing yourself, spread out over days, beats re-reading and highlighting by a wide margin.",
-    reward: "A course or book on the topic you're learning",
+    reward: "A day off studying and a film of your choice",
     ms: [
       "Pick a topic and install a spaced-repetition app like Anki",
       "Write your first 30 cards",
@@ -583,7 +583,7 @@ export const IDEAS: Idea[] = [
     cat: "education",
     title: "Finish Harvard's free CS50 course",
     why: "The most popular intro to computer science in the world, free online. Even if you never code for a living, it teaches you how to think through problems.",
-    reward: "A new laptop bag or a proper keyboard",
+    reward: "A whole weekend off with pizza and a gaming or movie marathon",
     ms: ["Week 0: Scratch", "C and algorithms", "Python", "SQL and web", "Final project submitted"],
   },
 
@@ -595,7 +595,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Rebuild your CV and LinkedIn from scratch",
     why: "Most CVs list duties. Rewriting yours around results makes you ready for the opportunity before it shows up.",
-    reward: "A professional headshot",
+    reward: "Coffee and cake while you send your first application",
     ms: [
       "List your 5 biggest results, with numbers",
       "Rewrite the CV around them, one page",
@@ -610,7 +610,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Do 90 minutes of focused work every workday for a month",
     why: "Switching between tasks and notifications has a real cost. One protected block a day is where your best work gets done.",
-    reward: "Noise-cancelling headphones",
+    reward: "Take a Friday afternoon off for a long weekend",
     ms: [
       "Pick the same 90-minute slot every day",
       "Phone in another room, notifications off",
@@ -625,7 +625,7 @@ export const IDEAS: Idea[] = [
     cat: "career",
     title: "Prepare for and ask for a raise",
     why: "Asking, with evidence, is a skill. Most people never practise it and earn less for it.",
-    reward: "A celebration dinner, whatever the outcome",
+    reward: "Dinner at your favourite spot, whatever the answer",
     ms: [
       "Research the pay range for your role",
       "Write down your results since your last raise",
@@ -642,7 +642,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Build a budget where every rand has a job",
     why: "You can't steer money you can't see. A budget turns vague stress into clear choices.",
-    reward: "A nice notebook or budgeting app upgrade",
+    reward: "A bring-and-share picnic with friends (fun for free)",
     ms: [
       "List all income",
       "List every fixed expense and debit order",
@@ -657,7 +657,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Pay off your most expensive debt",
     why: "Paying off debt at 20%+ interest is a guaranteed return no investment can match.",
-    reward: "A small treat for every milestone, paid in cash",
+    reward: "A takeaway feast (paid in cash) and a movie the night it's paid off",
     ms: [
       "List every debt with its interest rate",
       "Pay the minimum on all of them",
@@ -673,7 +673,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Open a tax-free savings account and add to it every month",
     why: "Growth inside a TFSA is never taxed. Starting small and early matters more than starting big.",
-    reward: "At 12 months, a weekend away funded by money outside the TFSA",
+    reward: "A day trip somewhere new, paid for from outside the TFSA",
     ms: [
       "Compare low-fee TFSA providers",
       "Open it and set a monthly debit order",
@@ -691,7 +691,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Grow your emergency fund to 3 months of expenses",
     why: "Three months of breathing room turns a job loss or a broken car from a crisis into an inconvenience.",
-    reward: "Something you've wanted, bought with money outside the fund",
+    reward: "A day of doing exactly what you want, with a treat from outside the fund",
     ms: ["1 month saved", "2 months saved", "3 months saved", "Moved to a separate, easy-access account"],
   },
 
@@ -703,7 +703,7 @@ export const IDEAS: Idea[] = [
     cat: "mindset",
     title: "Plan three habits with if-then plans",
     why: "\"After I pour my coffee, I'll write my to-do list\" works far better than \"I'll be more organised\".",
-    reward: "A nice planner or habit tracker",
+    reward: "A lazy afternoon with a series you've been saving",
     ms: [
       "Pick three habits you keep meaning to start",
       "Write each as \"After I [cue], I will [action]\"",
@@ -720,7 +720,7 @@ export const IDEAS: Idea[] = [
     cat: "mindset",
     title: "Make one habit automatic",
     why: "It takes longer than 21 days, often around two months. And missing a single day doesn't reset you.",
-    reward: "Something that makes the habit nicer to do",
+    reward: "Something small that makes the habit nicer (under R150), and a film night",
     ms: [
       "Pick one small habit and one daily cue for it",
       "Day 21",
@@ -737,7 +737,7 @@ export const IDEAS: Idea[] = [
     cat: "mindset",
     title: "Meditate for 10 minutes a day for a month",
     why: "Not magic, but a real, measurable help with anxiety and low mood for many people.",
-    reward: "A meditation cushion or a quiet day retreat",
+    reward: "A slow morning: lie-in, coffee in the sun, no phone",
     ms: ["Pick a guided app or a simple breath count", "7 days in a row", "20 days", "30 days"],
     evidence:
       "JAMA Internal Medicine (2014), 47 trials: mindfulness programmes gave moderate improvements in anxiety and depression.",
@@ -749,7 +749,7 @@ export const IDEAS: Idea[] = [
     cat: "mindset",
     title: "Do a weekly review for 12 weeks",
     why: "Twenty minutes every Sunday to look back and plan ahead keeps your goals from quietly drifting.",
-    reward: "A good pen and journal",
+    reward: "A full day off to do whatever your reviews say you need most",
     ms: [
       "Write 3 questions: what went well, what didn't, what's next",
       "4 reviews done",
@@ -766,7 +766,7 @@ export const IDEAS: Idea[] = [
     cat: "relationships",
     title: "Call or see a friend every week for 12 weeks",
     why: "Close relationships predict a long, healthy, happy life better than social class, IQ or genes.",
-    reward: "A day out with the friend you reconnected with most",
+    reward: "A day out with the friend you saw the most",
     ms: [
       "List 5 people you've lost touch with",
       "4 weeks of calls or visits",
@@ -783,7 +783,7 @@ export const IDEAS: Idea[] = [
     cat: "relationships",
     title: "Phone-free dinners for a month",
     why: "A phone on the table pulls attention away from the people in front of you, even when nobody picks it up.",
-    reward: "A special dinner at home with the people you ate with",
+    reward: "A games night with the people you ate with",
     ms: ["Agree the rule with your household", "Phones in a basket at dinner", "One week", "A full month"],
   },
   {
@@ -793,7 +793,7 @@ export const IDEAS: Idea[] = [
     cat: "relationships",
     title: "Volunteer 10 hours for a cause you care about",
     why: "Helping others regularly builds connection and a sense of purpose, for them and for you.",
-    reward: "Bring a friend along for the last session, then a meal together",
+    reward: "Bring a friend to your last session, then go for ice cream",
     ms: ["Find a local organisation", "First session", "5 hours", "10 hours"],
   },
 
@@ -805,7 +805,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Learn to swim 50 metres without stopping",
     why: "Drowning is a leading cause of accidental death worldwide. Swimming is a skill that can save your life.",
-    reward: "A beach or dam day trip",
+    reward: "A beach or dam day with a picnic",
     ms: ["Book lessons or a coach", "Float and breathe comfortably", "Swim 10 m", "Swim 25 m", "Swim 50 m non-stop"],
     evidence: "WHO: drowning is among the leading causes of unintentional injury death; basic swimming skills reduce the risk.",
   },
@@ -816,7 +816,7 @@ export const IDEAS: Idea[] = [
     cat: "life-skills",
     title: "Learn 4 basic home repairs",
     why: "Small fixes cost a fortune to call someone out for, and take minutes once you know how.",
-    reward: "A proper starter toolkit",
+    reward: "A lazy Saturday: sleep in and order breakfast",
     ms: [
       "Fix a leaking tap washer",
       "Patch a hole in a wall",
@@ -831,7 +831,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Spend 10 minutes with God and the Bible every morning for 30 days",
     why: "Jesus himself got up early to pray (Mark 1:35). A daily time in the Word and prayer is the foundation everything else grows on.",
-    reward: "A journaling Bible or a good study Bible",
+    reward: "A coffee date with a friend to share what God showed you",
     ms: ["Pick a time, a place and a Bible reading plan", "7 mornings", "20 mornings", "30 mornings"],
   },
   {
@@ -841,7 +841,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Read the whole Bible in a year",
     why: "\"All Scripture is God-breathed\" (2 Timothy 3:16). Reading all of it, not just favourite passages, shows you the whole story of God.",
-    reward: "A beautiful new Bible to start the next year",
+    reward: "A day off to celebrate with a feast, and a new devotional (under R200)",
     ms: [
       "Choose a one-year reading plan",
       "Finish the Law (Genesis to Deuteronomy)",
@@ -857,7 +857,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Read the Gospel of John, one chapter a day",
     why: "John wrote \"that you may believe that Jesus is the Messiah, the Son of God\" (John 20:31). Twenty-one chapters, twenty-one days.",
-    reward: "A devotional or commentary on John",
+    reward: "Watch The Gospel of John (2003) film with popcorn",
     ms: ["Chapters 1 to 7", "Chapters 8 to 14", "Chapters 15 to 21", "Write down the verse that stayed with you most"],
   },
   {
@@ -867,7 +867,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Memorise 12 Bible verses in 12 weeks",
     why: "\"I have hidden your word in my heart\" (Psalm 119:11). Verses you know by heart are with you when you need them most.",
-    reward: "A framed print of your favourite verse",
+    reward: "Binge a season of The Chosen with your favourite snacks",
     ms: [
       "Choose 12 verses (e.g. Psalm 23:1, John 3:16, Philippians 4:6-7)",
       "4 verses by heart",
@@ -882,7 +882,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Keep a prayer journal for 30 days",
     why: "\"Do not be anxious about anything, but in every situation, by prayer... present your requests to God\" (Philippians 4:6). Written prayers let you look back and see how God answered.",
-    reward: "A good leather journal for the next season of prayer",
+    reward: "A slow morning: lie-in, coffee in the sun, and a new pen",
     ms: ["Get a notebook and set a daily time", "7 days", "20 days", "30 days, then read it back and give thanks"],
   },
   {
@@ -892,7 +892,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Commit to church and a small group for 3 months",
     why: "\"Not giving up meeting together... but encouraging one another\" (Hebrews 10:25). Faith grows faster alongside other believers.",
-    reward: "Have your small group over for a meal",
+    reward: "Host a braai or games night for your small group",
     ms: ["Find a small group or Bible study at your church", "Attend 4 times", "Pray aloud or share once", "Attend 12 times"],
     evidence:
       "Li et al. (2016), JAMA Internal Medicine: women attending religious services more than once a week had a 33% lower risk of death over 16 years than those who never went (observational).",
@@ -904,7 +904,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Write a weekly list of thanks to God for 10 weeks",
     why: "\"Give thanks in all circumstances\" (1 Thessalonians 5:18). Naming God's gifts week by week changes what you notice.",
-    reward: "A beautiful notebook for the next 10 weeks",
+    reward: "A small treat each week you did it, and a picnic at week 10",
     ms: ["Week 1: five things to thank God for", "Week 4", "Week 7", "Week 10"],
     evidence:
       "Emmons & McCullough (2003), Journal of Personality and Social Psychology: a weekly gratitude list for 10 weeks left people feeling better about their lives and more optimistic.",
@@ -916,7 +916,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Serve 10 hours in your church or community",
     why: "Jesus came \"not to be served, but to serve\" (Mark 10:45). Serving others is faith people can see.",
-    reward: "A meal with the people you served alongside",
+    reward: "Ice cream with the people you served alongside",
     ms: ["Ask your church where help is needed", "First session", "5 hours", "10 hours"],
   },
   {
@@ -926,7 +926,7 @@ export const IDEAS: Idea[] = [
     cat: "spiritual",
     title: "Keep a weekly Sabbath for 4 weeks",
     why: "\"Remember the Sabbath day by keeping it holy\" (Exodus 20:8). One day a week to rest, worship and put the phone away.",
-    reward: "A family meal or picnic to celebrate your fourth Sabbath",
+    reward: "A family movie night or picnic on your fourth Sabbath",
     ms: ["Choose your day and what you'll stop doing", "Week 1", "Week 2", "Week 4"],
   },
   {
@@ -936,7 +936,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Do one hidden act of service every day for a week",
     why: "Jesus washed his disciples' feet and said, \"I have set you an example that you should do as I have done for you\" (John 13:15).",
-    reward: "A quiet coffee alone to thank God for the week",
+    reward: "A quiet coffee and your favourite pastry, just you and God",
     ms: [
       "Day 1: serve someone without telling anyone",
       "Day 3",
@@ -951,7 +951,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Forgive someone who hurt you",
     why: "On the cross Jesus prayed, \"Father, forgive them, for they do not know what they are doing\" (Luke 23:34).",
-    reward: "A walk somewhere beautiful to mark letting it go",
+    reward: "A walk somewhere beautiful, then your favourite comfort food",
     ms: [
       "Name the hurt honestly before God",
       "Pray for them every day for a week",
@@ -966,7 +966,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Share a meal with someone who is lonely or left out",
     why: "People complained that Jesus \"welcomes sinners and eats with them\" (Luke 15:2). A shared table was how he loved people.",
-    reward: "Cook your favourite dish for the meal",
+    reward: "Cook your favourite dish and make dessert too",
     ms: [
       "Think of someone who is often left out",
       "Invite them",
@@ -981,7 +981,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Help feed people who are hungry",
     why: "When the crowd was hungry, Jesus told his disciples, \"You give them something to eat\" (Mark 6:37).",
-    reward: "Treat your family to a meal and tell them what you saw",
+    reward: "Pizza night with family, sharing what you saw",
     ms: [
       "Find a feeding scheme, soup kitchen or family in need",
       "Serve or give food once",
@@ -996,7 +996,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Visit someone who is sick, elderly or in hospital 4 times",
     why: "Jesus reached out and touched a man with leprosy that everyone else avoided (Mark 1:41).",
-    reward: "Bring them their favourite treat on the last visit",
+    reward: "Bring them their favourite treat on the last visit, and get one for yourself",
     ms: [
       "Choose someone who is sick, housebound or in a care home",
       "Visit 1",
@@ -1011,7 +1011,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Stand by someone who is grieving",
     why: "At his friend Lazarus's tomb, \"Jesus wept\" (John 11:35). He didn't rush people's grief.",
-    reward: "Plant a tree or flowers in memory, together if they'd like",
+    reward: "A quiet evening off with your comfort film and snacks",
     ms: [
       "Visit or call them",
       "Bring a meal",
@@ -1026,7 +1026,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Take a half-day alone with God",
     why: "\"Jesus often withdrew to lonely places and prayed\" (Luke 5:16).",
-    reward: "A good meal on the way home",
+    reward: "Your favourite takeaway on the way home",
     ms: [
       "Choose a quiet place and leave the phone off",
       "Read a Gospel passage slowly",
@@ -1041,7 +1041,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Fast from one meal a week for a month and pray instead",
     why: "Jesus fasted in the wilderness before his ministry began (Matthew 4:2), and taught \"when you fast\", not \"if\" (Matthew 6:16).",
-    reward: "A special meal with family to end the month",
+    reward: "A feast of your favourite meal with family to end the month",
     ms: [
       "Check with a doctor first if you have a health condition, are pregnant, take medication, have a history of eating disorders or are under 18",
       "Week 1: skip one meal and pray",
@@ -1056,7 +1056,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Walk with one newer believer for 3 months",
     why: "Jesus chose twelve \"that they might be with him\" (Mark 3:14). He grew people by spending time with them.",
-    reward: "Take them out for a meal to celebrate",
+    reward: "Take them out for burgers to celebrate",
     ms: [
       "Ask someone newer in faith (through your church) if they'd like to meet",
       "Meet 3 times",
@@ -1071,7 +1071,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Get baptised",
     why: "Jesus was baptised in the Jordan \"to fulfil all righteousness\" (Matthew 3:15) before anything else in his ministry.",
-    reward: "Celebrate with a meal for everyone who came",
+    reward: "A celebration braai for everyone who came",
     ms: [
       "Talk to your pastor",
       "Do any baptism classes",
@@ -1086,7 +1086,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Honour your parents every week for a month",
     why: "Even on the cross, Jesus made sure his mother would be cared for (John 19:26-27).",
-    reward: "A family photo together",
+    reward: "A family movie night with their favourite snacks",
     ms: [
       "Call or visit them",
       "Do something practical to help",
@@ -1101,7 +1101,7 @@ export const IDEAS: Idea[] = [
     cat: "like-jesus",
     title: "Tell one person what God has done for you",
     why: "Jesus told a man he had healed, \"Go home to your own people and tell them how much the Lord has done for you\" (Mark 5:19).",
-    reward: "A coffee with the person you told",
+    reward: "A milkshake with the person you told",
     ms: [
       "Write your story in a few sentences",
       "Pray for the right person",

@@ -1044,7 +1044,7 @@ export const IDEAS: Idea[] = [
     why: "Jesus fasted in the wilderness before his ministry began (Matthew 4:2), and taught \"when you fast\", not \"if\" (Matthew 6:16). If you have a health condition, are pregnant, take medication, have had an eating disorder or are under 18, talk to a doctor first.",
     reward: "A feast of your favourite meal with family to end the month",
     ms: [
-      "Check with a doctor first if you have any health concerns (see above)",
+      "See a doctor first if ill, pregnant, on medication, under 18 or with an eating disorder history",
       "Week 1: skip one meal and pray",
       "Week 2",
       "Week 4",
@@ -1158,7 +1158,7 @@ export const IDEAS: Idea[] = [
       "Day 7",
     ],
     evidence:
-      "Cochrane review (2021): promoting handwashing with soap reduced episodes of diarrhoea by about 30% in communities.",
+      "Cochrane review (2021): in community trials, mostly in low- and middle-income countries, promoting handwashing with soap cut diarrhoea episodes by about 30%.",
   },
   {
     id: "water-daily",
@@ -1336,7 +1336,7 @@ export const IDEAS: Idea[] = [
     cat: "daily",
     title: "Follow a wind-down routine every night for 30 days",
     why: "The same steps each night tell your body it's time to sleep.",
-    reward: "A cosy movie night in your pyjamas",
+    reward: "A cosy movie night in your pyjamas (earlier in the evening)",
     ms: [
       "Write your routine, e.g. screens off 30 minutes before bed, brush and floss, three good things, pray",
       "7 nights",

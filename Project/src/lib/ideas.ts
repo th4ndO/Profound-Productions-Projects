@@ -1043,7 +1043,7 @@ export const IDEAS: Idea[] = [
     why: "Jesus fasted in the wilderness before his ministry began (Matthew 4:2), and taught \"when you fast\", not \"if\" (Matthew 6:16).",
     reward: "A special meal with family to end the month",
     ms: [
-      "Check with a doctor first if you have a health condition, are pregnant or take medication",
+      "Check with a doctor first if you have a health condition, are pregnant, take medication, have a history of eating disorders or are under 18",
       "Week 1: skip one meal and pray",
       "Week 2",
       "Week 4",
@@ -1054,11 +1054,11 @@ export const IDEAS: Idea[] = [
     tf: "quarter",
     theme: "building",
     cat: "like-jesus",
-    title: "Walk with one younger believer for 3 months",
+    title: "Walk with one newer believer for 3 months",
     why: "Jesus chose twelve \"that they might be with him\" (Mark 3:14). He grew people by spending time with them.",
     reward: "Take them out for a meal to celebrate",
     ms: [
-      "Ask someone if they'd like to meet",
+      "Ask someone newer in faith (through your church) if they'd like to meet",
       "Meet 3 times",
       "Meet 6 times",
       "Meet 12 times and pray together",

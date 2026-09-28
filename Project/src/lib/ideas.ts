@@ -450,7 +450,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "Sleep 7+ hours on a fixed schedule for 30 days",
     why: "Enough sleep, at the same time every day, improves mood, focus, appetite and long-term health more than almost any other habit.",
-    reward: "A guilt-free Sunday lie-in and breakfast in bed",
+    reward: "Breakfast in bed at your usual wake-up time, then a lazy morning",
     ms: [
       "Pick one wake-up time for all 7 days, weekends too",
       "Set a bedtime 7½ hours before it",
@@ -468,7 +468,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "A month alcohol-free",
     why: "Even moderate drinking disrupts sleep. A month off shows you how you actually feel without it.",
-    reward: "Spend what you saved on something fun you actually want",
+    reward: "Spend what you saved on something fun you actually want (not drinks)",
     ms: ["Tell two friends you're doing it", "Find a go-to alcohol-free drink", "Two weeks done", "30 days done"],
     evidence: "WHO (2023): no level of alcohol consumption is safe for health.",
   },
@@ -479,7 +479,7 @@ export const IDEAS: Idea[] = [
     cat: "health",
     title: "Know your numbers: a full health check",
     why: "High blood pressure, blood sugar and cholesterol usually have no symptoms. The only way to know is to measure.",
-    reward: "A smoothie or your favourite treat once the results are in",
+    reward: "A movie night once the results are in, with snacks that fit them",
     ms: [
       "Book a check at a clinic, pharmacy or GP",
       "Blood pressure measured",
@@ -548,7 +548,7 @@ export const IDEAS: Idea[] = [
     cat: "diet",
     title: "Halve your salt for two weeks",
     why: "Most people eat about twice the healthy amount of salt, which raises blood pressure. Your taste buds adjust in a couple of weeks.",
-    reward: "A new hot sauce or spice rub to try (under R100)",
+    reward: "A salt-free herb or spice blend to try (under R100)",
     ms: [
       "Take the salt shaker off the table",
       "Read labels: pick the lower-salt bread, stock and sauces",
@@ -657,7 +657,7 @@ export const IDEAS: Idea[] = [
     cat: "money",
     title: "Pay off your most expensive debt",
     why: "Paying off debt at 20%+ interest is a guaranteed return no investment can match.",
-    reward: "A takeaway feast and a movie the night it's paid off",
+    reward: "A takeaway feast (paid in cash) and a movie the night it's paid off",
     ms: [
       "List every debt with its interest rate",
       "Pay the minimum on all of them",
@@ -720,7 +720,7 @@ export const IDEAS: Idea[] = [
     cat: "mindset",
     title: "Make one habit automatic",
     why: "It takes longer than 21 days, often around two months. And missing a single day doesn't reset you.",
-    reward: "A day off the habit, plus something small that makes it nicer (under R150)",
+    reward: "Something small that makes the habit nicer (under R150), and a film night",
     ms: [
       "Pick one small habit and one daily cue for it",
       "Day 21",

@@ -131,7 +131,7 @@ Special rules:
 | Live URL | https://project-tau-self-69.vercel.app |
 | Repo | monorepo folder `Project/` (originally imported from `th4ndO/project-`, which no longer drives deploys); local path [CONFIRM] |
 | Risk | **GREEN** (owner, 2026-09-26: "personal project"). Personal MVP, no money; holds users' own goal data under RLS |
-| Status | Live personal goal/milestone tracker (Next.js 16 + Supabase). Each browser starts with an anonymous Supabase account via `/start`; optional email + password accounts (save in Settings, `/sign-in` on other devices) live since 2026-09-29 (#38) |
+| Status | Live personal goal/milestone tracker (Next.js 16 + Supabase). Each browser starts with an anonymous Supabase account via `/start`; optional email + password accounts (save in Settings, `/sign-in` on other devices) live since 2026-09-29 (#38); "Plan my day" daily planner (`/plan`) live since 2026-09-29 (#40) |
 
 History: the folder was a "Student Budget Planner", then cleared (commit `c408e26`) to start Groundwork. It was never a recipe costing planner; the old registry name "Recipe Costing Planner (academic)" was stale.
 

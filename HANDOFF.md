@@ -11,12 +11,12 @@ One section per project; keep other projects' sections when editing. NameTrace a
 - No backend, database or Supabase. The CSP blocks requests to other origins, and an e2e test checks this.
 - **Live** at https://nametrace-green.vercel.app (merge to `main` deploys), including the Leaders view (PR #19). See PORTFOLIO.md for history.
 - **PR #29 merged** (`a1f7d31`, 2026-09-27) and live on both `nametrace` and `project` (production READY; live smoke test passed: samples load, Thabo Nkosi shows 5 people, search works, no off-origin requests):
-  1. Build-skip rule: `ignoreCommand` in `NameTrace/vercel.json` and `Project/vercel.json` is `[ -n "$VERCEL_GIT_PREVIOUS_SHA" ] && git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- .`, so it builds when there is no previous deploy or the SHA is unknown. Confirmed on Vercel: a branch push with no project changes was skipped, and the merge to `main` built.
+  1. Build-skip rule (PR #29, **fixed by PR #42**): the #29 form failed every NameTrace deploy once its last deploy commit fell outside Vercel's shallow clone (`git diff` exits 128, and Vercel treats anything but 0/1 as an error). Current `ignoreCommand` in `NameTrace/vercel.json` and `Project/vercel.json`: `if [ -n "$VERCEL_GIT_PREVIOUS_SHA" ] && git cat-file -e "$VERCEL_GIT_PREVIOUS_SHA^{commit}" 2>/dev/null && git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- .; then exit 0; else exit 1; fi`. It only ever exits 0 (skip) or 1 (build); a missing commit builds. **Never let this command exit anything else.**
   2. Deterministic fixtures: `make-fixtures.ts` pins the PDF date and file ID and rebuilds the DOCX zip with fixed dates; jszip 3.10.2 added as an exact devDependency.
 - Main real-world use: church roster exports, filtered by the "Leader at 1728" column.
 
 ### Decisions (and why) — newest first
-- Build-skip rule uses `VERCEL_GIT_PREVIOUS_SHA` (PR #29) — the old `HEAD^` fallback could skip a new branch's first preview.
+- Build-skip rule uses `VERCEL_GIT_PREVIOUS_SHA` (PR #29) — the old `HEAD^` fallback could skip a new branch's first preview. PR #42 made it exit only 0/1 after #29's version turned every NameTrace deploy into an ERROR (previous commit missing from the shallow clone).
 - Fixtures made deterministic with jszip pinned exactly (PR #29) — mammoth and docx already depend on jszip; regenerating fixtures no longer produces diffs.
 - `vite.config.ts` forces NODE_ENV=production for builds. The build environment had NODE_ENV=development, so React's dev build shipped.
 - Search runs on the main thread. Measured p95 was about 51 ms at 50k records, and 36–187 ms end-to-end at 100k rows.
@@ -157,7 +157,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - Groundwork: make sure config values are always strings.
 
 ### Gotchas
-- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead (set by PR #29; see NameTrace).
+- Vercel project `profound-productions-projects` (404 on every path, built on every push) was **deleted** on 2026-09-26 with the owner's yes. As one of three projects building on every push, it helped hit the Hobby daily deployment limit that afternoon. The dashboard Ignored Build Step on `project` and `nametrace` (`git diff --quiet HEAD^ HEAD -- .`) is only a fallback: each app's `vercel.json` `ignoreCommand` runs instead (set by PR #29, fixed by PR #42; see NameTrace).
 
 ---
 

@@ -2,6 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { isValidTimeZone } from "@/lib/timezone";
+import { authErrorMessage, credentialsProblem, normaliseEmail, PASSWORD_MIN_LENGTH } from "@/lib/account";
+
+/** Result of an account action: user-facing problems come back, not thrown. */
+export type AccountResult = { error?: string };
 
 async function requireUser() {
   const supabase = await createClient();
@@ -55,6 +59,8 @@ export async function updateProfile(
  */
 export async function signOutAndErase(): Promise<void> {
   const { supabase, user } = await requireUser();
+  // A saved account signs out without erasing (signOutOfAccount).
+  if (!user.is_anonymous) throw new Error("Use Sign out in Your account instead.");
 
   for (const table of ["goals", "reminder_rules", "push_subscriptions", "profiles"] as const) {
     const { error } = await supabase.from(table).delete().eq("user_id", user.id);
@@ -63,4 +69,60 @@ export async function signOutAndErase(): Promise<void> {
 
   const { error } = await supabase.auth.signOut();
   if (error) throw new Error(error.message);
+}
+
+/**
+ * Turns this browser's anonymous account into an email + password account.
+ * Supabase keeps the same user id, so every goal, reminder and setting
+ * stays exactly where it is. Email confirmation is off in Supabase Auth, so
+ * the account works straight away. A rejected email or password changes
+ * nothing, so the user can simply try again.
+ */
+export async function saveAccount(email: string, password: string): Promise<AccountResult> {
+  const { supabase, user } = await requireUser();
+  if (!user.is_anonymous) return { error: "This account is already saved." };
+
+  const cleanEmail = normaliseEmail(email);
+  const problem = credentialsProblem(cleanEmail, password);
+  if (problem) return { error: problem };
+
+  const { error } = await supabase.auth.updateUser({ email: cleanEmail, password });
+  if (error) return { error: authErrorMessage(error.code) };
+  return {};
+}
+
+export async function changePassword(password: string): Promise<AccountResult> {
+  const { supabase, user } = await requireUser();
+  if (user.is_anonymous) return { error: "Save your account first." };
+  if (password.length < PASSWORD_MIN_LENGTH || password.length > 72) {
+    return { error: `Use a password of ${PASSWORD_MIN_LENGTH} to 72 characters.` };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: authErrorMessage(error.code) };
+  return {};
+}
+
+/**
+ * Signs a saved account out of this device only. Nothing is erased: the
+ * user signs back in on /sign-in. This device's push subscription (passed
+ * in by the client, if it has one) is removed first, so the account's
+ * reminders stop arriving on a device nobody is signed in to.
+ */
+export async function signOutOfAccount(pushEndpoint: string | null): Promise<AccountResult> {
+  const { supabase, user } = await requireUser();
+  if (user.is_anonymous) return { error: "This account isn't saved yet, so signing out would lose it." };
+
+  if (pushEndpoint) {
+    const { error } = await supabase
+      .from("push_subscriptions")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("endpoint", pushEndpoint);
+    if (error) return { error: "Couldn't turn off notifications on this device. Please try again." };
+  }
+
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+  if (error) return { error: authErrorMessage(error.code) };
+  return {};
 }

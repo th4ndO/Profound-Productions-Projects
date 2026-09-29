@@ -4,12 +4,13 @@ import { MIDDLEWARE_SUPABASE_URL, MIDDLEWARE_SUPABASE_ANON_KEY } from "./config"
 
 // Routes that don't require a session. Everything else redirects a
 // visitor with no session to /start, which creates an anonymous account
-// for this browser (there's no sign-in) and sends them back.
+// for this browser and sends them back. /sign-in is public so a saved
+// account can sign in on a new device without creating one first.
 //
 // "/dev" is a dev-only verification area (e.g. /dev/visuals, Phase 2
 // BUILD SPEC §8) — not real app content, so it stays public rather than
 // requiring a signed-in session to view.
-const PUBLIC_PATH_PREFIXES = ["/start", "/dev"];
+const PUBLIC_PATH_PREFIXES = ["/start", "/sign-in", "/dev"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATH_PREFIXES.some(

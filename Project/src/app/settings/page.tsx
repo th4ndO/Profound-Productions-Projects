@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./SettingsForm";
 import { SignOutSection } from "./SignOutSection";
+import { AccountSection } from "./AccountSection";
 import styles from "./settings.module.css";
 
 export const metadata = {
@@ -45,18 +46,23 @@ export default async function SettingsPage() {
       />
 
       <section className={`${styles.section} ${styles.dataNote}`}>
-        <h2 className={styles.sectionLabel}>Your data</h2>
-        <p className={styles.meta}>
-          There&apos;s no account to sign in to: your goals belong to this browser. Clearing
-          this site&apos;s data, or switching browser or device, starts you fresh. On iPhone,
-          use Groundwork from its Home Screen icon — it keeps separate data from Safari.
-        </p>
+        <h2 className={styles.sectionLabel}>Your account</h2>
+        <AccountSection email={user.is_anonymous ? null : (user.email ?? null)} />
+        {user.is_anonymous && (
+          <p className={`${styles.meta} ${styles.after}`}>
+            Until you save an account, clearing this site&apos;s data or switching browser or
+            device starts you fresh. On iPhone, use Groundwork from its Home Screen icon: it keeps
+            separate data from Safari.
+          </p>
+        )}
       </section>
 
-      <section className={`${styles.section} ${styles.dataNote}`}>
-        <h2 className={styles.sectionLabel}>Sign out</h2>
-        <SignOutSection />
-      </section>
+      {user.is_anonymous && (
+        <section className={`${styles.section} ${styles.dataNote}`}>
+          <h2 className={styles.sectionLabel}>Erase and sign out</h2>
+          <SignOutSection />
+        </section>
+      )}
     </div>
   );
 }

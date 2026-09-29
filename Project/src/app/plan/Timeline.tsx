@@ -28,6 +28,20 @@ export function Timeline({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Ticks show straight away; the list re-sorts when the server confirms.
+  const [ticked, setTicked] = useState<Record<string, boolean>>({});
+
+  function toggle(task: PlannerTask, done: boolean) {
+    setTicked((t) => ({ ...t, [task.id]: done }));
+    setError(null);
+    startTransition(async () => {
+      const result = await setTaskDone(task.id, done);
+      if (result.error) {
+        setTicked((t) => ({ ...t, [task.id]: !done }));
+        setError(result.error);
+      } else router.refresh();
+    });
+  }
 
   function run(action: () => Promise<{ error?: string }>) {
     setError(null);
@@ -85,9 +99,8 @@ export function Timeline({
                   <label className={styles.itemTitle}>
                     <input
                       type="checkbox"
-                      checked={false}
-                      disabled={pending}
-                      onChange={() => run(() => setTaskDone(block.task.id, true))}
+                      checked={ticked[block.task.id] ?? false}
+                      onChange={(e) => toggle(block.task, e.target.checked)}
                       aria-label={`Mark ${block.task.title} done`}
                     />
                     {block.task.title}
@@ -133,9 +146,8 @@ export function Timeline({
                 <label className={`${styles.itemTitle} ${styles.doneTitle}`}>
                   <input
                     type="checkbox"
-                    checked
-                    disabled={pending}
-                    onChange={() => run(() => setTaskDone(task.id, false))}
+                    checked={ticked[task.id] ?? true}
+                    onChange={(e) => toggle(task, e.target.checked)}
                     aria-label={`Mark ${task.title} not done`}
                   />
                   {task.title}

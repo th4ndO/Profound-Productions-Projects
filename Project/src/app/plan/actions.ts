@@ -6,6 +6,7 @@ import { isValidDay, parseTime } from "@/lib/planner";
 export type PlanResult = { error?: string };
 
 const KINDS = ["must", "nice"] as const;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function requireUser() {
   const supabase = await createClient();
@@ -47,6 +48,9 @@ export async function addTask(input: {
   fixedStart: string | null;
 }): Promise<PlanResult> {
   const { supabase, user } = await requireUser();
+  if (typeof input.title !== "string" || typeof input.minutes !== "number") {
+    return { error: "Give the task a name and a time." };
+  }
   const title = input.title.trim();
   if (!isValidDay(input.day)) return { error: "That day isn't valid." };
   if (!title || title.length > 100) return { error: "Give the task a name (up to 100 characters)." };
@@ -74,8 +78,16 @@ export async function addGoalBlocks(
 ): Promise<PlanResult> {
   const { supabase, user } = await requireUser();
   if (!isValidDay(day)) return { error: "That day isn't valid." };
-  if (blocks.length === 0) return {};
-  if (blocks.some((b) => !validMinutes(b.minutes))) return { error: "Pick a valid time for each goal." };
+  if (!Array.isArray(blocks) || blocks.length === 0) return {};
+  if (blocks.length > 50) return { error: "That's too many goals for one day." };
+  const valid = blocks.every(
+    (b) =>
+      typeof b.goalId === "string" &&
+      UUID.test(b.goalId) &&
+      typeof b.title === "string" &&
+      validMinutes(b.minutes),
+  );
+  if (!valid) return { error: "Pick a valid time for each goal." };
 
   let position = await nextPosition(supabase, user.id, day);
   const rows = blocks.map((b) => ({
@@ -94,6 +106,7 @@ export async function addGoalBlocks(
 
 export async function setTaskDone(id: string, done: boolean): Promise<PlanResult> {
   const { supabase, user } = await requireUser();
+  if (typeof done !== "boolean") return { error: "Couldn't update that task." };
   const { error } = await supabase.from("day_tasks").update({ done }).eq("id", id).eq("user_id", user.id);
   if (error) return { error: "Couldn't update that task." };
   return {};

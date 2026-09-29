@@ -11,12 +11,12 @@ export type SignInResult = { error?: string; unsavedGoals?: boolean };
  * Runs on the server so the session arrives as Set-Cookie headers (Safari
  * caps cookies written by page scripts at 7 days; see start/actions.ts).
  *
- * If this browser is on an anonymous account that has goals, signing in
- * would strand them (nobody could ever reach them again), so it refuses and
- * points the user to Settings to save or erase them first. An anonymous
- * account without goals only has leftovers (a profile, a push
- * subscription); those are cleared so the empty
- * anonymous user is removed by the daily cleanup job.
+ * If this browser is on an anonymous account that has goals or planner
+ * tasks, signing in would strand them (nobody could ever reach them again),
+ * so it refuses and points the user to Settings to save or erase them
+ * first. An anonymous account without either only has leftovers (a
+ * profile, a push subscription); those are cleared so the empty anonymous
+ * user is removed by the daily cleanup job.
  */
 export async function signInWithEmail(email: string, password: string): Promise<SignInResult> {
   const cleanEmail = normaliseEmail(email);
@@ -29,16 +29,20 @@ export async function signInWithEmail(email: string, password: string): Promise<
   } = await supabase.auth.getUser();
 
   if (user?.is_anonymous) {
-    const { count, error } = await supabase
-      .from("goals")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if (error) return { error: authErrorMessage(undefined) };
-    if ((count ?? 0) > 0) {
+    let unsaved = 0;
+    for (const table of ["goals", "day_tasks"] as const) {
+      const { count, error } = await supabase
+        .from(table)
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      if (error) return { error: authErrorMessage(undefined) };
+      unsaved += count ?? 0;
+    }
+    if (unsaved > 0) {
       return {
         unsavedGoals: true,
         error:
-          "This device has goals that aren't saved to an account yet. Save them as your account in Settings, or erase them there, then sign in.",
+          "This device has goals or plans that aren't saved to an account yet. Save them as your account in Settings, or erase them there, then sign in.",
       };
     }
     for (const table of ["reminder_rules", "push_subscriptions", "profiles"] as const) {

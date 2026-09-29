@@ -62,7 +62,7 @@ export async function signOutAndErase(): Promise<void> {
   // A saved account signs out without erasing (signOutOfAccount).
   if (!user.is_anonymous) throw new Error("Use Sign out in Your account instead.");
 
-  for (const table of ["goals", "reminder_rules", "push_subscriptions", "profiles"] as const) {
+  for (const table of ["goals", "day_tasks", "reminder_rules", "push_subscriptions", "profiles"] as const) {
     const { error } = await supabase.from(table).delete().eq("user_id", user.id);
     if (error) throw new Error(`Couldn't erase your data (${table}): ${error.message}`);
   }

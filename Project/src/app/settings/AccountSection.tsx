@@ -98,6 +98,7 @@ function SaveAccountForm() {
 function SavedAccount({ email }: { email: string }) {
   const router = useRouter();
   const [changing, setChanging] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -108,11 +109,12 @@ function SavedAccount({ email }: { email: string }) {
     setError(null);
     setMessage(null);
     startTransition(async () => {
-      const result = await changePassword(password);
+      const result = await changePassword(currentPassword, password);
       if (result.error) {
         setError(result.error);
         return;
       }
+      setCurrentPassword("");
       setPassword("");
       setChanging(false);
       setMessage("Password changed.");
@@ -151,6 +153,16 @@ function SavedAccount({ email }: { email: string }) {
       </p>
       {changing ? (
         <form onSubmit={handleChangePassword}>
+          <label className={styles.field}>
+            Current password
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+          </label>
           <label className={styles.field}>
             New password (at least {PASSWORD_MIN_LENGTH} characters)
             <input

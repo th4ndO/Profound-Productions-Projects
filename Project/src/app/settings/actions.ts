@@ -91,14 +91,36 @@ export async function saveAccount(email: string, password: string): Promise<Acco
   return {};
 }
 
-export async function changePassword(password: string): Promise<AccountResult> {
+/**
+ * Changes a saved account's password. The current password is checked
+ * first: there's no "forgot password" email, so without this anyone holding
+ * a signed-in device (a shared family phone, say) could lock the owner out
+ * for good.
+ */
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<AccountResult> {
   const { supabase, user } = await requireUser();
-  if (user.is_anonymous) return { error: "Save your account first." };
-  if (password.length < PASSWORD_MIN_LENGTH || password.length > 72) {
+  if (user.is_anonymous || !user.email) return { error: "Save your account first." };
+  if (newPassword.length < PASSWORD_MIN_LENGTH || newPassword.length > 72) {
     return { error: `Use a password of ${PASSWORD_MIN_LENGTH} to 72 characters.` };
   }
 
-  const { error } = await supabase.auth.updateUser({ password });
+  const { error: checkError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (checkError) {
+    return {
+      error:
+        checkError.code === "invalid_credentials"
+          ? "Your current password is wrong."
+          : authErrorMessage(checkError.code),
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) return { error: authErrorMessage(error.code) };
   return {};
 }

@@ -1,6 +1,6 @@
-# Handoff — Profound-Productions-Projects monorepo — 2026-09-26
+# Handoff — Profound-Productions-Projects monorepo — 2026-09-29
 
-One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #32).
+One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #38).
 
 ---
 
@@ -50,54 +50,49 @@ Nothing in flight. Pick up open decisions a or d when the owner wants them.
 Reclassified 2026-09-26 from "Recipe Costing Planner (academic)": the owner answered "personal project" (confirmed directly; shipped with #15). Registry entry updated.
 
 ### State (production = `main`; a merge to main deploys)
-- Live at https://project-tau-self-69.vercel.app. Vercel project `project` is linked to this monorepo (root `Project/`).
-- Merged and live:
-  - #5: reminder timing/timezone fixes; installable-app manifest; `middleware.ts` → `proxy.ts`; RLS uses `(select auth.uid())`; magic-link removed, anonymous sessions via `/start`.
-  - #6 (`??` → `||` for empty env vars), #7 (`/sign-in`, `/auth/callback` → `/`), #8 (11 idea categories, 28 ideas), #9 (filter dropdowns), #12 (six new goal visuals).
-  - #15: open-redirect fix on `/start?next=` (plus a 500 on a repeated `?next=`).
-  - #18: Settings → "Sign out of this device" (two taps, with Cancel). Erases the user's goals (cascading to milestones, tasks, reminder rules), reminder rules, push subscriptions and profile, then signs out. Goal-page theme switcher now wraps. Production READY at `58ab78e`, checked on the live site. The emptied anonymous auth user stays behind (deleting auth users needs the service role).
-  - #21: `Project/vercel.json` `ignoreCommand` builds Groundwork only when `Project/` changed since the last *successful* deploy. A skipped push shows as a CANCELED deployment (that's normal).
-- **#23 (reminder rules may only reference the caller's own goals): DB live, app build pending.**
-  - Migration `reminder_rules_goal_ownership` **applied to production** 2026-09-26. Attack test `Project/supabase/tests/reminder_rules_goal_ownership_rls.sql` passed 17/17 against production (in a forced-rollback transaction, 0 leftover rows). Advisors: nothing new.
-  - The app-side check in `reminder-actions.ts` is merged but **not yet built to production**: the Vercel Hobby limit (100 deployments/day) was hit. The next successful Groundwork build includes it.
-- **#32 (daily cleanup of old, empty anonymous users): merged 2026-09-27 (`6434ce5`), DB-only, no Vercel deploy needed.**
-  - Migration `cleanup_stale_anonymous_users` **applied to production**. Adds `private.delete_stale_anonymous_users()` and pg_cron job `cleanup-stale-anonymous-users` (daily 03:17 UTC).
-  - Rule: deletes only anonymous users older than 30 days who own no goals, reminder_rules, push_subscriptions or profiles. Users with data and non-anonymous users are never touched.
-  - Verified on production: job scheduled as postgres; anon/authenticated/service_role lack EXECUTE; dry run would delete 0 today; advisors unchanged from baseline (8 anonymous-access WARNs, 1 INFO).
-  - First run not yet observed (see Next step).
-- **#33 live 2026-09-27** (`e386c76`, checked on the live site): weightlifter home screen icon (+ maskable, apple-touch, notification badge) and the "Spiritual growth" idea category.
-- Housekeeping: #10 merged NameTrace (separate project); #1 and #11 closed as superseded.
-- Live outside git: migrations `rls_initplan` and `goal_themes_v2` were applied **directly to live** (gate skipped; acknowledged by the owner, see Decisions); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2.
+- Live at https://project-tau-self-69.vercel.app. Vercel project `project` is linked to this monorepo (root `Project/`). Nothing in flight; last merged #38 (`9766626`). #34–#38 were all checked on the live site.
+- **Accounts (#38, live 2026-09-29):** every browser starts with an anonymous Supabase account via `/start`. Optional email + password on top:
+  - Settings → Your account → "Save my account" upgrades the anonymous account in place (same user, data kept).
+  - `/sign-in` (public) is for other devices. It refuses if this browser's anonymous account has unsaved goals.
+  - Saved accounts can change password (current password required) and sign out without erasing. "Sign out of this device" with erase (#18) is for anonymous accounts only.
+  - Proof: 13-step browser end-to-end run on live, a local run and a change-password run; all test accounts deleted. Built-in security review (stand-in; security-auditor isn't available in cloud sessions): no findings. gatekeeper-reviewer: PASS.
+- **Ideas:** "Daily habits" is first (15 thirty-day habits, #37); "Like Jesus" has 12 goals anchored on the passages where Jesus did them (#35; fasting carries a doctor caution, mentoring says "newer believer"); Spiritual growth is Christian and Bible-centred (#34); all 75 rewards rewritten to be fun and low-cost (#36). #37 also fixed the #35 fasting milestone, which broke the `milestones.title <= 100` limit so adopting it failed (nobody had). `Project/src/lib/ideas.test.ts` now enforces the DB limits: title 80, reward 120, milestone 100.
+- Earlier, all live: reminder timing/timezone fixes and installable app (#5), open-redirect fix on `/start?next=` (#15), reminder rules limited to the caller's own goals (#23, DB and app), build-skip `ignoreCommand` (#21; a skipped push shows as CANCELED), weightlifter icon (#33).
+- **Daily cleanup (#32):** pg_cron job `cleanup-stale-anonymous-users` (03:17 UTC) deletes only anonymous users older than 30 days who own no data. First run checked 2026-09-28: succeeded, 0 deleted.
+- Live outside git: migrations `rls_initplan` and `goal_themes_v2` applied **directly to live** (gate skipped; owner acknowledged); anonymous sign-ins on; leaked-password protection on; Edge Function `send-reminders` v2; Auth settings from 2026-09-29 (see Gotchas).
 
 ### Decisions (and why) — newest first
-- **Spiritual growth ideas are Christian and Bible-centred** (owner, 2026-09-27): each idea is anchored on a Bible verse (prayer, Bible reading, Scripture memory, church, thanksgiving, service, Sabbath). The first, faith-neutral set was replaced before anyone adopted it.
-- Legacy magic-link email account (no data, unusable without sign-in) **deleted** from production (owner said yes, 2026-09-27); guarded to delete only if still non-anonymous with no data. Auth now holds anonymous users only.
-- App icon: a person pressing a barbell overhead (owner asked for "a working out person", 2026-09-27). Source `Project/assets/icon.svg`; PNGs rendered by `node scripts/build-icons.mjs` (run from `Project/`).
-- Stale-anonymous cleanup deletes only empty anonymous users >30 days old (#32, owner approved 2026-09-27) — resolves accepted WARN (2) without ever touching a user who has data.
-- #32 proven on local Postgres (17/17) instead of a Supabase branch — owner explicitly accepted this one-off again, as for #23; branching times out.
-- **Owner acknowledged that the earlier schema changes (`rls_initplan`, `goal_themes_v2`) and deploys skipped the release gate** (owner, 2026-09-26). From now on, schema changes go through schema-keeper on a Supabase branch (a local proof, as in #23, only as a one-off exception the owner explicitly accepts each time), and production changes follow the full release order in `.claude/CLAUDE.md`: qa-tester, then security-auditor if auth, payments, uploads or admin changed, then gatekeeper-reviewer, then owner approval.
-- **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no cleanup of stale anonymous users, (3) no per-user usage limits. Why: personal project, no money, and RLS keeps each user's data separate. Note: Supabase's default anonymous sign-in rate limit does **not** protect individual visitors here, because `/start` signs in from the server (details given to the owner, kept out of this public repo). Expected effect: a burst of new visitors may briefly see sign-up errors. Cheapest fixes if that matters: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. **Revisit** before sharing the site publicly or promoting it, or if the auth user count or database size starts growing noticeably. (2) is resolved by #32 (daily cleanup of old, empty anonymous users, live 2026-09-27). The fourth WARN (no sign-out) is resolved: Settings → "Sign out of this device" erases the user's data, then signs out (PR #18, live).
-- #23 migration proven on local Postgres instead of a Supabase branch — owner accepted this; `create_branch` timed out twice (branching probably needs a paid plan). This was gatekeeper-reviewer's only BLOCK.
-- Deleted Vercel project `profound-productions-projects` (owner) — it served only a 404 and used ~42% of builds.
-- `ignoreCommand` diffs against `VERCEL_GIT_PREVIOUS_SHA` (fallback `HEAD^`) — builds only when `Project/` changed since the last successful deploy, saving daily quota.
-- Sign-out erases the user's data, then signs out — owner asked; anonymous accounts can't sign back in, so leftover data would be orphaned.
+- **Optional accounts use email + password, with email confirmation OFF** (owner, 2026-09-29) — Supabase's built-in mailer only reaches project members. So there is no forgot-password email: if someone forgets, the owner asks the Lead to reset it. Accepted risks: someone can register an email they don't own (blocks that email's real owner from signing up, but gives no data access); "email already has an account" reveals that an email is registered. This is the "sharing with friends and family" revisit trigger from the anonymous-risk decision below; the owner chose to go ahead. The other WARNs are still open (OPEN d).
+- **Idea rewards are fun and low-cost** (#36): days off, films, food, small buys up to R100–R200. Rule: a reward never undercuts its goal.
+- **Spiritual growth ideas are Christian and Bible-centred** (owner, 2026-09-27): each idea is anchored on a Bible verse; "Like Jesus" (#35) is anchored on Gospel passages. The first, faith-neutral set was replaced before anyone adopted it.
+- Legacy magic-link email account (no data) **deleted** from production (owner said yes, 2026-09-27).
+- App icon: a person pressing a barbell overhead (owner, 2026-09-27). Source `Project/assets/icon.svg`; PNGs rendered by `node scripts/build-icons.mjs` (run from `Project/`).
+- Stale-anonymous cleanup deletes only empty anonymous users >30 days old (#32, owner approved 2026-09-27) — resolves accepted WARN (2) without touching anyone with data.
+- #23 and #32 migrations proven on local Postgres (17/17 each) instead of a Supabase branch — owner accepted each as a one-off; `create_branch` times out (branching probably needs a paid plan).
+- **Owner acknowledged that `rls_initplan`, `goal_themes_v2` and early deploys skipped the release gate** (2026-09-26). From now on: schema changes via schema-keeper on a Supabase branch (a local proof only as a one-off the owner accepts each time), and the full release order in `.claude/CLAUDE.md`.
+- **Anonymous sign-up risks accepted for the MVP** (owner, 2026-09-26): gatekeeper WARNs (1) anonymous sign-up hardening, (2) no stale-user cleanup (resolved by #32), (3) no per-user usage limits. Why: personal project, no money, RLS separates users. Supabase's default anonymous sign-in rate limit does **not** protect individual visitors, because `/start` signs in from the server (details given to the owner, kept out of this public repo); a burst of visitors may briefly see sign-up errors. Cheapest fixes: CAPTCHA/Turnstile on `/start`, or forward the visitor IP to Supabase Auth. Revisit trigger (sharing with friends and family) reached 2026-09-29; see OPEN d.
+- Sign-out erases an anonymous user's data, then signs out (#18) — anonymous accounts can't sign back in, so leftover data would be orphaned.
 - Risk GREEN — owner confirmed a personal project; MVP, no money, users' own goal data under RLS.
-- No sign-in; anonymous Supabase account per browser via `/start` — its abuse risks were accepted for the MVP (see above).
 - `||` not `??` for `NEXT_PUBLIC_*` — Vercel defines them as empty strings; code falls back to committed public literals (`src/lib/supabase/config.ts`).
 
 ### OPEN decisions (need the owner)
-- **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first. Blocks shipping on heavy days.
+- **c. Vercel daily quota:** it runs out on busy multi-session days (hit twice on 2026-09-26). Options: batch pushes / upgrade to Pro. Recommended: batch pushes first; the innovator (2026-09-29) also recommends batching Groundwork content weekly instead of one PR per change. Blocks shipping on heavy days.
+- **d. Remaining anonymous-abuse WARNs (captcha, per-user limits):** the revisit trigger is reached. Options: add CAPTCHA/Turnstile on `/start` and per-user limits now / keep them accepted while the app is only shared with friends and family. Recommended: keep accepted for now; add CAPTCHA before any public promotion. Nothing blocked.
+- **e. Daily checklist with streaks:** offered, not decided. Options: build it / skip. Nothing blocked.
 
 ### Next step
-After the first cleanup run (03:17 UTC, 2026-09-28), check `cron.job_run_details` for job `cleanup-stale-anonymous-users` and confirm it succeeded.
-Also still open from #23: confirm a production build of current `main` exists (Vercel → `project` → Deployments), then check a reminder can still be saved on the live site.
+The owner installs the app on their phone, saves an account, and checks that one reminder arrives. This also closes "real-device push never verified" (innovator's #2 pick for 2026-09-29: verify push, then start using it).
 
 ### Follow-ups (not blocking)
-- Tests for `startAnonymousSession` and the proxy public paths.
-- Migration version drift: repo filenames differ from live versions for every migration (e.g. `20260926120000` / `20260926140000` vs live `20260926103801` / `20260926121546`), now including `reminder_rules_goal_ownership` (repo `20260927090000` vs live `20260926192241`) and probably `cleanup_stale_anonymous_users` (repo `20260927100000`; check the live version). Reconcile before the next schema change.
-- Real-device push delivery never verified.
+- Self-service account deletion: needs the service role or a security-definer RPC, so it goes through schema-keeper.
+- `/sign-in` deletes a goal-less anonymous user's leftover profile and push rows *before* checking the password. Minor; move it after a successful sign-in.
+- No automated tests for the account server actions (proven by browser runs), `startAnonymousSession`, or the proxy public paths.
+- Switching between two saved accounts on one device leaves the first account's push subscription behind.
+- Migration version drift: repo filenames differ from live versions for every migration (e.g. `reminder_rules_goal_ownership` repo `20260927090000` vs live `20260926192241`; check `cleanup_stale_anonymous_users`, repo `20260927100000`). Reconcile before the next schema change.
 
 ### Gotchas
+- **Supabase Auth settings live outside git**, set via the Management API on 2026-09-29: `mailer_autoconfirm = true`, `password_min_length = 8`, `password_hibp_enabled = true`. `PASSWORD_MIN_LENGTH` in `Project/src/lib/account.ts` must match `password_min_length`. If confirmation is turned back on without an email sender, saving an account breaks.
+- The daily cleanup only deletes `is_anonymous = true` users, so saved accounts are safe.
 - Advisor `auth_allow_anonymous_sign_ins` WARNs are expected (anonymous sign-ins are deliberate).
 - `Project/.env.production` is committed with public keys only; anything else there is a finding.
 - A CANCELED Groundwork deployment usually just means `ignoreCommand` skipped it (no `Project/` change), not a failure.
@@ -150,6 +145,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - **Profound Productions (AMBER):** framework upgrade pending. Run `npm audit` in `th4ndO/Profound-Productions`, where the code now lives only (the monorepo copy was deleted). Recommended: yes, via branch, preview deploy and your approval.
 - **network-growth (RED):** the Supabase security advisor flags two database functions (medium). Details kept out of this public repo; see the advisor or re-run health-triage. Owner: schema-keeper.
 - **Leftover branches** (fully merged; this session got 403 deleting them): `claude/beautiful-mccarthy-3l2kh2`, `claude/gracious-sagan-meu582`. Delete them yourself. Do **not** delete `claude/peaceful-bohr-ff184f`: it got a new commit today.
+- **Innovator run 2026-09-29** (summary only; no report file): top pick is the two Coco Bliss RED items below (uptime alert; RLS on the 4 backup tables). Also proposed: a private reports repo, and copying the PC-only agents into `.claude/agents` so cloud sessions have them. Owner to decide on each. (Its Groundwork picks are in the Groundwork section.)
 
 ### Health check 2026-09-26 (full brief saved outside the repo) — top items
 - **[RED] Coco Bliss:** 4 backup tables in the public schema have RLS off, so payment, order and profile data could be exposed to the anon key. Fix via schema-keeper on a branch, plus a POPIA decision via escalation-desk. (Table names kept out of this public repo; see the brief or the security advisor.)

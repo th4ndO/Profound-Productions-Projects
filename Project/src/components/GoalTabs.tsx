@@ -3,10 +3,10 @@ import styles from "./GoalTabs.module.css";
 
 /**
  * Ported from the prototype's `<div class="tabs" role="tablist">` — real
- * routes here ("/" and "/ideas") instead of the prototype's client-side
+ * routes here ("/", "/ideas" and "/plan") instead of the prototype's client-side
  * `state.tab` switch.
  */
-export function GoalTabs({ active }: { active: "mine" | "ideas" }) {
+export function GoalTabs({ active }: { active: "mine" | "ideas" | "plan" }) {
   return (
     <div className={styles.tabs} role="tablist">
       <Link href="/" role="tab" aria-selected={active === "mine"} className={styles.tab}>
@@ -14,6 +14,9 @@ export function GoalTabs({ active }: { active: "mine" | "ideas" }) {
       </Link>
       <Link href="/ideas" role="tab" aria-selected={active === "ideas"} className={styles.tab}>
         Goal ideas
+      </Link>
+      <Link href="/plan" role="tab" aria-selected={active === "plan"} className={styles.tab}>
+        Plan my day
       </Link>
     </div>
   );

@@ -25,3 +25,10 @@
   background: var(--ink);
   color: var(--bg);
 }
+
+@media (max-width: 420px) {
+  .tab {
+    padding: 8px 11px;
+    font-size: 0.9rem;
+  }
+}

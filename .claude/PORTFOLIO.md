@@ -131,13 +131,14 @@ Special rules:
 | Live URL | https://project-tau-self-69.vercel.app |
 | Repo | monorepo folder `Project/` (originally imported from `th4ndO/project-`, which no longer drives deploys); local path [CONFIRM] |
 | Risk | **GREEN** (owner, 2026-09-26: "personal project"). Personal MVP, no money; holds users' own goal data under RLS |
-| Status | Live personal goal/milestone tracker (Next.js 16 + Supabase). No sign-in: each browser gets an anonymous Supabase account via `/start` |
+| Status | Live personal goal/milestone tracker (Next.js 16 + Supabase). Each browser starts with an anonymous Supabase account via `/start`; optional email + password accounts (save in Settings, `/sign-in` on other devices) live since 2026-09-29 (#38) |
 
 History: the folder was a "Student Budget Planner", then cleared (commit `c408e26`) to start Groundwork. It was never a recipe costing planner; the old registry name "Recipe Costing Planner (academic)" was stale.
 
 Special rules:
 - `Project/.env.production` is committed; it holds only public keys (URL, anon key, VAPID public key), as its header comment explains. Anything else appearing there is a finding.
-- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks (anonymous sign-up hardening, no stale-user cleanup, no per-user limits) were **accepted by the owner for the MVP on 2026-09-26**; revisit before promoting the site publicly or if user count/DB size grows (see HANDOFF.md, Groundwork decisions).
+- Anonymous sign-ins are enabled on purpose, so advisor `auth_allow_anonymous_sign_ins` WARNs are expected. The related abuse risks (anonymous sign-up hardening, no per-user limits) were **accepted by the owner for the MVP on 2026-09-26**; stale empty anonymous users are cleaned daily since #32. Sharing with friends and family (2026-09-29) keeps them accepted; add a captcha before promoting the site publicly, or revisit if user count/DB size grows (see HANDOFF.md, Groundwork OPEN d).
+- Supabase Auth settings live outside git: email confirmation OFF (owner's choice, no email sender), `password_min_length` 8 (must match `PASSWORD_MIN_LENGTH` in `src/lib/account.ts`), leaked-password check on. Re-enabling confirmation without an email sender breaks saving accounts.
 - The Vercel env vars `NEXT_PUBLIC_*` are defined as empty strings in the dashboard; the code falls back to committed public literals (`src/lib/supabase/config.ts`). Use `||`, not `??`, when reading them (an empty string with `??` caused a `/start` outage).
 
 ---

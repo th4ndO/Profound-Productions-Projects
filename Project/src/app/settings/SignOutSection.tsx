@@ -49,9 +49,9 @@ export function SignOutSection() {
   return (
     <>
       <p className={styles.meta}>
-        Signing out erases your goals, reminders and settings from Groundwork and turns off
-        notifications on this device. There&apos;s no account to sign back in to, so this
-        can&apos;t be undone.
+        Signing out without saving an account erases your goals, reminders and settings from
+        Groundwork and turns off notifications on this device. There&apos;s nothing to sign back
+        in to, so this can&apos;t be undone. To keep your goals, save your account above instead.
       </p>
       <div className={styles.signOutRow}>
         <button type="button" className={styles.danger} onClick={handleClick} disabled={pending}>

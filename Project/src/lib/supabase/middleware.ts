@@ -48,12 +48,17 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: avoid writing logic between createServerClient and this
-  // call — getUser() is what actually refreshes the token if needed.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // call — it's what refreshes the token if needed.
+  //
+  // getClaims() verifies the session's JWT locally against the project's
+  // public signing key (ES256; the JWKS is fetched once and cached), so
+  // this check, which runs on every request, no longer makes a round trip
+  // to Supabase Auth. Pages and actions still call getUser() for anything
+  // that needs the server-side user record.
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = Boolean(data?.claims?.sub);
 
-  if (!user && !isPublicPath(request.nextUrl.pathname)) {
+  if (!signedIn && !isPublicPath(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/start";
     url.searchParams.set("next", request.nextUrl.pathname);

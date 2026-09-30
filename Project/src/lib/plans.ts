@@ -76,7 +76,7 @@ const TWENTY_MINUTES: PlanMilestone = {
 
 export const PLANS: Record<string, Plan> = {
   "run-10k": {
-    match: [/\b10\s?(km|k|kms)\b/, /\bten\s?(km|k|kilomet)/, /\b10\s?000\s?m\b/],
+    match: [/\b10\s?kms?\b/, /\bten\s?(km|kilomet)/, /\b10\s?000\s?m\b/, /\b(run|jog|race|running)\b.*\b10\s?k\b/, /\b10\s?k\b.*\b(run|jog|race)/],
     milestones: [
       RUN_WALK_WEEKS,
       TWENTY_MINUTES,
@@ -95,6 +95,7 @@ export const PLANS: Record<string, Plan> = {
       {
         title: "Week 13: run 10 km without stopping",
         tasks: [
+          "If 8.5 km felt hard, repeat week 12 first",
           "One easy 30-minute run early in the week",
           "Rest the day before",
           "Run 10 km slowly and steadily, without stopping",
@@ -107,7 +108,7 @@ export const PLANS: Record<string, Plan> = {
   },
 
   parkrun: {
-    match: [/parkrun/, /\b5\s?(km|k|kms)\b/, /\bfive\s?(km|k|kilomet)/, /couch to 5/],
+    match: [/parkrun/, /\b5\s?kms?\b/, /\bfive\s?(km|kilomet)/, /couch to 5/, /\b(run|jog|race|running)\b.*\b5\s?k\b/, /\b5\s?k\b.*\b(run|jog|race)/],
     milestones: [
       {
         title: "Register for parkrun and do your first one (walking is fine)",
@@ -322,7 +323,7 @@ export const PLANS: Record<string, Plan> = {
         tasks: ["Set the same alarm for every day", "Get some daylight within an hour of waking"],
       },
       {
-        title: "Set a bedtime 7½ hours before it",
+        title: "Set a bedtime 8 hours before it",
         tasks: ["Set a wind-down reminder 30 minutes before bedtime", "No caffeine after about 2 pm"],
       },
       {
@@ -363,7 +364,7 @@ export const PLANS: Record<string, Plan> = {
       {
         title: "Choose a one-year reading plan",
         tasks: [
-          "Pick one: straight through, chronological, or Old and New Testament side by side",
+          "Pick a plan that reads straight through, so these milestones line up",
           "Set a daily time and place, about 15 to 20 minutes",
         ],
       },

@@ -84,6 +84,10 @@ describe("matchPlans", () => {
   it("doesn't confuse similar numbers or match nothing-goals", () => {
     expect(matchPlans("run 15km")).not.toContain("parkrun");
     expect(matchPlans("save R100k")).not.toContain("run-10k");
+    expect(matchPlans("save 10k this year")).not.toContain("run-10k");
+    expect(matchPlans("earn 5k extra a month")).not.toContain("parkrun");
+    expect(matchPlans("run a 10k")).toContain("run-10k");
+    expect(matchPlans("my first 5k run")).toContain("parkrun");
     expect(matchPlans("Write a novel")).toEqual([]);
     expect(matchPlans("ab")).toEqual([]);
   });

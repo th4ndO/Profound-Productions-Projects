@@ -174,35 +174,52 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 
 ## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
 
+_Updated 2026-09-30._
+
 ### State
-- **The code lives only in the separate GitHub repo `th4ndO/Hustle-Corner-` (branch `main`), which deploys.** The stale monorepo copy `Hustle-Corner/` was deleted on 2026-09-26 at the owner's request. Every file in it also existed in `Hustle-Corner-` (gatekeeper checked: 87 identical, 10 newer there, plus migration 0014 only there). This repo only ever held a single import commit (`a5ed6de`); the files can be restored from it, and the full history is in `Hustle-Corner-`. The monorepo's former Vercel project `profound-productions-projects` built from the repo root, not this folder; it was deleted on 2026-09-26.
-- **The how-it-works guide is live (2026-09-26).** PR https://github.com/th4ndO/Hustle-Corner-/pull/1 was merged to `main` as `566bf91` (branch commits `3a9634e` and `4424a0f`). Production deploy `dpl_GNPcFikspwRi8pAF1Z2Aq81DeMLV` is READY. https://hustle-corner.vercel.app/how-it-works returns 200, with no runtime errors in the first hour.
-  - `/how-it-works` has two tabs: `?for=customers` (7 steps) and `?for=business` (10 steps). The footer and homepage link to it.
-  - Logged-in users get a "Dashboard" link in the header, so new sellers can find onboarding. Account links wrap as one row on phones.
-  - Homepage copy fixed: it wrongly said you can't book through the site. `4424a0f` makes the copy say that reviews and reports need a login (this was gatekeeper's finding).
-- Release chain: **qa-tester was not available**, so the Portfolio Lead ran QA itself: `tsc`, the prod build, Playwright at 360px and 1024px against a local prod build of the same commit, and curl route checks on the preview. gatekeeper-reviewer gave PASS. security-auditor wasn't needed because auth, payments, uploads, and admin were not touched. The owner explicitly approved the deploy.
-- **The logged-in header was only simulated. Nobody has tested it with a real account** (see OPEN e).
-- Builds were fixed (with the owner's explicit yes). On 2026-09-25 at 19:18 UTC, someone set the Vercel `hustle-corner` Root Directory to `groundwork`, and every build after that failed with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. It was reset to the repo root through the Vercel API.
+- **LIVE SITE IS BROKEN until the owner applies a DB fix.** (a) Business owners can't submit the listing wizard; they see the raw error "stack depth limit exceeded". (b) Every seller page `/s/[slug]` shows "Something went wrong".
+  - Cause: `public.is_admin()` and `is_verified_student()` are SECURITY INVOKER and read `profiles`. The `profiles` SELECT policy calls `is_admin()`, so it recurses forever (Postgres 54001). This was dormant until `profiles` had rows (the first test accounts, 2026-09-28).
+- **The fix is ready in `th4ndO/Hustle-Corner-` PR #2** (branch `claude/loving-brown-e2pvis`, head `438141a`). gatekeeper-reviewer gave a conditional PASS on `438141a`. Not merged.
+  - `0015_fix_is_admin_recursion`: both helpers become SECURITY DEFINER with `search_path ''`, granted to anon, authenticated, and service_role.
+  - `0016_public_taken_slots`: a `get_taken_slots` RPC, so booked slots stop showing as open.
+  - App fixes: after login or sign-up you go back to the page you came from (`?next=`, `lib/safeNext.ts`); friendly error messages (`lib/errors.ts`); wizard copy (photo requirement, "e.g." placeholders, brand name in the consent text); the homepage says "New sellers" until reviews exist; guide steps updated.
+  - Proof script `supabase/tests/is_admin_recursion_rls.sql`: 48 checks, 48/48 on a local Postgres copy. Local Postgres does not reproduce the 54001 error itself, so the live-DB proof still matters.
+- **Waiting on the owner (see Next step).** The owner has no Supabase access right now. A reminder is set for 2026-10-01 08:45 SAST.
+- Live changes this week, made with the owner's OK: Supabase Auth "Confirm email" is **OFF**. The built-in mailer only emails team members, at 2 an hour, so nobody else could sign up.
+- **Test data is on production:** accounts `qa-admin`, `qa-seller`, and `qa-lerato` (all `@example.test`). `qa-admin` was promoted to admin with one-off SQL. `qa-seller` owns the listing "QA Test Braids (automated test)" (approved, then HIDDEN in the admin UI; it has 1 availability rule). `qa-lerato` has no listing. **No real admin account exists.**
+- Still true from 2026-09-26: the how-it-works guide is live (PR #1, `566bf91`). Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys); the monorepo copy was deleted.
 
 ### Decisions (and why) — newest first
-- Checked Groundwork's Vercel project `project` (read-only, 2026-09-26): Root Directory `Project`, production branch `main`, deploys READY. So the `groundwork` value found on `hustle-corner` was not copied from it; most likely typed into the wrong project. Closes the former open item "Groundwork Vercel Root Directory check".
-- Deleted the monorepo's stale `Hustle-Corner/` copy (owner's request) so nobody edits code that doesn't deploy.
-- Shipped the guide after QA by the Portfolio Lead, a gatekeeper PASS, and owner approval. qa-tester wasn't available in the session.
-- Reset the `hustle-corner` Root Directory to the repo root. The `groundwork` value broke every build and most likely belonged to the ACADEMIC Groundwork project.
-- Signup no longer checks student email domains, so every signup gets `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1` in `Hustle-Corner-`). This is not a bug.
+- Accepted: no security-auditor review for PR #2 (owner's call; the agent wasn't available).
+- Accepted: 6 expected Supabase advisor WARNs after the apply (lint 0028/0029 on each of `is_admin`, `is_verified_student`, `get_taken_slots`). **Anything beyond those 6 after the apply means stop.**
+- Proof on the live DB inside a rolled-back transaction (owner's choice): Supabase branching isn't available (`create_branch` timed out twice; it probably needs a paid plan).
+- The owner runs the SQL, not an agent: the permission system blocks production schema changes from sessions, and `/permissions` isn't available in cloud sessions.
+- Turned email confirmation OFF instead of setting up custom SMTP (owner's choice), so sign-up works for everyone.
+- Signup marks everyone `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1`). So the verified gate does nothing. This is not a bug.
 - Privacy contact and legal review are parked. The owner said "get it working first".
 
 ### OPEN decisions (need the owner)
 - **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
-- **e. Logged-in header check:** the Dashboard link and the wrapped account row were only simulated. Recommended: the owner logs in once on a phone and checks them on the live site. Nothing is blocked, but a broken header would hide onboarding from new sellers.
+- **e. Logged-in header check:** nobody has checked the Dashboard link or the wrapped account row with a real login on a phone. Recommended: do it during the post-fix E2E. Nothing is blocked.
+- **f. Owner's own admin account:** nobody real can moderate listings. Options: promote the owner's account with the same one-off SQL used for `qa-admin` (recommended), or leave `qa-admin` in place (not recommended, since it's test data). Deleting the test accounts is blocked until this is done.
 
 ### Next step
-Log in on a phone at https://hustle-corner.vercel.app. Check that the header shows "Dashboard", that the account links wrap as one row, and that `/how-it-works` looks right on both tabs (closes OPEN e).
+The owner runs two scripts in the Supabase SQL Editor (project `ulbzuafadfxdymrtdzgy`), then replies "applied":
+1. **Step 1, the proof.** Expect "PROOF RESULT: 48 of 48 checks passed". It shows as a **red error box; that means success**. Nothing is saved.
+2. **Step 2, the apply.** The bodies of 0015 and 0016 in one transaction.
+
+Then: check the advisors (exactly the 6 WARNs above), run a post-fix E2E with the test accounts, merge PR #2 through the normal release gate, and delete the test accounts using each account's "Delete my account".
+
+### Follow-ups (not blocking)
+- `getOpenSlots` should degrade gracefully if the `get_taken_slots` RPC errors.
+- Add a test runner, starting with the `safeNext` tests.
+- DB check-constraint errors now show a generic message, so keep zod validation at least as strict as the DB constraints.
+- Reconcile the repo's migration names with production's migration history.
 
 ### Gotchas
+- **ORDER MATTERS: apply 0015 and 0016 BEFORE merging PR #2.** The new app calls `get_taken_slots`, so merging first crashes seller pages that have availability.
+- Branch `claude/loving-brown-e2pvis` in `Hustle-Corner-` is **live again** as PR #2's branch. Don't delete it.
 - A local `next build` needs `NODE_ENV=production`. The container sets `NODE_ENV=development`, which makes the build fail with "<Html> should not be imported outside of pages/_document".
 - Sellers get **no notification** when someone requests a booking. The guide tells users this. It's a product gap, not yet fixed.
-- The Supabase migration history on the live DB doesn't match the repo's migrations folder. Make any schema change through schema-keeper, and reconcile the two first.
 - The site stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
 - Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs. Test against a local prod build of the same commit instead.
-- Branch `claude/loving-brown-e2pvis` in `Hustle-Corner-` is merged. Delete it if it's still there.

@@ -88,6 +88,9 @@ describe("matchPlans", () => {
     expect(matchPlans("earn 5k extra a month")).not.toContain("parkrun");
     expect(matchPlans("run a 10k")).toContain("run-10k");
     expect(matchPlans("my first 5k run")).toContain("parkrun");
+    expect(matchPlans("ten k race")).toContain("run-10k");
+    expect(matchPlans("five k fun run")).toContain("parkrun");
+    expect(matchPlans("raise ten kids")).not.toContain("run-10k");
     expect(matchPlans("Write a novel")).toEqual([]);
     expect(matchPlans("ab")).toEqual([]);
   });

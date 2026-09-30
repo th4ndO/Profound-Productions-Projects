@@ -76,7 +76,7 @@ const TWENTY_MINUTES: PlanMilestone = {
 
 export const PLANS: Record<string, Plan> = {
   "run-10k": {
-    match: [/\b10\s?kms?\b/, /\bten\s?(km|kilomet)/, /\b10\s?000\s?m\b/, /\b(run|jog|race|running)\b.*\b10\s?k\b/, /\b10\s?k\b.*\b(run|jog|race)/],
+    match: [/\b10\s?kms?\b/, /\bten\s?(kms?\b|k\b|kilomet)/, /\b10\s?000\s?m\b/, /\b(run|jog|race|running)\b.*\b10\s?k\b/, /\b10\s?k\b.*\b(run|jog|race)/],
     milestones: [
       RUN_WALK_WEEKS,
       TWENTY_MINUTES,
@@ -108,7 +108,7 @@ export const PLANS: Record<string, Plan> = {
   },
 
   parkrun: {
-    match: [/parkrun/, /\b5\s?kms?\b/, /\bfive\s?(km|kilomet)/, /couch to 5/, /\b(run|jog|race|running)\b.*\b5\s?k\b/, /\b5\s?k\b.*\b(run|jog|race)/],
+    match: [/parkrun/, /\b5\s?kms?\b/, /\bfive\s?(kms?\b|k\b|kilomet)/, /couch to 5/, /\b(run|jog|race|running)\b.*\b5\s?k\b/, /\b5\s?k\b.*\b(run|jog|race)/],
     milestones: [
       {
         title: "Register for parkrun and do your first one (walking is fine)",

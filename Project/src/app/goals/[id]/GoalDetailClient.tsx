@@ -52,6 +52,8 @@ function CheckIcon() {
  */
 /** Tips and help from a step-by-step plan (lib/plans.ts), if the goal came from one. */
 export interface GoalGuide {
+  /** For routines: the steps to follow each time, in order. */
+  routine: string[] | null;
   tips: string[];
   resources: { name: string; detail: string }[];
   caution: string | null;
@@ -419,6 +421,16 @@ export function GoalDetailClient({
             Guide
           </h2>
           {guide.caution && <p className={styles.caution}>{guide.caution}</p>}
+          {guide.routine && (
+            <>
+              <h3 className={styles.guideHeading}>The routine, every day</h3>
+              <ol className={styles.guideList}>
+                {guide.routine.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </>
+          )}
           <h3 className={styles.guideHeading}>Tips</h3>
           <ul className={styles.guideList}>
             {guide.tips.map((tip) => (

@@ -50,6 +50,7 @@ describe("PLANS", () => {
         for (const t of m.tasks) expect(t.length, `${id}: ${t}`).toBeLessThanOrEqual(100);
       }
       expect(plan.tips.length, id).toBeGreaterThanOrEqual(2);
+      for (const step of plan.routine ?? []) expect(step.length, `${id}: ${step}`).toBeGreaterThan(0);
       expect(plan.resources.length, id).toBeGreaterThanOrEqual(1);
     }
   });
@@ -79,6 +80,9 @@ describe("matchPlans", () => {
     expect(matchPlans("Read the Bible in a year")).toContain("bible-in-a-year");
     expect(matchPlans("learn to swim")).toContain("swim");
     expect(matchPlans("improve my typing speed")).toContain("typing");
+    expect(matchPlans("Build a morning routine")).toContain("morning-routine");
+    expect(matchPlans("a better night routine")).toContain("evening-routine");
+    expect(matchPlans("wind down before bed")).toContain("evening-routine");
   });
 
   it("doesn't confuse similar numbers or match nothing-goals", () => {

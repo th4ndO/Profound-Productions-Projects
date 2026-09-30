@@ -1302,12 +1302,7 @@ export const IDEAS: Idea[] = [
     title: "Follow a morning routine for 30 days",
     why: "A good first hour sets up the whole day.",
     reward: "Breakfast out on day 30",
-    ms: [
-      "Write your routine, e.g. pray, drink water, stretch, make your bed",
-      "7 mornings",
-      "21 mornings",
-      "30 mornings",
-    ],
+    ms: planMilestoneTitles("morning-routine"),
   },
   {
     id: "evening-routine",
@@ -1317,11 +1312,6 @@ export const IDEAS: Idea[] = [
     title: "Follow a wind-down routine every night for 30 days",
     why: "The same steps each night tell your body it's time to sleep.",
     reward: "A cosy movie night in your pyjamas (earlier in the evening)",
-    ms: [
-      "Write your routine, e.g. screens off 30 minutes before bed, brush and floss, three good things, pray",
-      "7 nights",
-      "21 nights",
-      "30 nights",
-    ],
+    ms: planMilestoneTitles("evening-routine"),
   },
 ];

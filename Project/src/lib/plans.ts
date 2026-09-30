@@ -23,6 +23,8 @@ export interface Plan {
   /** Matched against a goal title the user types (lower-cased). */
   match: RegExp[];
   milestones: PlanMilestone[];
+  /** For routines: the steps to do every time, in order (shown on the goal page). */
+  routine?: string[];
   tips: string[];
   resources: PlanResource[];
   caution?: string;
@@ -493,6 +495,124 @@ export const PLANS: Record<string, Plan> = {
     ],
     caution:
       "Always learn in a pool with a lifeguard or instructor present, and never swim alone in open water.",
+  },
+
+  "morning-routine": {
+    match: [/morning\s?routine/, /\bmorning\b.*\broutine/, /\broutine\b.*\bmorning/, /wake up (early|earlier)/],
+    milestones: [
+      {
+        title: "Set up your morning routine",
+        tasks: [
+          "Choose a wake-up time you can keep every day, weekends too",
+          "Put your alarm across the room and your phone on charge outside the bedroom",
+          "Lay out your Bible and a glass of water the night before",
+          "Add a 30-minute \"Morning routine\" task at wake-up time in Plan my day",
+        ],
+      },
+      {
+        title: "7 mornings in a row",
+        tasks: ["Follow the routine for 7 mornings", "Notice which step is hardest and make it easier"],
+      },
+      {
+        title: "21 mornings",
+        tasks: ["Drop a step that isn't helping, or add one that would", "Keep going on weekends"],
+      },
+      {
+        title: "30 mornings: it happens without thinking",
+        tasks: ["Look back at how your mornings have changed", "Enjoy your reward"],
+      },
+    ],
+    routine: [
+      "Get up at the same time, without snoozing",
+      "Drink a glass of water",
+      "Let daylight in: open the curtains or step outside",
+      "10 minutes with God: pray, then read a chapter of the Bible",
+      "5 minutes of stretching or a short walk",
+      "Wash, get dressed and make your bed",
+      "Eat breakfast",
+      "Look at today's plan in Plan my day before opening social media",
+    ],
+    tips: [
+      "Start small: begin with three steps, and add one more each week.",
+      "Same order, same time, every day. The routine gets easier the more automatic it is.",
+      "Your morning starts the night before: go to bed on time.",
+      "Keep your phone away for the first 30 minutes.",
+      "Missed a morning? Start again tomorrow. Try never to miss twice in a row.",
+    ],
+    resources: [
+      {
+        name: "Plan my day (in Groundwork)",
+        detail: "Add a 30-minute \"Morning routine\" task with a set time, so the rest of your day plans around it.",
+      },
+      {
+        name: "YouVersion Bible App",
+        detail: "Free daily verses and reading plans for your time with God. Search \"Bible App\" by YouVersion.",
+      },
+      {
+        name: "A simple alarm clock",
+        detail: "Lets your phone charge outside the bedroom, so it isn't the first thing you reach for.",
+      },
+    ],
+  },
+
+  "evening-routine": {
+    match: [
+      /evening\s?routine/,
+      /night(ly)?\s?routine/,
+      /bed\s?time\s?routine/,
+      /wind[\s-]?down/,
+      /\bevening\b.*\broutine/,
+      /\broutine\b.*\b(evening|night)/,
+    ],
+    milestones: [
+      {
+        title: "Set up your evening routine",
+        tasks: [
+          "Choose a lights-out time about 8 hours before you wake",
+          "Set a phone reminder 45 minutes before lights out",
+          "Pick a charging spot for your phone outside the bedroom",
+          "Put a notebook and your Bible by the bed",
+        ],
+      },
+      {
+        title: "7 nights in a row",
+        tasks: ["Follow the routine for 7 nights", "Notice which step you skip, and make it easier"],
+      },
+      {
+        title: "21 nights",
+        tasks: ["Drop a step that isn't helping, or add one that would", "Keep the same lights-out time on weekends"],
+      },
+      {
+        title: "30 nights: winding down happens without thinking",
+        tasks: ["Notice how you sleep and feel in the mornings", "Enjoy your reward"],
+      },
+    ],
+    routine: [
+      "10-minute tidy, and lay out tomorrow's clothes",
+      "Look at tomorrow in Plan my day",
+      "Screens off, 30 minutes before bed; phone charges outside the bedroom",
+      "Wash, brush and floss",
+      "Write down three good things from today",
+      "Pray: thank God for today and give Him tomorrow",
+      "Read something calm for a few minutes",
+      "Lights out at the same time every night",
+    ],
+    tips: [
+      "Dim the lights about an hour before bed.",
+      "No caffeine after about 2 pm, and finish heavy meals 2 to 3 hours before bed.",
+      "Can't sleep after 20 minutes? Get up, read something calm, and go back when sleepy.",
+      "Start small: three steps first, then add more.",
+    ],
+    resources: [
+      {
+        name: "Plan my day (in Groundwork)",
+        detail: "Add a 45-minute \"Evening routine\" task with a set time before bed, and plan tomorrow there.",
+      },
+      {
+        name: "NHS Every Mind Matters",
+        detail: "Free, practical sleep tips. Search \"Every Mind Matters sleep\".",
+      },
+    ],
   },
 };
 

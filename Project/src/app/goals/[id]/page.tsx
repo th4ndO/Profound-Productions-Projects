@@ -86,7 +86,7 @@ export default async function GoalDetailPage({
   const plan = planFor(row.idea_id);
   // Only plain data crosses to the client component (plans also hold RegExps).
   const guide: GoalGuide | null = plan
-    ? { tips: plan.tips, resources: plan.resources, caution: plan.caution ?? null }
+    ? { routine: plan.routine ?? null, tips: plan.tips, resources: plan.resources, caution: plan.caution ?? null }
     : null;
 
   return (

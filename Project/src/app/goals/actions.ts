@@ -8,6 +8,7 @@ import { pushedDueDate } from "@/lib/due";
 import { TIMEFRAME_DAYS, TIMEFRAMES, type Timeframe } from "@/lib/timeframe";
 import { THEMES, type Theme } from "@/components/visuals/GoalVisual";
 import { IDEAS } from "@/lib/ideas";
+import { planFor } from "@/lib/plans";
 
 /**
  * Server Actions backing the goal detail / new-goal screens. Every
@@ -161,10 +162,26 @@ export async function adoptIdea(ideaId: string): Promise<void> {
   }
   const goalId = (goal as { id: string }).id;
 
-  const { error: msError } = await supabase.from("milestones").insert(
-    idea.ms.map((title, i) => ({ goal_id: goalId, title, position: i })),
-  );
+  // A step-by-step plan (lib/plans.ts) brings its tasks too; other ideas
+  // bring milestone titles only.
+  const plan = planFor(idea.id);
+  const { data: milestoneRows, error: msError } = await supabase
+    .from("milestones")
+    .insert(idea.ms.map((title, i) => ({ goal_id: goalId, title, position: i })))
+    .select("id, position");
   if (msError) throw new Error(msError.message);
+
+  if (plan) {
+    const idByPosition = new Map(
+      ((milestoneRows ?? []) as { id: string; position: number }[]).map((m) => [m.position, m.id]),
+    );
+    const taskRows = plan.milestones.flatMap((m, mi) =>
+      m.tasks.map((title, ti) => ({ milestone_id: idByPosition.get(mi), title, position: ti })),
+    );
+    if (taskRows.some((t) => !t.milestone_id)) throw new Error("Could not add the plan's steps.");
+    const { error: taskError } = await supabase.from("tasks").insert(taskRows);
+    if (taskError) throw new Error(taskError.message);
+  }
 
   revalidatePath("/");
   revalidatePath("/ideas");

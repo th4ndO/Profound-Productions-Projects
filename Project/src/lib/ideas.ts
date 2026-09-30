@@ -1,5 +1,6 @@
 import type { Theme } from "@/components/visuals/GoalVisual";
 import type { Timeframe } from "@/lib/timeframe";
+import { planMilestoneTitles } from "./plans";
 
 /**
  * Idea categories, in the order the filter chips show them. Only the id is
@@ -194,7 +195,7 @@ export const IDEAS: Idea[] = [
     title: "Touch type at 60+ words per minute",
     why: "You type all day. This pays off every single working hour for the rest of your life.",
     reward: "A full day with no work-related tasks, plus your favourite takeaway",
-    ms: ["Home row without looking", "30 wpm", "45 wpm", "60 wpm at 95% accuracy"],
+    ms: planMilestoneTitles("typing"),
   },
   {
     id: "lang",
@@ -204,13 +205,7 @@ export const IDEAS: Idea[] = [
     title: "Hold a 2-minute conversation in a South African language you don't speak yet",
     why: "People light up when you make the effort in their language.",
     reward: "Watch a film or series in that language with your favourite takeaway",
-    ms: [
-      "Pick the language and a speaker to practise with",
-      "Greetings and introductions",
-      "100 everyday phrases",
-      "First 30-second conversation",
-      "A 2-minute conversation",
-    ],
+    ms: planMilestoneTitles("lang"),
   },
   {
     id: "pullups",
@@ -220,7 +215,7 @@ export const IDEAS: Idea[] = [
     title: "Get to 5 strict pull-ups",
     why: "One of the best measures of real, usable strength.",
     reward: "A cheat meal of your choice, zero guilt",
-    ms: ["30-second dead hang", "Slow negatives, 3 sets", "First strict pull-up", "3 in a row", "5 in a row"],
+    ms: planMilestoneTitles("pullups"),
   },
   {
     id: "song",
@@ -255,6 +250,16 @@ export const IDEAS: Idea[] = [
     ],
   },
   {
+    id: "run-10k",
+    tf: "quarter",
+    theme: "strength",
+    cat: "fitness",
+    title: "Run 10 km without stopping",
+    why: "From the couch to 10 km in about 13 weeks is realistic when you build up slowly and rest between runs.",
+    reward: "New running socks and a guilt-free takeaway feast (under R200)",
+    ms: planMilestoneTitles("run-10k"),
+  },
+  {
     id: "parkrun",
     tf: "quarter",
     theme: "strength",
@@ -262,13 +267,7 @@ export const IDEAS: Idea[] = [
     title: "Run a parkrun 5 km without walking",
     why: "Free, every Saturday morning, and surprisingly social.",
     reward: "A big post-run breakfast, then a whole lazy day on the couch",
-    ms: [
-      "Register and print your barcode",
-      "Walk your first parkrun",
-      "Run 1 km without stopping",
-      "Run 3 km without stopping",
-      "Run the full 5 km",
-    ],
+    ms: planMilestoneTitles("parkrun"),
   },
   {
     id: "chess",
@@ -314,14 +313,7 @@ export const IDEAS: Idea[] = [
     title: "Build a one-month emergency fund",
     why: "Having a buffer changes how you handle every surprise.",
     reward: "A picnic in your favourite park, paid for from outside the fund",
-    ms: [
-      "Work out one month of essential costs",
-      "Open a separate savings pocket",
-      "25% saved",
-      "50% saved",
-      "75% saved",
-      "100% saved",
-    ],
+    ms: planMilestoneTitles("fund"),
   },
   {
     id: "tugela",
@@ -356,7 +348,7 @@ export const IDEAS: Idea[] = [
     title: "Finish a 21 km half marathon",
     why: "The step after parkrun. Crossing that line stays with you.",
     reward: "A full rest day, a massive meal, and your medal photo on the wall",
-    ms: ["Run 5 km", "Run 10 km", "Enter a race", "Run 16 km in training", "Finish the half marathon"],
+    ms: planMilestoneTitles("half"),
   },
   {
     id: "books",
@@ -452,13 +444,7 @@ export const IDEAS: Idea[] = [
     title: "Sleep 7+ hours on a fixed schedule for 30 days",
     why: "Enough sleep, at the same time every day, improves mood, focus, appetite and long-term health more than almost any other habit.",
     reward: "Breakfast in bed at your usual wake-up time, then a lazy morning",
-    ms: [
-      "Pick one wake-up time for all 7 days, weekends too",
-      "Set a bedtime 7½ hours before it",
-      "Screens off 30 minutes before bed",
-      "10 nights on schedule",
-      "25 of 30 nights on schedule",
-    ],
+    ms: planMilestoneTitles("sleep-7"),
     evidence:
       "American Academy of Sleep Medicine: adults need 7+ hours regularly; a regular sleep-wake schedule is part of healthy sleep.",
   },
@@ -807,7 +793,7 @@ export const IDEAS: Idea[] = [
     title: "Learn to swim 50 metres without stopping",
     why: "Drowning is a leading cause of accidental death worldwide. Swimming is a skill that can save your life.",
     reward: "A beach or dam day with a picnic",
-    ms: ["Book lessons or a coach", "Float and breathe comfortably", "Swim 10 m", "Swim 25 m", "Swim 50 m non-stop"],
+    ms: planMilestoneTitles("swim"),
     evidence: "WHO: drowning is among the leading causes of unintentional injury death; basic swimming skills reduce the risk.",
   },
   {
@@ -843,13 +829,7 @@ export const IDEAS: Idea[] = [
     title: "Read the whole Bible in a year",
     why: "\"All Scripture is God-breathed\" (2 Timothy 3:16). Reading all of it, not just favourite passages, shows you the whole story of God.",
     reward: "A day off to celebrate with a feast, and a new devotional (under R200)",
-    ms: [
-      "Choose a one-year reading plan",
-      "Finish the Law (Genesis to Deuteronomy)",
-      "Finish the Old Testament",
-      "Finish the Gospels and Acts",
-      "Finish Revelation",
-    ],
+    ms: planMilestoneTitles("bible-in-a-year"),
   },
   {
     id: "gospel-of-john",

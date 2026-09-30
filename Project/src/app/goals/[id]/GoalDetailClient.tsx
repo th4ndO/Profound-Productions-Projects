@@ -50,12 +50,21 @@ function CheckIcon() {
  * Action — rolling the local state back and showing an error if that
  * write fails.
  */
+/** Tips and help from a step-by-step plan (lib/plans.ts), if the goal came from one. */
+export interface GoalGuide {
+  tips: string[];
+  resources: { name: string; detail: string }[];
+  caution: string | null;
+}
+
 export function GoalDetailClient({
   goal: initialGoal,
   reminderRule,
+  guide,
 }: {
   goal: GoalDetail;
   reminderRule: ReminderRule | null;
+  guide: GoalGuide | null;
 }) {
   const router = useRouter();
   const [goal, setGoal] = useState(initialGoal);
@@ -402,6 +411,29 @@ export function GoalDetailClient({
         <p className={styles.error} role="alert">
           {error}
         </p>
+      )}
+
+      {guide && (
+        <section className={styles.guide} aria-labelledby="guide-heading">
+          <h2 id="guide-heading" className={styles.sectionLabel}>
+            Guide
+          </h2>
+          {guide.caution && <p className={styles.caution}>{guide.caution}</p>}
+          <h3 className={styles.guideHeading}>Tips</h3>
+          <ul className={styles.guideList}>
+            {guide.tips.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+          <h3 className={styles.guideHeading}>Where to find help</h3>
+          <ul className={styles.guideList}>
+            {guide.resources.map((r) => (
+              <li key={r.name}>
+                <strong>{r.name}</strong>: {r.detail}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <div className={styles.dangerZone}>

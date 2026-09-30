@@ -309,3 +309,34 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+.guide {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 4px 16px 14px;
+  margin-top: 22px;
+}
+
+.guideHeading {
+  font: 700 0.95rem var(--display);
+  margin: 14px 0 6px;
+}
+
+.guideList {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.caution {
+  border-left: 4px solid #c2413b;
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}

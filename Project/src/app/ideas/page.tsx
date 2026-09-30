@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoalTabs } from "@/components/GoalTabs";
 import { GoalVisual } from "@/components/visuals/GoalVisual";
 import { CATEGORY_LABELS, IDEAS, isCategory, type Category } from "@/lib/ideas";
+import { planFor } from "@/lib/plans";
 import { IdeaFilters } from "./IdeaFilters";
 import { ideasHref } from "./href";
 import { TIMEFRAMES, TIMEFRAME_LABELS, TIMEFRAME_SUB, type Timeframe } from "@/lib/timeframe";
@@ -93,6 +94,7 @@ export default async function IdeasPage({
                       <div>
                         <h3>{idea.title}</h3>
                         <span className={styles.cat}>{CATEGORY_LABELS[idea.cat]}</span>
+                        {planFor(idea.id) && <span className={styles.planBadge}>Step-by-step plan</span>}
                       </div>
                     </div>
                     <p>{idea.why}</p>

@@ -4,7 +4,8 @@ import type { Theme } from "@/components/visuals/GoalVisual";
 import type { Timeframe } from "@/lib/timeframe";
 import type { GoalDetail } from "@/lib/goal-types";
 import type { ReminderRule } from "@/lib/reminder-types";
-import { GoalDetailClient } from "./GoalDetailClient";
+import { planFor } from "@/lib/plans";
+import { GoalDetailClient, type GoalGuide } from "./GoalDetailClient";
 
 interface TaskRow {
   id: string;
@@ -21,6 +22,7 @@ interface MilestoneRow {
 }
 interface GoalRow {
   id: string;
+  idea_id: string | null;
   title: string;
   theme: Theme;
   timeframe: Timeframe | null;
@@ -65,7 +67,7 @@ export default async function GoalDetailPage({
   const { data, error } = await supabase
     .from("goals")
     .select(
-      "id, title, theme, timeframe, reward, due_at, completed_at, created_at, milestones(id, title, done, position, tasks(id, title, done, position))",
+      "id, idea_id, title, theme, timeframe, reward, due_at, completed_at, created_at, milestones(id, title, done, position, tasks(id, title, done, position))",
     )
     .eq("id", id)
     .single();
@@ -80,10 +82,18 @@ export default async function GoalDetailPage({
     .eq("goal_id", id)
     .maybeSingle();
 
+  const row = data as GoalRow;
+  const plan = planFor(row.idea_id);
+  // Only plain data crosses to the client component (plans also hold RegExps).
+  const guide: GoalGuide | null = plan
+    ? { routine: plan.routine ?? null, tips: plan.tips, resources: plan.resources, caution: plan.caution ?? null }
+    : null;
+
   return (
     <GoalDetailClient
-      goal={toGoalDetail(data as GoalRow)}
+      goal={toGoalDetail(row)}
       reminderRule={reminderRow as ReminderRule | null}
+      guide={guide}
     />
   );
 }

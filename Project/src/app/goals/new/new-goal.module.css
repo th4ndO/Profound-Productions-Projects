@@ -117,3 +117,31 @@ fieldset.field {
   display: inline-flex;
   align-items: center;
 }
+
+.planSuggest {
+  background: var(--soft);
+  border: 1.5px solid var(--accent);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.planSuggestTitle {
+  margin: 0;
+  font-weight: 700;
+}
+
+.planRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.planRow small {
+  display: block;
+  color: var(--muted);
+}

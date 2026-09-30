@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { GoalVisual, THEMES, THEME_NAMES, THEME_HINTS, type Theme } from "@/components/visuals/GoalVisual";
 import { TIMEFRAMES, TIMEFRAME_LABELS, DEFAULT_TIMEFRAME } from "@/lib/timeframe";
+import { IDEAS } from "@/lib/ideas";
+import { PLANS, matchPlans } from "@/lib/plans";
+import { adoptIdea } from "../actions";
 import styles from "./new-goal.module.css";
 
 /**
@@ -20,6 +23,10 @@ export function NewGoalForm({
   action: (formData: FormData) => void | Promise<void>;
 }) {
   const [theme, setTheme] = useState<Theme>("tree");
+  const [title, setTitle] = useState("");
+  const suggestions = matchPlans(title)
+    .map((id) => IDEAS.find((i) => i.id === id))
+    .filter((i) => i !== undefined);
 
   return (
     <form action={action} className={styles.form}>
@@ -33,8 +40,34 @@ export function NewGoalForm({
           required
           maxLength={80}
           placeholder="e.g. Run a half marathon"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
       </div>
+
+      {suggestions.length > 0 && (
+        <section className={styles.planSuggest} aria-live="polite">
+          <p className={styles.planSuggestTitle}>There&apos;s a step-by-step plan for this</p>
+          {suggestions.map((idea) => {
+            const plan = PLANS[idea.id];
+            const steps = plan.milestones.reduce((n, m) => n + m.tasks.length, 0);
+            return (
+              <div key={idea.id} className={styles.planRow}>
+                <div>
+                  <strong>{idea.title}</strong>
+                  <small>
+                    {plan.milestones.length} milestones, {steps} small steps, with tips and where to find
+                    help
+                  </small>
+                </div>
+                <button type="submit" formAction={adoptIdea.bind(null, idea.id)} formNoValidate className={styles.btn}>
+                  Use this plan
+                </button>
+              </div>
+            );
+          })}
+        </section>
+      )}
 
       <fieldset className={styles.field}>
         <legend>How should it grow?</legend>

@@ -16,6 +16,8 @@ One section per project; keep other projects' sections when editing. NameTrace a
 - Main real-world use: church roster exports, filtered by the "Leader at 1728" column.
 
 ### Decisions (and why) — newest first
+- Bricolage Grotesque now used for h1 on the site (PR #5, via next/font) — supersedes the earlier "site keeps system fonts" rule below for headings; body stays system fonts.
+- No glass/blur effects (2026-10-02) — brand kit says flat at rest.
 - Build-skip rule uses `VERCEL_GIT_PREVIOUS_SHA` (PR #29) — the old `HEAD^` fallback could skip a new branch's first preview. PR #42 made it exit only 0/1 after #29's version turned every NameTrace deploy into an ERROR (previous commit missing from the shallow clone).
 - Fixtures made deterministic with jszip pinned exactly (PR #29) — mammoth and docx already depend on jszip; regenerating fixtures no longer produces diffs.
 - `vite.config.ts` forces NODE_ENV=production for builds. The build environment had NODE_ENV=development, so React's dev build shipped.
@@ -177,13 +179,15 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 _Updated 2026-10-02._
 
 ### State
-- **WORKING, launch-ready MVP** at https://hustle-corner.vercel.app. Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys). Latest production deploy (PR #4, 2026-10-02) is READY and was checked live.
+- **WORKING, launch-ready MVP** at https://hustle-corner.vercel.app. Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys). Latest production deploy (PR #5, 2026-10-02) is READY and was checked live.
 - **DB fix applied (2026-10-02):** the owner ran the 48-check rolled-back proof in the SQL editor (48/48 passed), then applied `0015` (is_admin / is_verified_student recursion fix) and `0016` (`get_taken_slots`). Verified live: SECURITY DEFINER, `search_path=''`, grants correct. Production migration history has **no rows** for 0015/0016 (the SQL editor doesn't record them); `supabase/MIGRATIONS.md` in the app repo documents this.
 - **Merged:** PR #2 (squash `13a1d34`; recursion fix, return-to-page after login, friendly errors, wizard copy) and PR #3 (squash `55a22b1`, gatekeeper PASS; fail-soft booking widget, unit tests, migration map, new corner-bubble logo in header, favicon, apple icon and share image).
 - **PR #4 merged 2026-10-02** (squash `067c2bd`, gatekeeper PASS, owner approved "merge"; live-checked): sign-up asks for "Your name" (saved as `profiles.full_name` via signUp metadata); dashboard "Your account" section lets users change their name; names reject emails, links, phone numbers, markup and invisible/bidi characters (`lib/displayName.ts`); the leaked-password error on `/login` now explains the password matched a data leak (`lib/authMessage.ts`); phones get a burger menu (`components/MobileMenu.tsx`), desktop header unchanged. Unit tests pass (25).
+- **PR #5 merged 2026-10-02** (squash `783b22e`; gatekeeper PASS after one BLOCK for a mislabelled max-price aria-label, fixed; owner approved "deploy live"). Contents: full-screen phone menu with Heroicons icons (scroll lock, focus handling, closes on rotate to wide); design pass: homepage hero CTAs ("Browse services" primary, "List your business free" secondary), categories first with icons, how-it-works moved down, `EmptyState` on home/category/search, shared `components/Icon.tsx` (Heroicons 24 outline), category filter restyle, Bricolage Grotesque for h1 via next/font, form-field border token `field` #858c96 (3.4:1), `.text-link` underline style, sticky footer, reduced-motion support.
+- **Live checks after PR #5:** Lighthouse mobile perf 98 / a11y 100 / best-practices 100 / SEO 100, CLS 0; full-screen phone menu works; no page errors. Speed was already fine before (97–100 across repeat runs; one 74 was a cold start), so no perf work is needed.
 - **Live end-to-end walkthrough PASSED:** business sign-up via the guide's "List your business" lands in the wizard → submit → Pending review → availability added → admin approves → Live; logged-out seller page loads with WhatsApp button and "Log in to request"; customer signs up from the seller page and returns to it → books → Waiting for confirmation → booked slot disappears → review posts → business confirms → customer sees Confirmed. No browser errors. "Delete my account" also passed.
 - **Production is empty:** all qa-* test accounts deleted via the app's Delete my account flow; 0 sellers, 0 files. **One admin account exists** (the owner's, created 2026-10-02; OPEN f done). Ready for real sellers.
-- Brand identity kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). Palette, type, brand book, social/print guide, component previews, logo files. Known a11y gaps recorded there and still on the site: faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1. Its README "Before it ships" note about the old favicon is **outdated** now the logo shipped.
+- Brand identity kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). Palette, type, brand book, social/print guide, component previews, logo files. Known a11y gaps recorded there: faint counters 2.5:1 and amber star on white 2.2:1 are still on the site; input borders 1.5:1 is **fixed** (PR #5, 3.4:1). The kit's README is now stale in 3 places (see Follow-ups).
 
 ### Decisions (and why) — newest first
 - Owner accepted all 9 Supabase advisor WARNs (lints 0028/0029) on 2026-10-02: `is_admin`, `is_verified_student`, `get_taken_slots`, plus pre-existing `get_review_author_names` and `get_appointment_party_names` (intentional, narrow name-lookup functions).
@@ -207,8 +211,8 @@ _Updated 2026-10-02._
 Owner: log in, go to Dashboard → Your account and change your name (it still shows your email username). Then the site is ready for real sellers.
 
 ### Follow-ups (not blocking)
-- Fix the 3 contrast gaps listed in State.
-- Update the brand kit README's outdated favicon note.
+- Fix the 2 remaining contrast gaps (faint counters, amber star).
+- Update the brand kit artifact README: say Bricolage is **adopted** for h1 (not "proposed"), mark the input-border contrast gap fixed, and drop the outdated "Before it ships" favicon note.
 - Sellers get **no notification** when someone requests a booking (guide says so). Product gap.
 - Keep zod validation at least as strict as the DB check constraints (DB errors now show a generic message).
 - Offered, not done: profile-picture exports, first social posts, campus flyer from the kit.

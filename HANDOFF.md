@@ -1,4 +1,4 @@
-# Handoff — Profound-Productions-Projects monorepo — 2026-09-29
+# Handoff — Profound-Productions-Projects monorepo — 2026-10-02
 
 One section per project; keep other projects' sections when editing. NameTrace and Groundwork both deploy from `main` of this monorepo. Groundwork: nothing in flight (last merged: #40).
 
@@ -156,7 +156,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 - **[RED] network-growth:** SECURITY DEFINER functions `allowlist_empty()` and `is_allowed()` can be called by anon, and the first-sign-in admin bootstrap is still open. Owner: schema-keeper / security-auditor.
 - Coco Bliss: `sync_product_stock_from_variants()` can be called by anon.
 - Leaked-password protection is off on Coco Bliss and Profound Productions.
-- CampusHustle: possible fake seed sellers still on production; preview env vars missing.
+- CampusHustle: preview env vars missing. (Seed/test sellers: resolved 2026-10-02, production now has 0 sellers.)
 - Groundwork: make sure config values are always strings.
 
 ### Gotchas
@@ -177,57 +177,42 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 _Updated 2026-10-02._
 
 ### State
-- **LIVE SITE IS BROKEN until the owner applies a DB fix.** (a) Business owners can't submit the listing wizard; they see the raw error "stack depth limit exceeded". (b) Every seller page `/s/[slug]` shows "Something went wrong".
-  - Cause: `public.is_admin()` and `is_verified_student()` are SECURITY INVOKER and read `profiles`. The `profiles` SELECT policy calls `is_admin()`, so it recurses forever (Postgres 54001). This was dormant until `profiles` had rows (the first test accounts, 2026-09-28).
-- **The fix is ready in `th4ndO/Hustle-Corner-` PR #2** (branch `claude/loving-brown-e2pvis`, head `438141a`). gatekeeper-reviewer gave a conditional PASS on `438141a`. Not merged.
-  - `0015_fix_is_admin_recursion`: both helpers become SECURITY DEFINER with `search_path ''`, granted to anon, authenticated, and service_role.
-  - `0016_public_taken_slots`: a `get_taken_slots` RPC, so booked slots stop showing as open.
-  - App fixes: after login or sign-up you go back to the page you came from (`?next=`, `lib/safeNext.ts`); friendly error messages (`lib/errors.ts`); wizard copy (photo requirement, "e.g." placeholders, brand name in the consent text); the homepage says "New sellers" until reviews exist; guide steps updated.
-  - Proof script `supabase/tests/is_admin_recursion_rls.sql`: 48 checks, 48/48 on a local Postgres copy. Local Postgres does not reproduce the 54001 error itself, so the live-DB proof still matters.
-- **Logo + site follow-ups ready in `Hustle-Corner-` PR #3** (branch `claude/loving-brown-e2pvis-followups`, head `ceaa29c`), stacked on PR #2. Not merged; **needs a gatekeeper-reviewer run.** Contents: new header mark, `app/icon.svg` (replaces `icon.tsx`), `app/apple-icon.png`, share images; fail-soft booking widget; 18 unit tests (`npm test`); `supabase/MIGRATIONS.md`.
-- **Brand identity kit (2026-10-02):** Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner until shared). Built from the live site: navy palette (brand-600 `#14283e` primary) + greys, WhatsApp green, amber highlight `#f59e0b`, status colours with contrast notes; current system-font type scale; proposed display face Bricolage Grotesque (posters/social/logo only); brand book (positioning, name rules, voice with real copy, colour/type/layout/imagery/iconography/accessibility); social & print guide (sizes, layout rules, copy templates); 8 component previews; cover. Logo files (SVG + PNG: mark, reversed, one-colour, horizontal and stacked lockups) are in the kit's Logos group.
-  - Known a11y gaps recorded in the kit, **unchanged on the site**: ink-faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1.
-  - Offered, not done: profile-picture exports (640×640), first social posts, a campus flyer from the kit.
-- **Waiting on the owner (see Next step).** The owner has no Supabase access right now. A reminder is set for 2026-10-01 08:45 SAST.
-- Live changes this week, made with the owner's OK: Supabase Auth "Confirm email" is **OFF**. The built-in mailer only emails team members, at 2 an hour, so nobody else could sign up.
-- **Test data is on production:** accounts `qa-admin`, `qa-seller`, and `qa-lerato` (all `@example.test`). `qa-admin` was promoted to admin with one-off SQL. `qa-seller` owns the listing "QA Test Braids (automated test)" (approved, then HIDDEN in the admin UI; it has 1 availability rule). `qa-lerato` has no listing. **No real admin account exists.**
-- Still true from 2026-09-26: the how-it-works guide is live (PR #1, `566bf91`). Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys); the monorepo copy was deleted.
+- **WORKING, launch-ready MVP** at https://hustle-corner.vercel.app. Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys). Production deploy `dpl_AMKsGYZZ76rktUWieYsUAZiHXXsy` is READY.
+- **DB fix applied (2026-10-02):** the owner ran the 48-check rolled-back proof in the SQL editor (48/48 passed), then applied `0015` (is_admin / is_verified_student recursion fix) and `0016` (`get_taken_slots`). Verified live: SECURITY DEFINER, `search_path=''`, grants correct. Production migration history has **no rows** for 0015/0016 (the SQL editor doesn't record them); `supabase/MIGRATIONS.md` in the app repo documents this.
+- **Merged:** PR #2 (squash `13a1d34`; recursion fix, return-to-page after login, friendly errors, wizard copy) and PR #3 (squash `55a22b1`, gatekeeper PASS; fail-soft booking widget, unit tests, migration map, new corner-bubble logo in header, favicon, apple icon and share image).
+- **Live end-to-end walkthrough PASSED:** business sign-up via the guide's "List your business" lands in the wizard → submit → Pending review → availability added → admin approves → Live; logged-out seller page loads with WhatsApp button and "Log in to request"; customer signs up from the seller page and returns to it → books → Waiting for confirmation → booked slot disappears → review posts → business confirms → customer sees Confirmed. No browser errors. "Delete my account" also passed.
+- **Production is empty:** all qa-* test accounts deleted via the app's Delete my account flow; 0 users, 0 sellers, 0 files. **There is no admin account** (see OPEN f).
+- Brand identity kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). Palette, type, brand book, social/print guide, component previews, logo files. Known a11y gaps recorded there and still on the site: faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1. Its README "Before it ships" note about the old favicon is **outdated** now the logo shipped.
 
 ### Decisions (and why) — newest first
-- Logo is the "corner bubble" (owner's decision, 2026-10-02): chat bubble with three round corners and one sharp bottom-left corner (tail + "corner"), lowercase "bc" outlined from Bricolage 800, amber dot. The old navy "BC" square is kept only as reference.
-- Bricolage Grotesque is for posters/social/logo only; the site keeps its current system-font scale (kit proposal; site type unchanged).
-- Social/print copy must never promise "verified students" — signup marks everyone verified, so the claim would be false.
-- Accepted: no security-auditor review for PR #2 (owner's call; the agent wasn't available).
-- Accepted: 6 expected Supabase advisor WARNs after the apply (lint 0028/0029 on each of `is_admin`, `is_verified_student`, `get_taken_slots`). **Anything beyond those 6 after the apply means stop.**
-- Proof on the live DB inside a rolled-back transaction (owner's choice): Supabase branching isn't available (`create_branch` timed out twice; it probably needs a paid plan).
-- The owner runs the SQL, not an agent: the permission system blocks production schema changes from sessions, and `/permissions` isn't available in cloud sessions.
-- Turned email confirmation OFF instead of setting up custom SMTP (owner's choice), so sign-up works for everyone.
-- Signup marks everyone `is_verified=true` **on purpose** (owner's decision, commit `5e9fdd1`). So the verified gate does nothing. This is not a bug.
-- Privacy contact and legal review are parked. The owner said "get it working first".
+- Owner accepted all 9 Supabase advisor WARNs (lints 0028/0029) on 2026-10-02: `is_admin`, `is_verified_student`, `get_taken_slots`, plus pre-existing `get_review_author_names` and `get_appointment_party_names` (intentional, narrow name-lookup functions).
+- Owner accepted no security-auditor review for PRs #2/#3 (agent not available).
+- Proof on the live DB inside a rolled-back transaction — Supabase branching isn't available (`create_branch` timed out; probably needs a paid plan).
+- The owner runs production SQL, not an agent — the permission system blocks production schema changes from sessions.
+- Logo is the "corner bubble" (owner, 2026-10-02): chat bubble, one sharp bottom-left corner, lowercase "bc", amber dot. Bricolage Grotesque only for posters/social/logo; site keeps system fonts.
+- Social/print copy must never promise "verified students" — signup marks everyone `is_verified=true` on purpose (owner, commit `5e9fdd1`), so the claim would be false.
+- Email confirmation OFF instead of custom SMTP (owner) — the built-in mailer only reaches team members.
+- Privacy contact and legal review parked ("get it working first").
 
 ### OPEN decisions (need the owner)
-- **d. (Parked)** The privacy page needs a contact email and a named responsible party. `/terms` needs review by a lawyer or UP Student Affairs.
-- **e. Logged-in header check:** nobody has checked the Dashboard link or the wrapped account row with a real login on a phone. Recommended: do it during the post-fix E2E. Nothing is blocked.
-- **f. Owner's own admin account:** nobody real can moderate listings. Options: promote the owner's account with the same one-off SQL used for `qa-admin` (recommended), or leave `qa-admin` in place (not recommended, since it's test data). Deleting the test accounts is blocked until this is done.
+- **f. Owner's own admin account (do first):** sign up on the live site, then run the one-off SQL `update profiles set role='admin' where email=...` in the SQL editor. **Blocks approving any real seller.**
+- **g. Public display name defaults to the email username (privacy).** `handle_new_user` (migration 0005) sets the display name to the part of the email before the @, and users can't change it, so reviews publicly show it. Options: ask for a display name at sign-up and let users edit it (recommended; needs a migration via schema-keeper + app change) / leave as is. Not done; worth fixing before promoting the site.
+- **d. (Parked)** Privacy page needs a contact email and named responsible party; `/terms` needs review (lawyer or UP Student Affairs); custom domain not chosen.
+- **e. Logged-in header on a phone** (Dashboard link, wrapped account row) not checked with a real login. Nothing blocked.
 
 ### Next step
-The owner runs two scripts in the Supabase SQL Editor (project `ulbzuafadfxdymrtdzgy`), then replies "applied":
-1. **Step 1, the proof.** Expect "PROOF RESULT: 48 of 48 checks passed". It shows as a **red error box; that means success**. Nothing is saved.
-2. **Step 2, the apply.** The bodies of 0015 and 0016 in one transaction.
-
-Then: check the advisors (exactly the 6 WARNs above), run a post-fix E2E with the test accounts, merge PR #2 through the normal release gate, and delete the test accounts using each account's "Delete my account".
+Owner signs up at https://hustle-corner.vercel.app and promotes that account to admin with the one-off SQL (OPEN f). Then decide on the display-name fix (OPEN g).
 
 ### Follow-ups (not blocking)
-- Done in PR #3 (lands when it merges): fail-soft booking widget if `get_taken_slots` errors; test runner + 18 unit tests; `supabase/MIGRATIONS.md`.
-- Fix the 3 contrast gaps listed in State (counters, amber star, input borders).
-- DB check-constraint errors now show a generic message, so keep zod validation at least as strict as the DB constraints.
-- Reconcile the repo's migration names with production's migration history (check whether `supabase/MIGRATIONS.md` in PR #3 covers it).
+- Fix the 3 contrast gaps listed in State.
+- Update the brand kit README's outdated favicon note.
+- Sellers get **no notification** when someone requests a booking (guide says so). Product gap.
+- Keep zod validation at least as strict as the DB check constraints (DB errors now show a generic message).
+- Offered, not done: profile-picture exports, first social posts, campus flyer from the kit.
 
 ### Gotchas
-- **ORDER MATTERS: apply 0015 and 0016 BEFORE merging PR #2.** The new app calls `get_taken_slots`, so merging first crashes seller pages that have availability.
-- **Merge order:** owner applies the DB fix → merge PR #2 → retarget PR #3 to `main` → gatekeeper-reviewer → merge PR #3. PR #3 contains PR #2's commits, so merging it early ships PR #2's app before the DB fix and crashes seller pages.
-- Branches `claude/loving-brown-e2pvis` (PR #2) and `claude/loving-brown-e2pvis-followups` (PR #3) in `Hustle-Corner-` are **live**. Don't delete them.
-- A local `next build` needs `NODE_ENV=production`. The container sets `NODE_ENV=development`, which makes the build fail with "<Html> should not be imported outside of pages/_document".
-- Sellers get **no notification** when someone requests a booking. The guide tells users this. It's a product gap, not yet fixed.
-- The site stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
-- Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs. Test against a local prod build of the same commit instead.
+- **Watch Vercel runtime logs for `[getOpenSlots]`** (gatekeeper WARN): the booking widget is fail-soft and simply hides on error, so failures are silent to users.
+- 0015/0016 are applied but absent from production's migration history; check `supabase/MIGRATIONS.md` before any `supabase db push`.
+- A local `next build` needs `NODE_ENV=production` (the container sets `development`, which breaks the build).
+- Stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
+- Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs; test a local prod build of the same commit instead.

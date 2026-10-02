@@ -174,7 +174,7 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 
 ## CampusHustle, now branded "The Business Corner" (Supabase `ulbzuafadfxdymrtdzgy`, Vercel `hustle-corner`) — GREEN
 
-_Updated 2026-09-30._
+_Updated 2026-10-02._
 
 ### State
 - **LIVE SITE IS BROKEN until the owner applies a DB fix.** (a) Business owners can't submit the listing wizard; they see the raw error "stack depth limit exceeded". (b) Every seller page `/s/[slug]` shows "Something went wrong".
@@ -184,12 +184,19 @@ _Updated 2026-09-30._
   - `0016_public_taken_slots`: a `get_taken_slots` RPC, so booked slots stop showing as open.
   - App fixes: after login or sign-up you go back to the page you came from (`?next=`, `lib/safeNext.ts`); friendly error messages (`lib/errors.ts`); wizard copy (photo requirement, "e.g." placeholders, brand name in the consent text); the homepage says "New sellers" until reviews exist; guide steps updated.
   - Proof script `supabase/tests/is_admin_recursion_rls.sql`: 48 checks, 48/48 on a local Postgres copy. Local Postgres does not reproduce the 54001 error itself, so the live-DB proof still matters.
+- **Logo + site follow-ups ready in `Hustle-Corner-` PR #3** (branch `claude/loving-brown-e2pvis-followups`, head `ceaa29c`), stacked on PR #2. Not merged; **needs a gatekeeper-reviewer run.** Contents: new header mark, `app/icon.svg` (replaces `icon.tsx`), `app/apple-icon.png`, share images; fail-soft booking widget; 18 unit tests (`npm test`); `supabase/MIGRATIONS.md`.
+- **Brand identity kit (2026-10-02):** Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner until shared). Built from the live site: navy palette (brand-600 `#14283e` primary) + greys, WhatsApp green, amber highlight `#f59e0b`, status colours with contrast notes; current system-font type scale; proposed display face Bricolage Grotesque (posters/social/logo only); brand book (positioning, name rules, voice with real copy, colour/type/layout/imagery/iconography/accessibility); social & print guide (sizes, layout rules, copy templates); 8 component previews; cover. Logo files (SVG + PNG: mark, reversed, one-colour, horizontal and stacked lockups) are in the kit's Logos group.
+  - Known a11y gaps recorded in the kit, **unchanged on the site**: ink-faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1.
+  - Offered, not done: profile-picture exports (640×640), first social posts, a campus flyer from the kit.
 - **Waiting on the owner (see Next step).** The owner has no Supabase access right now. A reminder is set for 2026-10-01 08:45 SAST.
 - Live changes this week, made with the owner's OK: Supabase Auth "Confirm email" is **OFF**. The built-in mailer only emails team members, at 2 an hour, so nobody else could sign up.
 - **Test data is on production:** accounts `qa-admin`, `qa-seller`, and `qa-lerato` (all `@example.test`). `qa-admin` was promoted to admin with one-off SQL. `qa-seller` owns the listing "QA Test Braids (automated test)" (approved, then HIDDEN in the admin UI; it has 1 availability rule). `qa-lerato` has no listing. **No real admin account exists.**
 - Still true from 2026-09-26: the how-it-works guide is live (PR #1, `566bf91`). Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys); the monorepo copy was deleted.
 
 ### Decisions (and why) — newest first
+- Logo is the "corner bubble" (owner's decision, 2026-10-02): chat bubble with three round corners and one sharp bottom-left corner (tail + "corner"), lowercase "bc" outlined from Bricolage 800, amber dot. The old navy "BC" square is kept only as reference.
+- Bricolage Grotesque is for posters/social/logo only; the site keeps its current system-font scale (kit proposal; site type unchanged).
+- Social/print copy must never promise "verified students" — signup marks everyone verified, so the claim would be false.
 - Accepted: no security-auditor review for PR #2 (owner's call; the agent wasn't available).
 - Accepted: 6 expected Supabase advisor WARNs after the apply (lint 0028/0029 on each of `is_admin`, `is_verified_student`, `get_taken_slots`). **Anything beyond those 6 after the apply means stop.**
 - Proof on the live DB inside a rolled-back transaction (owner's choice): Supabase branching isn't available (`create_branch` timed out twice; it probably needs a paid plan).
@@ -211,14 +218,15 @@ The owner runs two scripts in the Supabase SQL Editor (project `ulbzuafadfxdymrt
 Then: check the advisors (exactly the 6 WARNs above), run a post-fix E2E with the test accounts, merge PR #2 through the normal release gate, and delete the test accounts using each account's "Delete my account".
 
 ### Follow-ups (not blocking)
-- `getOpenSlots` should degrade gracefully if the `get_taken_slots` RPC errors.
-- Add a test runner, starting with the `safeNext` tests.
+- Done in PR #3 (lands when it merges): fail-soft booking widget if `get_taken_slots` errors; test runner + 18 unit tests; `supabase/MIGRATIONS.md`.
+- Fix the 3 contrast gaps listed in State (counters, amber star, input borders).
 - DB check-constraint errors now show a generic message, so keep zod validation at least as strict as the DB constraints.
-- Reconcile the repo's migration names with production's migration history.
+- Reconcile the repo's migration names with production's migration history (check whether `supabase/MIGRATIONS.md` in PR #3 covers it).
 
 ### Gotchas
 - **ORDER MATTERS: apply 0015 and 0016 BEFORE merging PR #2.** The new app calls `get_taken_slots`, so merging first crashes seller pages that have availability.
-- Branch `claude/loving-brown-e2pvis` in `Hustle-Corner-` is **live again** as PR #2's branch. Don't delete it.
+- **Merge order:** owner applies the DB fix → merge PR #2 → retarget PR #3 to `main` → gatekeeper-reviewer → merge PR #3. PR #3 contains PR #2's commits, so merging it early ships PR #2's app before the DB fix and crashes seller pages.
+- Branches `claude/loving-brown-e2pvis` (PR #2) and `claude/loving-brown-e2pvis-followups` (PR #3) in `Hustle-Corner-` are **live**. Don't delete them.
 - A local `next build` needs `NODE_ENV=production`. The container sets `NODE_ENV=development`, which makes the build fail with "<Html> should not be imported outside of pages/_document".
 - Sellers get **no notification** when someone requests a booking. The guide tells users this. It's a product gap, not yet fixed.
 - The site stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.

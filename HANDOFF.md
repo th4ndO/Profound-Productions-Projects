@@ -181,7 +181,7 @@ _Updated 2026-10-02._
 - **DB fix applied (2026-10-02):** the owner ran the 48-check rolled-back proof in the SQL editor (48/48 passed), then applied `0015` (is_admin / is_verified_student recursion fix) and `0016` (`get_taken_slots`). Verified live: SECURITY DEFINER, `search_path=''`, grants correct. Production migration history has **no rows** for 0015/0016 (the SQL editor doesn't record them); `supabase/MIGRATIONS.md` in the app repo documents this.
 - **Merged:** PR #2 (squash `13a1d34`; recursion fix, return-to-page after login, friendly errors, wizard copy) and PR #3 (squash `55a22b1`, gatekeeper PASS; fail-soft booking widget, unit tests, migration map, new corner-bubble logo in header, favicon, apple icon and share image).
 - **Live end-to-end walkthrough PASSED:** business sign-up via the guide's "List your business" lands in the wizard → submit → Pending review → availability added → admin approves → Live; logged-out seller page loads with WhatsApp button and "Log in to request"; customer signs up from the seller page and returns to it → books → Waiting for confirmation → booked slot disappears → review posts → business confirms → customer sees Confirmed. No browser errors. "Delete my account" also passed.
-- **Production is empty:** all qa-* test accounts deleted via the app's Delete my account flow; 0 users, 0 sellers, 0 files. **There is no admin account** (see OPEN f).
+- **Production is empty:** all qa-* test accounts deleted via the app's Delete my account flow; 0 sellers, 0 files. **One admin account exists** (the owner's, created 2026-10-02; OPEN f done). Ready for real sellers.
 - Brand identity kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). Palette, type, brand book, social/print guide, component previews, logo files. Known a11y gaps recorded there and still on the site: faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1. Its README "Before it ships" note about the old favicon is **outdated** now the logo shipped.
 
 ### Decisions (and why) — newest first
@@ -195,13 +195,13 @@ _Updated 2026-10-02._
 - Privacy contact and legal review parked ("get it working first").
 
 ### OPEN decisions (need the owner)
-- **f. Owner's own admin account (do first):** sign up on the live site, then run the one-off SQL `update profiles set role='admin' where email=...` in the SQL editor. **Blocks approving any real seller.**
+- **f. DONE 2026-10-02 — owner's admin account.** Owner signed up with their own email; Claude promoted it to admin (role-protection trigger briefly disabled and re-enabled inside one transaction). Verified: 1 admin, trigger enabled.
 - **g. Public display name defaults to the email username (privacy).** `handle_new_user` (migration 0005) sets the display name to the part of the email before the @, and users can't change it, so reviews publicly show it. Options: ask for a display name at sign-up and let users edit it (recommended; needs a migration via schema-keeper + app change) / leave as is. Not done; worth fixing before promoting the site.
 - **d. (Parked)** Privacy page needs a contact email and named responsible party; `/terms` needs review (lawyer or UP Student Affairs); custom domain not chosen.
 - **e. Logged-in header on a phone** (Dashboard link, wrapped account row) not checked with a real login. Nothing blocked.
 
 ### Next step
-Owner signs up at https://hustle-corner.vercel.app and promotes that account to admin with the one-off SQL (OPEN f). Then decide on the display-name fix (OPEN g).
+Site is ready for real sellers. Recommended next work: decide and build OPEN g (ask for a display name at sign-up; migration via schema-keeper + app change), and reword the Supabase leaked-password error on `/login` ("Password is known to be weak...") so it doesn't look contradictory next to the green password ticks.
 
 ### Follow-ups (not blocking)
 - Fix the 3 contrast gaps listed in State.
@@ -214,5 +214,6 @@ Owner signs up at https://hustle-corner.vercel.app and promotes that account to 
 - **Watch Vercel runtime logs for `[getOpenSlots]`** (gatekeeper WARN): the booking widget is fail-soft and simply hides on error, so failures are silent to users.
 - 0015/0016 are applied but absent from production's migration history; check `supabase/MIGRATIONS.md` before any `supabase db push`.
 - A local `next build` needs `NODE_ENV=production` (the container sets `development`, which breaks the build).
+- **Promoting a future admin:** a plain `UPDATE profiles set role=...` fails with "Only an admin can change a profile's role." (profiles role-protection trigger). Either an existing admin does it, or disable the trigger, update, and re-enable it inside one transaction.
 - Stores sellers' WhatsApp numbers (personal data). Keep RLS on and don't print rows.
 - Headless Chromium in cloud sessions doesn't trust the proxy CA, so Playwright can't load Vercel preview URLs; test a local prod build of the same commit instead.

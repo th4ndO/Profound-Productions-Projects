@@ -177,9 +177,10 @@ health-triage wrote its brief to `/root/.claude/reports/health-2026-09-26.md` in
 _Updated 2026-10-02._
 
 ### State
-- **WORKING, launch-ready MVP** at https://hustle-corner.vercel.app. Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys). Production deploy `dpl_AMKsGYZZ76rktUWieYsUAZiHXXsy` is READY.
+- **WORKING, launch-ready MVP** at https://hustle-corner.vercel.app. Code lives only in `th4ndO/Hustle-Corner-` (`main` deploys). Latest production deploy (PR #4, 2026-10-02) is READY and was checked live.
 - **DB fix applied (2026-10-02):** the owner ran the 48-check rolled-back proof in the SQL editor (48/48 passed), then applied `0015` (is_admin / is_verified_student recursion fix) and `0016` (`get_taken_slots`). Verified live: SECURITY DEFINER, `search_path=''`, grants correct. Production migration history has **no rows** for 0015/0016 (the SQL editor doesn't record them); `supabase/MIGRATIONS.md` in the app repo documents this.
 - **Merged:** PR #2 (squash `13a1d34`; recursion fix, return-to-page after login, friendly errors, wizard copy) and PR #3 (squash `55a22b1`, gatekeeper PASS; fail-soft booking widget, unit tests, migration map, new corner-bubble logo in header, favicon, apple icon and share image).
+- **PR #4 merged 2026-10-02** (squash `067c2bd`, gatekeeper PASS, owner approved "merge"; live-checked): sign-up asks for "Your name" (saved as `profiles.full_name` via signUp metadata); dashboard "Your account" section lets users change their name; names reject emails, links, phone numbers, markup and invisible/bidi characters (`lib/displayName.ts`); the leaked-password error on `/login` now explains the password matched a data leak (`lib/authMessage.ts`); phones get a burger menu (`components/MobileMenu.tsx`), desktop header unchanged. Unit tests pass (25).
 - **Live end-to-end walkthrough PASSED:** business sign-up via the guide's "List your business" lands in the wizard → submit → Pending review → availability added → admin approves → Live; logged-out seller page loads with WhatsApp button and "Log in to request"; customer signs up from the seller page and returns to it → books → Waiting for confirmation → booked slot disappears → review posts → business confirms → customer sees Confirmed. No browser errors. "Delete my account" also passed.
 - **Production is empty:** all qa-* test accounts deleted via the app's Delete my account flow; 0 sellers, 0 files. **One admin account exists** (the owner's, created 2026-10-02; OPEN f done). Ready for real sellers.
 - Brand identity kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). Palette, type, brand book, social/print guide, component previews, logo files. Known a11y gaps recorded there and still on the site: faint counters 2.5:1, amber star on white 2.2:1, input borders 1.5:1. Its README "Before it ships" note about the old favicon is **outdated** now the logo shipped.
@@ -196,12 +197,14 @@ _Updated 2026-10-02._
 
 ### OPEN decisions (need the owner)
 - **f. DONE 2026-10-02 — owner's admin account.** Owner signed up with their own email; Claude promoted it to admin (role-protection trigger briefly disabled and re-enabled inside one transaction). Verified: 1 admin, trigger enabled.
-- **g. Public display name defaults to the email username (privacy).** `handle_new_user` (migration 0005) sets the display name to the part of the email before the @, and users can't change it, so reviews publicly show it. Options: ask for a display name at sign-up and let users edit it (recommended; needs a migration via schema-keeper + app change) / leave as is. Not done; worth fixing before promoting the site.
+- **g. DONE 2026-10-02 (PR #4) — display name.** Users now give a name at sign-up and can edit it. **Except:** the owner's own account still shows their email username until they change it on Dashboard → Your account (owner action).
+- **h. (Gatekeeper follow-up, not blocking) Name rules are app-only.** Options: add a CHECK constraint or trigger on `profiles.full_name` (length, no @) via schema-keeper (recommended) / leave app-only. Nothing blocked; without it, a direct API write could bypass the rules.
+- **i. (Gatekeeper follow-up, not blocking) No RLS test proving user A can't change user B's `full_name`.** Options: have qa-tester add one (recommended) / skip. Nothing blocked.
 - **d. (Parked)** Privacy page needs a contact email and named responsible party; `/terms` needs review (lawyer or UP Student Affairs); custom domain not chosen.
 - **e. Logged-in header on a phone** (Dashboard link, wrapped account row) not checked with a real login. Nothing blocked.
 
 ### Next step
-Site is ready for real sellers. Recommended next work: decide and build OPEN g (ask for a display name at sign-up; migration via schema-keeper + app change), and reword the Supabase leaked-password error on `/login` ("Password is known to be weak...") so it doesn't look contradictory next to the green password ticks.
+Owner: log in, go to Dashboard → Your account and change your name (it still shows your email username). Then the site is ready for real sellers.
 
 ### Follow-ups (not blocking)
 - Fix the 3 contrast gaps listed in State.

@@ -99,7 +99,7 @@ Special rules:
 | Live URL | https://hustle-corner.vercel.app |
 | Repo | GitHub `th4ndO/Hustle-Corner-` (`main`), which deploys. Not in the monorepo (stale `Hustle-Corner/` copy deleted 2026-09-26); local path [CONFIRM] |
 | Risk | **GREEN** |
-| Status | MVP live; how-it-works guide deployed 2026-09-26 (PR #1); Vercel Root Directory fixed 2026-09-26 |
+| Status | WORKING: launch-ready MVP (2026-10-02). DB fix 0015/0016 applied, PRs #2 and #3 merged, live E2E passed; owner admin account created; display names + mobile menu shipped 2026-10-02 (PR #4); design pass + full-screen menu shipped 2026-10-02 (PR #5); 32 categories + contrast fixes shipped 2026-10-02 (PR #6, migration 0017); category editing, Other description, insert-guard security fix, student-owned copy shipped 2026-10-02 (PR #8, migrations 0018/0019); edit-review flag, atomic categories, guard hardening shipped 2026-10-05 (PR #9/#10, migrations 0020/0021); ready for real sellers |
 
 Special rules:
 - Stores student sellers' contact details (WhatsApp numbers), so it's still personal data: keep RLS on and don't print rows.

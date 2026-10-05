@@ -16,8 +16,6 @@ One section per project; keep other projects' sections when editing. NameTrace a
 - Main real-world use: church roster exports, filtered by the "Leader at 1728" column.
 
 ### Decisions (and why) — newest first
-- Bricolage Grotesque now used for h1 on the site (PR #5, via next/font) — supersedes the earlier "site keeps system fonts" rule below for headings; body stays system fonts.
-- No glass/blur effects (2026-10-02) — brand kit says flat at rest.
 - Build-skip rule uses `VERCEL_GIT_PREVIOUS_SHA` (PR #29) — the old `HEAD^` fallback could skip a new branch's first preview. PR #42 made it exit only 0/1 after #29's version turned every NameTrace deploy into an ERROR (previous commit missing from the shallow clone).
 - Fixtures made deterministic with jszip pinned exactly (PR #29) — mammoth and docx already depend on jszip; regenerating fixtures no longer produces diffs.
 - `vite.config.ts` forces NODE_ENV=production for builds. The build environment had NODE_ENV=development, so React's dev build shipped.
@@ -186,12 +184,13 @@ _Updated 2026-10-05 (covers 2026-10-02 → 2026-10-05)._
 - **Proofs:** `supabase/tests/edit_review_and_guards.sql` 37/37 on production (rolled back, leaves nothing). Security advisors unchanged (same 9 accepted WARNs). Preview e2e passed: onboarding with Other → approve → bio edit flags → Mark reviewed clears → category change via RPC saved and re-flagged; test accounts deleted.
 - **Production is empty:** 1 user (owner, admin), 0 sellers, 0 files. Ready for real sellers.
 - Earlier (2026-10-02): PRs #2–#8 merged (recursion fix, display names, mobile menu, design pass, 32 categories + "Other" description, category editing, insert guards); migrations 0015–0019 applied; live e2e walkthrough and Lighthouse (98/100/100/100) passed. Reviews/ratings exist (1–5 + comment, admins can hide).
-- Brand kit: Design System artifact https://claude.ai/artifact/GCZQFgDrQszqcqcVbtyVLh (private to the owner). **Now fully synced:** wording updated to "student-owned businesses" (promise, sample lines, flyer copy, cover, type samples).
+- Brand kit: "The Business Corner" Design System artifact in the owner's claude.ai (private; find it in the artifact gallery). **Now fully synced:** wording updated to "student-owned businesses" (promise, sample lines, flyer copy, cover, type samples).
 
 ### Incident 2026-10-05 (~15 min, no real users affected; only the owner's account exists)
 After 0020, "Delete my account" failed for sellers (permission error 42501): Supabase's internal auth role couldn't execute `is_trusted_writer`/`is_admin` during the delete cascade. Claude applied hotfix 0021 at once (`is_trusted_writer` rewritten in plpgsql, EXECUTE granted to PUBLIC); deletion verified working; PR #10 then passed gatekeeper and merged. Cause: the local test DB lacked Supabase's internal roles; the proof now creates a throwaway internal-like role.
 
 ### Decisions (and why) — newest first
+- No glass/blur effects (2026-10-02): the brand kit says cards are flat at rest; owner's design-pass request was met within the brand.
 - 0021 applied to production before gate review — emergency fix of a regression that blocked account deletion. Owner accepted this as an emergency exception on 2026-10-05 ("ok").
 - Migrations with function bodies go through the Management API migrations endpoint — `apply_migration` times out on `$$` bodies; the API records history.
 - Privileged-column guards trust non-API roles (SQL editor, triggers) — so the owner can promote an admin with a plain UPDATE; website users are still checked.

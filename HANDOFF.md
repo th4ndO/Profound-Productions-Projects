@@ -207,14 +207,14 @@ After 0020, "Delete my account" failed for sellers (permission error 42501): Sup
 
 ### OPEN decisions (need the owner)
 - ~~**j. Acknowledge 0021 went to production before the gate review.**~~ DONE 2026-10-05: owner accepted it as an emergency exception.
-- **g. (partly open) Owner's display name** still shows their email username. Owner to choose a name on Dashboard → Your account. Nothing blocked.
+- ~~**g. Owner's display name**~~ DONE 2026-10-05: set to the owner's chosen first name at their request.
 - **h. (Gatekeeper follow-up) Name rules are app-only.** Options: CHECK constraint/trigger on `profiles.full_name` via schema-keeper (recommended) / leave app-only. Nothing blocked.
 - **i. (Gatekeeper follow-up) No RLS test proving user A can't change user B's `full_name`.** Options: qa-tester adds one (recommended) / skip. Nothing blocked.
 - **d. (Parked)** Privacy page needs a contact and named responsible party; `/terms` needs review; custom domain not chosen.
 - **e. Logged-in header on a phone** not checked with a real login. Nothing blocked.
 
 ### Next step
-Owner: log in → Dashboard → Your account and set your display name. The site is then ready for real sellers.
+Nothing is waiting on the owner. The site is ready for real sellers: share the link and approve listings from the Admin page.
 
 ### Follow-ups (not blocking)
 - Done 2026-10-05: post-approval re-review flag, atomic category update, `profiles.is_verified` insert guard, brand-kit hustle wording.

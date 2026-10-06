@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { gProg } from "@/lib/progress";
 import { GoalTabs } from "@/components/GoalTabs";
 import {
   addDays,
@@ -82,7 +83,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
       .select("id, title, minutes, fixed_start, kind, goal_id, done, position")
       .eq("day", day)
       .order("position"),
-    supabase.from("goals").select("id, title").is("completed_at", null).order("created_at"),
+    supabase.from("goals").select("id, title, milestones(done, tasks(done))").order("created_at"),
     supabase
       .from("day_tasks")
       .select("id", { count: "exact", head: true })
@@ -107,9 +108,14 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const plan = planDay({ dayStart, dayEnd, from, tasks });
 
   const plannedGoalIds = new Set(rows.filter((r) => r.goal_id).map((r) => r.goal_id));
-  const unplannedGoals = ((goalRows ?? []) as { id: string; title: string }[]).filter(
-    (g) => !plannedGoalIds.has(g.id),
-  );
+  // Finished goals (every milestone done) don't need more time, so they
+  // aren't offered. Worked out from progress, so goals finished before
+  // completed_at was recorded are covered too.
+  const unplannedGoals = (
+    (goalRows ?? []) as { id: string; title: string; milestones: { done: boolean; tasks: { done: boolean }[] }[] }[]
+  )
+    .filter((g) => !plannedGoalIds.has(g.id) && !(g.milestones.length > 0 && gProg(g) >= 1))
+    .map((g) => ({ id: g.id, title: g.title }));
   const doneTasks = tasks.filter((t) => t.done);
   const spare = plan.availableMinutes - plan.usedMinutes;
   const overflowMinutes = plan.overflow.reduce((sum, t) => sum + t.minutes, 0);

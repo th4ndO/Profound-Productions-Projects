@@ -1,9 +1,20 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 import { isValidDay, parseTime } from "@/lib/planner";
+import { nextStep, syncGoalCompletion, type StepMilestone } from "@/lib/goal-steps";
 
 export type PlanResult = { error?: string };
+
+/** After ticking a goal block: the goal's next unfinished step, offered to the user. */
+export interface StepOffer {
+  goalId: string;
+  goalTitle: string;
+  stepKind: "task" | "milestone";
+  stepId: string;
+  stepTitle: string;
+}
 
 const KINDS = ["must", "nice"] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -104,11 +115,81 @@ export async function addGoalBlocks(
   return {};
 }
 
-export async function setTaskDone(id: string, done: boolean): Promise<PlanResult> {
+export async function setTaskDone(id: string, done: boolean): Promise<PlanResult & { offer?: StepOffer }> {
   const { supabase, user } = await requireUser();
   if (typeof done !== "boolean") return { error: "Couldn't update that task." };
-  const { error } = await supabase.from("day_tasks").update({ done }).eq("id", id).eq("user_id", user.id);
+  const { data: row, error } = await supabase
+    .from("day_tasks")
+    .update({ done })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("kind, goal_id")
+    .maybeSingle();
   if (error) return { error: "Couldn't update that task." };
+
+  // Ticking time spent on a goal: offer to tick that goal's next step too.
+  // Best-effort: the tick itself already succeeded.
+  if (done && row?.kind === "goal" && row.goal_id) {
+    const { data: goal } = await supabase
+      .from("goals")
+      .select("id, title, milestones(id, title, done, position, tasks(id, title, done, position))")
+      .eq("id", row.goal_id)
+      .maybeSingle();
+    const step = goal ? nextStep((goal as { milestones: StepMilestone[] }).milestones) : null;
+    if (goal && step) {
+      return {
+        offer: {
+          goalId: goal.id as string,
+          goalTitle: goal.title as string,
+          stepKind: step.kind,
+          stepId: step.id,
+          stepTitle: step.title,
+        },
+      };
+    }
+  }
+  return {};
+}
+
+/** Ticks one step (a task, or a task-less milestone) of the caller's goal. */
+export async function tickGoalStep(goalId: string, stepKind: string, stepId: string): Promise<PlanResult> {
+  const { supabase } = await requireUser();
+  if (![goalId, stepId].every((v) => typeof v === "string" && UUID.test(v))) {
+    return { error: "Couldn't update that goal." };
+  }
+
+  if (stepKind === "task") {
+    // The task must belong to this goal (RLS already limits it to the caller's goals).
+    const { data: task } = await supabase
+      .from("tasks")
+      .select("id, milestones!inner(goal_id)")
+      .eq("id", stepId)
+      .eq("milestones.goal_id", goalId)
+      .maybeSingle();
+    if (!task) return { error: "Couldn't find that step." };
+    const { error } = await supabase
+      .from("tasks")
+      .update({ done: true, done_at: new Date().toISOString() })
+      .eq("id", stepId);
+    if (error) return { error: "Couldn't update that goal." };
+  } else if (stepKind === "milestone") {
+    const { error, count } = await supabase
+      .from("milestones")
+      .update({ done: true }, { count: "exact" })
+      .eq("id", stepId)
+      .eq("goal_id", goalId);
+    if (error || !count) return { error: "Couldn't update that goal." };
+  } else {
+    return { error: "Couldn't update that goal." };
+  }
+
+  try {
+    await syncGoalCompletion(supabase, goalId);
+  } catch {
+    return { error: "Ticked, but couldn't refresh the goal's progress." };
+  }
+  revalidatePath(`/goals/${goalId}`);
+  revalidatePath("/");
   return {};
 }
 

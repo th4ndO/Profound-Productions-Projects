@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { formatDuration, formatTime, type Block, type PlannerTask } from "@/lib/planner";
-import { moveTask, removeTask, setTaskDone } from "./actions";
+import { moveTask, removeTask, setTaskDone, tickGoalStep, type StepOffer } from "./actions";
 import styles from "./plan.module.css";
 
 const KIND_LABEL = { must: "Must do", nice: "Nice to do", goal: "Goal" } as const;
@@ -30,6 +30,9 @@ export function Timeline({
   const [pending, startTransition] = useTransition();
   // Ticks show straight away; the list re-sorts when the server confirms.
   const [ticked, setTicked] = useState<Record<string, boolean>>({});
+  // After ticking goal time: offer to tick that goal's next step as well.
+  const [offer, setOffer] = useState<StepOffer | null>(null);
+  const [offerDone, setOfferDone] = useState<string | null>(null);
 
   function toggle(task: PlannerTask, done: boolean) {
     setTicked((t) => ({ ...t, [task.id]: done }));
@@ -39,7 +42,11 @@ export function Timeline({
       if (result.error) {
         setTicked((t) => ({ ...t, [task.id]: !done }));
         setError(result.error);
-      } else router.refresh();
+      } else {
+        setOfferDone(null);
+        setOffer(result.offer ?? null);
+        router.refresh();
+      }
     });
   }
 
@@ -70,8 +77,41 @@ export function Timeline({
     );
   }
 
+  function acceptOffer(o: StepOffer) {
+    setError(null);
+    startTransition(async () => {
+      const result = await tickGoalStep(o.goalId, o.stepKind, o.stepId);
+      if (result.error) setError(result.error);
+      else {
+        setOffer(null);
+        setOfferDone(`Ticked "${o.stepTitle}" on ${o.goalTitle}.`);
+      }
+    });
+  }
+
   return (
     <>
+      {offer && (
+        <div className={styles.offer} role="status">
+          <p>
+            Nice work on <strong>{offer.goalTitle}</strong>. Did you also finish its next step:{" "}
+            <em>{offer.stepTitle}</em>?
+          </p>
+          <div className={styles.offerActions}>
+            <button type="button" className={styles.btn} disabled={pending} onClick={() => acceptOffer(offer)}>
+              Yes, tick it
+            </button>
+            <button type="button" className={styles.linkBtn} onClick={() => setOffer(null)}>
+              Not yet
+            </button>
+          </div>
+        </div>
+      )}
+      {offerDone && (
+        <p className={styles.offer} role="status">
+          {offerDone}
+        </p>
+      )}
       {error && (
         <p className={styles.error} role="alert">
           {error}

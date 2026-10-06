@@ -9,6 +9,7 @@ import { TIMEFRAME_DAYS, TIMEFRAMES, type Timeframe } from "@/lib/timeframe";
 import { THEMES, type Theme } from "@/components/visuals/GoalVisual";
 import { IDEAS } from "@/lib/ideas";
 import { planFor } from "@/lib/plans";
+import { syncGoalCompletion } from "@/lib/goal-steps";
 
 /**
  * Server Actions backing the goal detail / new-goal screens. Every
@@ -223,6 +224,7 @@ export async function toggleMilestone(goalId: string, milestoneId: string): Prom
     if (tErr) throw new Error(tErr.message);
   }
 
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
 }
@@ -248,6 +250,7 @@ export async function toggleTask(goalId: string, milestoneId: string, taskId: st
     if (mErr) throw new Error(mErr.message);
   }
 
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
 }
@@ -276,6 +279,7 @@ export async function addMilestone(
     .single();
   if (error || !data) throw new Error(error?.message ?? "Could not add that milestone.");
 
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
   return data as { id: string; title: string; done: boolean };
@@ -306,6 +310,7 @@ export async function addTask(
   const { error: mErr } = await supabase.from("milestones").update({ done: false }).eq("id", milestoneId);
   if (mErr) throw new Error(mErr.message);
 
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
   return data as { id: string; title: string; done: boolean };
@@ -319,6 +324,7 @@ export async function deleteMilestone(goalId: string, milestoneId: string): Prom
   const { supabase } = await requireUser();
   const { error } = await supabase.from("milestones").delete().eq("id", milestoneId);
   if (error) throw new Error(error.message);
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
 }
@@ -327,6 +333,7 @@ export async function deleteTask(goalId: string, taskId: string): Promise<void> 
   const { supabase } = await requireUser();
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);
   if (error) throw new Error(error.message);
+  await syncGoalCompletion(supabase, goalId);
   revalidatePath(`/goals/${goalId}`);
   revalidatePath("/");
 }

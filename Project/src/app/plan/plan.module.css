@@ -330,3 +330,22 @@
   color: #c2413b;
   margin: 0;
 }
+
+.offer {
+  background: var(--soft);
+  border: 1.5px solid var(--accent);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+}
+
+.offer p {
+  margin: 0 0 10px;
+}
+
+.offerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
